@@ -48,20 +48,7 @@ bool Application::init()
         return false;
     }
 
-    // initWindow
-    this->window = SDL_CreateWindow(
-        "Tactics Game",
-        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        800, 600,
-        SDL_WindowFlags::SDL_WINDOW_SHOWN |
-        SDL_WindowFlags::SDL_WINDOW_OPENGL |
-        SDL_WindowFlags::SDL_WINDOW_RESIZABLE
-    );
-    if (!this->window)
-    {
-        std::cerr << "Failed to initialize window" << std::endl;
-        return false;
-    }
+    initWindow(); // TODO: exception handling
 
     // initGL
     SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile::SDL_GL_CONTEXT_PROFILE_CORE);
@@ -88,9 +75,27 @@ bool Application::init()
     this->isRunning = true;
 
     SDL_GetWindowSize(this->window, &this->windowWidth, &this->windowHeight);
-    //glViewport(0, 0, this->windowWidth, this->windowHeight);
+    glViewport(0, 0, this->windowWidth, this->windowHeight);
 
     return true;
+}
+
+bool TacticsGame::Application::initWindow()
+{
+    // initWindow
+    this->window = SDL_CreateWindow(
+        "Tactics Game",
+        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        800, 600,
+        SDL_WindowFlags::SDL_WINDOW_SHOWN |
+        SDL_WindowFlags::SDL_WINDOW_OPENGL |
+        SDL_WindowFlags::SDL_WINDOW_RESIZABLE
+    );
+    if (!this->window)
+    {
+        std::cerr << "Failed to initialize window" << std::endl;
+        return false;
+    }
 }
 
 void Application::handleEvent(SDL_Event *event)
@@ -105,7 +110,7 @@ void Application::handleEvent(SDL_Event *event)
         {
         case SDL_WindowEventID::SDL_WINDOWEVENT_SIZE_CHANGED:
             SDL_GetWindowSize(this->window, &this->windowWidth, &this->windowHeight);
-            //glViewport(0, 0, this->windowWidth, this->windowHeight);
+            glViewport(0, 0, this->windowWidth, this->windowHeight);
             break;
         }
     }
@@ -117,8 +122,8 @@ void Application::update()
 
 void Application::render()
 {
-    //glClearColor(0.0, 0.0, 0.0, 1.0);
-    //glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     SDL_GL_SwapWindow(this->window);
 }
 
