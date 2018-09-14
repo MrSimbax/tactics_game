@@ -13,7 +13,7 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_WIN32_EXECUTABLE 1)
 endif()
 
-find_package(glfw3 CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
 
 SET(SOURCES_DIR "src")
 
@@ -21,16 +21,18 @@ SET(LIBS_DIR "src/libs")
 SET(LIBS_SOURCES_DIR "${LIBS_DIR}/src")
 SET(LIBS_INCLUDE_DIR "${LIBS_DIR}/include")
 
-add_library(GLAD "${LIBS_SOURCES_DIR}/glad.c")
+add_library(GLAD STATIC "${LIBS_SOURCES_DIR}/glad.c")
 target_include_directories(GLAD PRIVATE "${LIBS_INCLUDE_DIR}")
 
 set(SOURCE_FILES
+	"${SOURCES_DIR}/application/application.cpp"
 	"${SOURCES_DIR}/main.cpp"
 )
 
 set(LIBS
-	glfw
 	GLAD
+	SDL2::SDL2main
+	SDL2::SDL2-static
 )
 
 add_executable (mylearnopenglplayground ${SOURCE_FILES})
