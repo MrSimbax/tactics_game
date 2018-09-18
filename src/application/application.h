@@ -13,12 +13,12 @@ public:
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 
-    int execute(int argc, char *argv[]);
+    int execute(int argc, char* argv[]);
 
 private:
     bool init();
     bool initWindow();
-    void handleEvent(SDL_Event *event);
+    void handleEvent(SDL_Event* event);
     void update();
     void render();
     void cleanUp();

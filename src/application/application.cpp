@@ -48,7 +48,7 @@ bool Application::init()
         return false;
     }
 
-    initWindow(); // TODO: exception handling
+    initWindow();
 
     // initGL
     SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile::SDL_GL_CONTEXT_PROFILE_CORE);
@@ -96,9 +96,10 @@ bool TacticsGame::Application::initWindow()
         std::cerr << "Failed to initialize window" << std::endl;
         return false;
     }
+    return true;
 }
 
-void Application::handleEvent(SDL_Event *event)
+void Application::handleEvent(SDL_Event* event)
 {
     if (event->type == SDL_EventType::SDL_QUIT)
     {

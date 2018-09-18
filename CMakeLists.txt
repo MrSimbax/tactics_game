@@ -82,6 +82,7 @@ set(LIBS
 
 # Project files
 set(SOURCE_FILES
+	"${SOURCES_DIR}/logger/logger.cpp"
 	"${SOURCES_DIR}/application/application.cpp"
 	"${SOURCES_DIR}/main.cpp"
 )
