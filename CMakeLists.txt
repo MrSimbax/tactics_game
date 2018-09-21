@@ -6,7 +6,7 @@ project(mylearnopenglplayground)
 option(BUILD_STATIC "Creates a static build" ON)
 
 # C++11
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # Fixes error with SDLmain
 set(CMAKE_EXE_LINKER_FLAGS "/ENTRY:mainCRTStartup")
@@ -71,6 +71,8 @@ SET(LIBS_INCLUDE_DIR "${LIBS_DIR}/include")
 # Dependencies
 find_package(SDL2 CONFIG REQUIRED)
 
+find_library(PLOG NAMES plog REQUIRED)
+
 add_library(GLAD STATIC "${LIBS_SOURCES_DIR}/glad.c")
 target_include_directories(GLAD PRIVATE "${LIBS_INCLUDE_DIR}")
 
@@ -82,7 +84,8 @@ set(LIBS
 
 # Project files
 set(SOURCE_FILES
-	"${SOURCES_DIR}/logger/logger.cpp"
+	"${SOURCES_DIR}/services/services.cpp"
+	"${SOURCES_DIR}/graphics/sdl_window.cpp"
 	"${SOURCES_DIR}/application/application.cpp"
 	"${SOURCES_DIR}/main.cpp"
 )

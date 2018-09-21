@@ -1,5 +1,9 @@
 #pragma once
 
+#include "../graphics/window.h"
+
+#include <memory>
+
 #include <SDL2/SDL.h>
 
 namespace TacticsGame
@@ -17,7 +21,9 @@ public:
 
 private:
     bool init();
+    bool initLogger();
     bool initWindow();
+
     void handleEvent(SDL_Event* event);
     void update();
     void render();
@@ -25,12 +31,7 @@ private:
 
 private:
     bool isRunning;
-
-    SDL_Window *window;
-    SDL_GLContext context;
-
-    int windowWidth;
-    int windowHeight;
+    std::unique_ptr<Graphics::Window> window;
 };
 
 }  // namespace TacticsGame
