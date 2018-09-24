@@ -21,6 +21,7 @@ public:
 
 private:
     bool init();
+    bool initServices();
     bool initLogger();
     bool initWindow();
 

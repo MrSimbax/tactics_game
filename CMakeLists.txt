@@ -1,4 +1,5 @@
 ﻿cmake_minimum_required (VERSION 3.8)
+message("CMake version ${CMAKE_VERSION}")
 
 project(mylearnopenglplayground)
 
@@ -63,12 +64,16 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # Directories
-SET(SOURCES_DIR "src")
-SET(LIBS_DIR "src/libs")
+SET(SOURCES_DIR "${PROJECT_SOURCE_DIR}/src")
+SET(LIBS_DIR "${PROJECT_SOURCE_DIR}/src/libs")
 SET(LIBS_SOURCES_DIR "${LIBS_DIR}/src")
 SET(LIBS_INCLUDE_DIR "${LIBS_DIR}/include")
+SET(ASSETS_FOLDER "assets")
+SET(ASSETS_DIR "${PROJECT_SOURCE_DIR}/${ASSETS_FOLDER}")
 
 # Dependencies
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
 find_package(SDL2 CONFIG REQUIRED)
 
 find_library(PLOG NAMES plog REQUIRED)
@@ -82,10 +87,23 @@ set(LIBS
 	SDL2::SDL2-static
 )
 
+# Visual Leak Detector
+if(MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	find_package(VLD)
+	if(${VLD_FOUND})
+		set(LIBS ${LIBS} ${VLD_LIBRARIES})
+		set(LIBS_INCLUDE_DIR ${LIBS_INCLUDE_DIR} ${VLD_INCLUDE_DIRS})
+		add_definitions(-DVLD_FOUND)
+	endif()
+endif()
+
 # Project files
 set(SOURCE_FILES
+	"${SOURCES_DIR}/services/utils.cpp"
+	"${SOURCES_DIR}/services/resources/resources_manager_impl.cpp"
 	"${SOURCES_DIR}/services/services.cpp"
 	"${SOURCES_DIR}/graphics/sdl_window.cpp"
+	"${SOURCES_DIR}/graphics/graphics_object.cpp"
 	"${SOURCES_DIR}/application/application.cpp"
 	"${SOURCES_DIR}/main.cpp"
 )
@@ -93,3 +111,7 @@ set(SOURCE_FILES
 add_executable (mylearnopenglplayground ${SOURCE_FILES})
 target_link_libraries(mylearnopenglplayground PRIVATE ${LIBS})
 target_include_directories(mylearnopenglplayground PRIVATE ${LIBS_INCLUDE_DIR})
+
+add_custom_command(TARGET mylearnopenglplayground POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_DIR} $<TARGET_FILE_DIR:mylearnopenglplayground>/${ASSETS_FOLDER}
+)

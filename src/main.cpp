@@ -1,4 +1,8 @@
-﻿#include "application/application.h"
+﻿#ifdef VLD_FOUND
+#include <vld.h>
+#endif
+
+#include "application/application.h"
 
 int main(int argc, char *argv[])
 {

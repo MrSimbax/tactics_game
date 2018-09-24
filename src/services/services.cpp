@@ -1,22 +1,21 @@
-//#include "services.h"
-//
-//using namespace TacticsGame;
-//
-//Service::Logging::Logger* Services::logger = nullptr;
-//Service::Logging::NullLogger Services::nullLogger{};
-//
-//void Services::initialize()
-//{
-//    Services::logger = &Services::nullLogger;
-//}
-//
-//Service::Logging::Logger& Services::log()
-//{
-//    if (!Services::logger) Services::logger = &Services::nullLogger;
-//    return *Services::logger;
-//}
-//
-//void Services::provide(Service::Logging::Logger* logger)
-//{
-//    Services::logger = logger;
-//}
+#include "services.h"
+
+using namespace TacticsGame;
+
+std::unique_ptr<Service::Resources::ResourcesManager> Services::resourcesManager = nullptr;
+Service::Resources::NullResourcesManager Services::nullResourcesManager{};
+
+void Services::initialize()
+{
+}
+
+Service::Resources::ResourcesManager& Services::getResourcesManager()
+{
+    if (!Services::resourcesManager) return Services::nullResourcesManager;
+    return *Services::resourcesManager;
+}
+
+void Services::provide(std::unique_ptr<Service::Resources::ResourcesManager> resourcesManager)
+{
+    Services::resourcesManager = std::move(resourcesManager);
+}

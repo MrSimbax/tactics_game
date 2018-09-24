@@ -36,7 +36,7 @@ std::unique_ptr<SDLWindow> SDLWindow::create(const std::string& title, WindowSiz
     );
     if (!sdlWindow)
     {
-        LOG_ERROR << "Failed to create window: " << SDL_GetError();
+        LOG_FATAL << "Failed to create window: " << SDL_GetError();
         return nullptr;
     }
 
@@ -48,7 +48,7 @@ std::unique_ptr<SDLWindow> SDLWindow::create(const std::string& title, WindowSiz
     auto context = SDL_GL_CreateContext(sdlWindow);
     if (!context)
     {
-        LOG_ERROR << "Failed to initialize OpenGL context: " << SDL_GetError();
+        LOG_FATAL << "Failed to initialize OpenGL context: " << SDL_GetError();
         return nullptr;
     }
 
@@ -59,7 +59,7 @@ std::unique_ptr<SDLWindow> SDLWindow::create(const std::string& title, WindowSiz
 
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
     {
-        LOG_ERROR << "Failed to initialize GLAD";
+        LOG_FATAL << "Failed to initialize GLAD";
         return nullptr;
     }
 
@@ -73,7 +73,7 @@ bool Internal::initSDL()
     {
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         {
-            LOG_ERROR << "Failed to initialize SDL2: " << SDL_GetError();
+            LOG_FATAL << "Failed to initialize SDL2: " << SDL_GetError();
             return false;
         }
     }
