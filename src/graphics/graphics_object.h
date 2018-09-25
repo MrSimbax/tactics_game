@@ -9,13 +9,18 @@ namespace TacticsGame::Graphics
 class Object
 {
 public:
-    explicit Object(std::unique_ptr<std::vector<float>> vertices);
+    explicit Object(std::vector<float> vertices);
 
     const std::vector<float>& getVertices() const;
-    void setVertices(std::unique_ptr<std::vector<float>> vertices);
+    void setVertices(std::vector<float>&& vertices);
+
+    void render();
 
 private:
-    std::unique_ptr<std::vector<float>> vertices;
+    std::vector<float> vertices;
+
+    unsigned int vertexBufferObjectId;
+    unsigned int vertexArrayObjectId;
 };
 
 }

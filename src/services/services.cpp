@@ -7,6 +7,7 @@ Service::Resources::NullResourcesManager Services::nullResourcesManager{};
 
 void Services::initialize()
 {
+    // Here would be setting of every service to its null alernative but I dont know how to do that with unique_ptr
 }
 
 Service::Resources::ResourcesManager& Services::getResourcesManager()

@@ -2,6 +2,7 @@
 
 #include "../graphics/window.h"
 #include "../graphics/shader_program.h"
+#include "../graphics/graphics_object.h"
 
 #include <memory>
 
@@ -25,6 +26,7 @@ private:
     bool initServices();
     bool initLogger();
     bool initWindow();
+    bool initGraphics();
 
     void handleEvent(SDL_Event* event);
     void update();
@@ -36,6 +38,7 @@ private:
     std::unique_ptr<Graphics::Window> window;
 
     std::unique_ptr<Graphics::ShaderProgram> shaderProgram;
+    std::unique_ptr<Graphics::Object> triangle;
 };
 
 }  // namespace TacticsGame

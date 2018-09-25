@@ -3,8 +3,6 @@
 #include <array>
 #include <string>
 
-#include <glad/glad.h>
-
 namespace TacticsGame::Graphics
 {
 
@@ -18,7 +16,7 @@ public:
     void use() const;
 
 private:
-    unsigned int compileShader(const std::string& source, GLenum type);
+    unsigned int compileShader(const std::string& source, unsigned int type);
 
 private:
     unsigned int shaderProgramId;

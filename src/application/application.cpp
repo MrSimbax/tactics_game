@@ -19,7 +19,8 @@ using namespace TacticsGame;
 Application::Application() :
     isRunning{ false },
     window{ nullptr },
-    shaderProgram{ nullptr }
+    shaderProgram{ nullptr },
+    triangle{ nullptr }
 {
 }
 
@@ -54,35 +55,14 @@ bool Application::init()
     if (!this->initServices()) return false;
     if (!this->initLogger()) return false;
     if (!this->initWindow()) return false;
-
-    // init graphics
-    Graphics::Object triangle{ std::unique_ptr<std::vector<float>>{ new std::vector({
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
-    })} };
-
-    // buffer
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle.getVertices()), &triangle.getVertices().front(), GL_STATIC_DRAW);
-
-    this->shaderProgram.reset(new Graphics::ShaderProgram{
-        Services::getResourcesManager().getShaderSource("main.vert"),
-        Services::getResourcesManager().getShaderSource("main.frag")
-    });
-    if (!this->shaderProgram->compile())
-    {
-        return false;
-    }
+    if (!this->initGraphics()) return false;
 
     this->isRunning = true;
     LOG_INFO << "Application initialized successfully.";
     return true;
 }
 
-bool TacticsGame::Application::initServices()
+bool Application::initServices()
 {
     Services::initialize();
     Services::provide(std::make_unique<Service::Resources::ResourcesManagerImpl>("assets/"));
@@ -90,7 +70,7 @@ bool TacticsGame::Application::initServices()
     return true;
 }
 
-bool TacticsGame::Application::initLogger()
+bool Application::initLogger()
 {
     static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
     static plog::DebugOutputAppender<plog::TxtFormatter> debugOutputAppender;
@@ -99,7 +79,7 @@ bool TacticsGame::Application::initLogger()
     return true;
 }
 
-bool TacticsGame::Application::initWindow()
+bool Application::initWindow()
 {
     const std::string title = "Tactics Game";
 
@@ -113,6 +93,26 @@ bool TacticsGame::Application::initWindow()
     settings.vsync = false;
 
     return !!(this->window = Graphics::SDLWindow::create(title, size, settings));
+}
+
+bool Application::initGraphics()
+{
+    this->triangle.reset(new Graphics::Object{ {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f
+    } });
+
+    this->shaderProgram.reset(new Graphics::ShaderProgram{
+        Services::getResourcesManager().getShaderSource("main.vert"),
+        Services::getResourcesManager().getShaderSource("main.frag")
+    });
+    if (!this->shaderProgram->compile())
+    {
+        return false;
+    }
+
+    return true;
 }
 
 void Application::handleEvent(SDL_Event* event)
@@ -139,16 +139,8 @@ void Application::update()
 void Application::render()
 {
     this->window->clearScreen();
-
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    //glEnableVertexAttribArray(0);
-    //glUseProgram(shaderProgram);
-
     this->shaderProgram->use();
-
-
+    this->triangle->render();
     this->window->swapBuffers();
 }
 

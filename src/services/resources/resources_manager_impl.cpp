@@ -1,7 +1,5 @@
 #include "resources_manager_impl.h"
 
-#include "../utils.h"
-
 #include <array>
 #include <fstream>
 #include <memory>

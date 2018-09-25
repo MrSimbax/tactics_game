@@ -99,7 +99,8 @@ endif()
 
 # Project files
 set(SOURCE_FILES
-	"${SOURCES_DIR}/services/utils.cpp"
+	"${SOURCES_DIR}/misc/custom_log.cpp"
+	"${SOURCES_DIR}/misc/utils.cpp"
 	"${SOURCES_DIR}/services/resources/resources_manager_impl.cpp"
 	"${SOURCES_DIR}/services/services.cpp"
 	"${SOURCES_DIR}/graphics/sdl_window.cpp"

@@ -42,6 +42,7 @@ bool ShaderProgram::compile()
     glAttachShader(this->shaderProgramId, vertexShaderId);
     glAttachShader(this->shaderProgramId, fragmentShaderId);
     glLinkProgram(this->shaderProgramId);
+
     glGetProgramiv(this->shaderProgramId, GL_LINK_STATUS, &this->success);
     if (!this->success)
     {
@@ -74,7 +75,7 @@ void ShaderProgram::use() const
     }
 }
 
-unsigned int ShaderProgram::compileShader(const std::string& source, GLenum type)
+unsigned int ShaderProgram::compileShader(const std::string& source, unsigned int type)
 {
     unsigned int shaderId{ glCreateShader(type) };
     const char* sourceStr{ source.c_str() };
