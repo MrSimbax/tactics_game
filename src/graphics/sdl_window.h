@@ -18,8 +18,12 @@ public:
 
     WindowSize getCurrentSize() const override;
 
+    void clearScreen() override;
     void resize() override;
     void swapBuffers() override;
+
+    Color4f getClearColor() override;
+    void setClearColor(Color4f color) override;
 
 private:
     SDLWindow(SDL_Window *window, SDL_GLContext context, WindowSettings settings);
@@ -29,9 +33,10 @@ private:
 
     WindowSize size;
     WindowSettings settings;
+    Color4f clearColor;
 };
 
-namespace Internal
+namespace InternalSDLWindow
 {
 
 extern bool initSDL();

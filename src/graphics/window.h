@@ -1,5 +1,7 @@
 #pragma once
 
+#include "color.h"
+
 #include <memory>
 #include <string>
 
@@ -28,8 +30,12 @@ public:
 
     virtual WindowSize getCurrentSize() const = 0;
 
+    virtual void clearScreen() = 0;
     virtual void resize() = 0;
     virtual void swapBuffers() = 0;
+
+    virtual Color4f getClearColor() = 0;
+    virtual void setClearColor(Color4f color) = 0;
 
 protected:
     Window() {};

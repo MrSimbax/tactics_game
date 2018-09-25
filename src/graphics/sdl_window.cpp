@@ -9,7 +9,8 @@ SDLWindow::SDLWindow(SDL_Window *window, SDL_GLContext context, WindowSettings s
     window{ window },
     context{ context },
     size{},
-    settings{settings}
+    settings{settings},
+    clearColor{0.0f, 0.0f, 0.0f, 1.0f}
 {
     this->resize();
 }
@@ -23,7 +24,7 @@ SDLWindow::~SDLWindow()
 
 std::unique_ptr<SDLWindow> SDLWindow::create(const std::string& title, WindowSize size, WindowSettings settings)
 {
-    if (!Internal::initSDL()) return nullptr;
+    if (!InternalSDLWindow::initSDL()) return nullptr;
 
     auto sdlWindow = SDL_CreateWindow(
         title.c_str(),
@@ -67,7 +68,7 @@ std::unique_ptr<SDLWindow> SDLWindow::create(const std::string& title, WindowSiz
     return std::unique_ptr<SDLWindow>{ new SDLWindow(sdlWindow, context, settings) };
 }
 
-bool Internal::initSDL()
+bool InternalSDLWindow::initSDL()
 {
     if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0)
     {
@@ -90,6 +91,12 @@ WindowSize SDLWindow::getCurrentSize() const
     return this->size;
 }
 
+void SDLWindow::clearScreen()
+{
+    glClearColor(this->clearColor.r, this->clearColor.g, this->clearColor.b, this->clearColor.a);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void SDLWindow::resize()
 {
     SDL_GetWindowSize(this->window, &this->size.width, &this->size.height);
@@ -99,4 +106,14 @@ void SDLWindow::resize()
 void SDLWindow::swapBuffers()
 {
     SDL_GL_SwapWindow(this->window);
+}
+
+Color4f SDLWindow::getClearColor()
+{
+    return this->clearColor;
+}
+
+void SDLWindow::setClearColor(Color4f color)
+{
+    this->clearColor = color;
 }

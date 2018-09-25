@@ -18,7 +18,8 @@ using namespace TacticsGame;
 
 Application::Application() :
     isRunning{ false },
-    window{ nullptr }
+    window{ nullptr },
+    shaderProgram{ nullptr }
 {
 }
 
@@ -67,70 +68,14 @@ bool Application::init()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(triangle.getVertices()), &triangle.getVertices().front(), GL_STATIC_DRAW);
 
-    // vertex shader
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    std::string source = Services::getResourcesManager().getShaderSource("main.vert");
-    const char* sourceStr = source.c_str();
-    glShaderSource(vertexShader, 1, &sourceStr, nullptr);
-    glCompileShader(vertexShader);
-
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
+    this->shaderProgram.reset(new Graphics::ShaderProgram{
+        Services::getResourcesManager().getShaderSource("main.vert"),
+        Services::getResourcesManager().getShaderSource("main.frag")
+    });
+    if (!this->shaderProgram->compile())
     {
-        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        LOG_FATAL << "Vertex shader compilation failed: " << infoLog;
         return false;
     }
-
-    //// fragment shader
-    //std::ifstream shader2{ "assets/shaders/main.frag" };
-    //if (!shader2.is_open() || !shader2.good())
-    //{
-    //    LOG_FATAL << "Could not load fragment shader " << strerror(errno);
-    //    return false;
-    //}
-    //shader2.close();
-    //std::ostringstream ss2;
-    //ss2 << shader2.rdbuf();
-    //std::string shader2Str{ ss.str() };
-    //const char * shader2Src{ shader2Str.c_str() };
-
-    //unsigned int fragmentShader;
-    //fragmentShader = glCreateShader(GL_VERTEX_SHADER);
-    //glShaderSource(fragmentShader, 1, &shader2Src, nullptr);
-    //glCompileShader(fragmentShader);
-
-    //int  success2;
-    //char infoLog2[512];
-    //glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success2);
-    //if (!success2)
-    //{
-    //    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog2);
-    //    LOG_FATAL << "Fragment shader compilation failed: " << infoLog2;
-    //    return false;
-    //}
-
-    //// Program
-    //unsigned int shaderProgram;
-    //shaderProgram = glCreateProgram();
-    //glAttachShader(shaderProgram, vertexShader);
-    //glAttachShader(shaderProgram, fragmentShader);
-    //glLinkProgram(shaderProgram);
-    //glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    //if (!success)
-    //{
-    //    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    //    LOG_FATAL << "Shader program compilation failed: " << infoLog;
-    //    return false;
-    //}
-
-    //glUseProgram(shaderProgram);
-    //glDeleteShader(vertexShader);
-    //glDeleteShader(fragmentShader);
-
 
     this->isRunning = true;
     LOG_INFO << "Application initialized successfully.";
@@ -158,11 +103,11 @@ bool TacticsGame::Application::initWindow()
 {
     const std::string title = "Tactics Game";
 
-    Graphics::WindowSize size = {};
+    Graphics::WindowSize size{};
     size.width = 800;
     size.height = 600;
 
-    Graphics::WindowSettings settings = {};
+    Graphics::WindowSettings settings{};
     settings.fullscreen = false;
     settings.resizable = true;
     settings.vsync = false;
@@ -193,14 +138,17 @@ void Application::update()
 
 void Application::render()
 {
+    this->window->clearScreen();
+
     //glBindBuffer(GL_ARRAY_BUFFER, VBO);
     //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     //glEnableVertexAttribArray(0);
     //glUseProgram(shaderProgram);
 
-    glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    this->shaderProgram->use();
+
+
     this->window->swapBuffers();
 }
 

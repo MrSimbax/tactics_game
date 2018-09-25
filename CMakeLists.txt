@@ -104,6 +104,7 @@ set(SOURCE_FILES
 	"${SOURCES_DIR}/services/services.cpp"
 	"${SOURCES_DIR}/graphics/sdl_window.cpp"
 	"${SOURCES_DIR}/graphics/graphics_object.cpp"
+	"${SOURCES_DIR}/graphics/shader_program.cpp"
 	"${SOURCES_DIR}/application/application.cpp"
 	"${SOURCES_DIR}/main.cpp"
 )

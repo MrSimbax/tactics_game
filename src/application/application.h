@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../graphics/window.h"
+#include "../graphics/shader_program.h"
 
 #include <memory>
 
@@ -33,6 +34,8 @@ private:
 private:
     bool isRunning;
     std::unique_ptr<Graphics::Window> window;
+
+    std::unique_ptr<Graphics::ShaderProgram> shaderProgram;
 };
 
 }  // namespace TacticsGame
