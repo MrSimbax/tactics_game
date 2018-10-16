@@ -9,10 +9,11 @@ SDLWindow::SDLWindow(SDL_Window *window, SDL_GLContext context, WindowSettings s
     window{ window },
     context{ context },
     size{},
-    settings{settings},
+    settings{ settings },
     clearColor{0.0f, 0.0f, 0.0f, 1.0f}
 {
     this->resize();
+    this->setWireframeMode(false);
 }
 
 SDLWindow::~SDLWindow()
@@ -116,4 +117,22 @@ Color4f SDLWindow::getClearColor()
 void SDLWindow::setClearColor(Color4f color)
 {
     this->clearColor = color;
+}
+
+bool SDLWindow::isWireframeModeOn()
+{
+    return this->wireframeMode;
+}
+
+void SDLWindow::setWireframeMode(bool mode)
+{
+    this->wireframeMode = mode;
+    if (mode)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 }

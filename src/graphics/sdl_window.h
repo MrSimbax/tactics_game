@@ -25,6 +25,9 @@ public:
     Color4f getClearColor() override;
     void setClearColor(Color4f color) override;
 
+    bool isWireframeModeOn() override;
+    void setWireframeMode(bool mode) override;
+
 private:
     SDLWindow(SDL_Window *window, SDL_GLContext context, WindowSettings settings);
 
@@ -33,7 +36,9 @@ private:
 
     WindowSize size;
     WindowSettings settings;
+
     Color4f clearColor;
+    bool wireframeMode;
 };
 
 namespace InternalSDLWindow

@@ -34,6 +34,9 @@ public:
     virtual void resize() = 0;
     virtual void swapBuffers() = 0;
 
+    virtual bool isWireframeModeOn() = 0;
+    virtual void setWireframeMode(bool mode) = 0;
+
     virtual Color4f getClearColor() = 0;
     virtual void setClearColor(Color4f color) = 0;
 
