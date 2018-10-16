@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.8)
 message("CMake version ${CMAKE_VERSION}")
 
 project(mylearnopenglplayground)
@@ -64,12 +64,12 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # Directories
-SET(SOURCES_DIR "${PROJECT_SOURCE_DIR}/src")
-SET(LIBS_DIR "${PROJECT_SOURCE_DIR}/src/libs")
-SET(LIBS_SOURCES_DIR "${LIBS_DIR}/src")
-SET(LIBS_INCLUDE_DIR "${LIBS_DIR}/include")
-SET(ASSETS_FOLDER "assets")
-SET(ASSETS_DIR "${PROJECT_SOURCE_DIR}/${ASSETS_FOLDER}")
+set(SOURCES_DIR "${PROJECT_SOURCE_DIR}/src")
+set(LIBS_DIR "${PROJECT_SOURCE_DIR}/src/libs")
+set(LIBS_SOURCES_DIR "${LIBS_DIR}/src")
+set(LIBS_INCLUDE_DIR "${LIBS_DIR}/include")
+set(ASSETS_FOLDER "assets")
+set(ASSETS_DIR "${PROJECT_SOURCE_DIR}/${ASSETS_FOLDER}")
 
 # Dependencies
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -104,7 +104,8 @@ set(SOURCE_FILES
 	"${SOURCES_DIR}/services/resources/resources_manager_impl.cpp"
 	"${SOURCES_DIR}/services/services.cpp"
 	"${SOURCES_DIR}/graphics/sdl_window.cpp"
-	"${SOURCES_DIR}/graphics/graphics_object.cpp"
+	"${SOURCES_DIR}/graphics/objects/triangle.cpp"
+    "${SOURCES_DIR}/graphics/objects/rectangle.cpp"
 	"${SOURCES_DIR}/graphics/shader_program.cpp"
 	"${SOURCES_DIR}/application/application.cpp"
 	"${SOURCES_DIR}/main.cpp"

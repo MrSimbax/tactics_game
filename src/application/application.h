@@ -2,7 +2,7 @@
 
 #include "../graphics/window.h"
 #include "../graphics/shader_program.h"
-#include "../graphics/graphics_object.h"
+#include "../graphics/objects/graphics_object.h"
 
 #include <memory>
 
@@ -38,7 +38,7 @@ private:
     std::unique_ptr<Graphics::Window> window;
 
     std::unique_ptr<Graphics::ShaderProgram> shaderProgram;
-    std::unique_ptr<Graphics::Object> triangle;
+    std::unique_ptr<Graphics::Objects::AbstractObject> object;
 };
 
 }  // namespace TacticsGame

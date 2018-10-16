@@ -1,7 +1,8 @@
 #include "application.h"
 
 #include "../graphics/sdl_window.h"
-#include "../graphics/graphics_object.h"
+#include "../graphics/objects/triangle.h"
+#include "../graphics/objects/rectangle.h"
 #include "../services/services.h"
 #include "../services/resources/resources_manager_impl.h"
 
@@ -20,7 +21,7 @@ Application::Application() :
     isRunning{ false },
     window{ nullptr },
     shaderProgram{ nullptr },
-    triangle{ nullptr }
+    object{ nullptr }
 {
 }
 
@@ -97,11 +98,18 @@ bool Application::initWindow()
 
 bool Application::initGraphics()
 {
-    this->triangle.reset(new Graphics::Object{ {
+    /*this->object.reset(new Graphics::Objects::Triangle{ {
         -0.5f, -0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
          0.0f,  0.5f, 0.0f
-    } });
+    } });*/
+
+    this->object.reset(new Graphics::Objects::Rectangle{ {
+        -0.5f,  0.5f, 0.0f,
+         0.5f,  0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f
+    }});
 
     this->shaderProgram.reset(new Graphics::ShaderProgram{
         Services::getResourcesManager().getShaderSource("main.vert"),
@@ -140,7 +148,7 @@ void Application::render()
 {
     this->window->clearScreen();
     this->shaderProgram->use();
-    this->triangle->render();
+    this->object->render();
     this->window->swapBuffers();
 }
 
