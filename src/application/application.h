@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../graphics/window.h"
+#include "../graphics/window/window.h"
 #include "../graphics/shader_program.h"
 #include "../graphics/objects/graphics_object.h"
 

@@ -93,3 +93,18 @@ unsigned int ShaderProgram::compileShader(const std::string& source, unsigned in
 
     return shaderId;
 }
+
+void ShaderProgram::setBool(const std::string& name, bool value) const
+{
+    glUniform1i(glGetUniformLocation(this->shaderProgramId, name.c_str()), static_cast<int>(value));
+}
+
+void ShaderProgram::setInt(const std::string& name, int value) const
+{
+    glUniform1i(glGetUniformLocation(this->shaderProgramId, name.c_str()), value);
+}
+
+void ShaderProgram::setFloat(const std::string& name, float value) const
+{
+    glUniform1f(glGetUniformLocation(this->shaderProgramId, name.c_str()), value);
+}

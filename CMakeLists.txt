@@ -103,7 +103,7 @@ set(SOURCE_FILES
 	"${SOURCES_DIR}/misc/utils.cpp"
 	"${SOURCES_DIR}/services/resources/resources_manager_impl.cpp"
 	"${SOURCES_DIR}/services/services.cpp"
-	"${SOURCES_DIR}/graphics/sdl_window.cpp"
+	"${SOURCES_DIR}/graphics/window/sdl_window.cpp"
 	"${SOURCES_DIR}/graphics/objects/triangle.cpp"
     "${SOURCES_DIR}/graphics/objects/rectangle.cpp"
 	"${SOURCES_DIR}/graphics/shader_program.cpp"

@@ -1,6 +1,6 @@
 #include "application.h"
 
-#include "../graphics/sdl_window.h"
+#include "../graphics/window/sdl_window.h"
 #include "../graphics/objects/triangle.h"
 #include "../graphics/objects/rectangle.h"
 #include "../services/services.h"
