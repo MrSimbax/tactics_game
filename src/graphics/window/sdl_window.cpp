@@ -4,6 +4,9 @@
 #include <plog/Log.h>
 
 using namespace tactics_game;
+
+bool sdl_window::is_sdl_initialized_ = false;
+
 // ReSharper disable once CppParameterMayBeConst
 sdl_window::sdl_window(const std::string& title, window_size size, const window_settings settings)
     : settings_{settings}
@@ -63,8 +66,38 @@ SDL_Window* sdl_window::create_sdl_window(const std::string& title, const window
     return window;
 }
 
+sdl_window::sdl_window(sdl_window&& other) noexcept
+    : window_(other.window_),
+      context_(other.window_),
+      size_(other.size_),
+      settings_(other.settings_),
+      clear_color_(other.clear_color_),
+      wireframe_mode_(other.wireframe_mode_)
+{
+    other.window_ = nullptr;
+    other.context_ = nullptr;
+}
+
+sdl_window& sdl_window::operator=(sdl_window&& other) noexcept
+{
+    window_ = other.window_;
+    context_ = other.window_;
+    size_ = other.size_;
+    settings_ = other.settings_;
+    clear_color_ = other.clear_color_;
+    wireframe_mode_ = other.wireframe_mode_;
+
+    other.window_ = nullptr;
+    other.context_ = nullptr;
+
+    return *this;
+}
+
 sdl_window::~sdl_window()
 {
+    if (!context_ || !window_)
+        return;
+
     SDL_GL_DeleteContext(context_);
     SDL_DestroyWindow(window_);
     SDL_Quit();
@@ -72,16 +105,13 @@ sdl_window::~sdl_window()
 
 void sdl_window::init_sdl()
 {
-    if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0)
+    if (!is_sdl_initialized_)
     {
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         {
             throw sdl_initialization_error{(std::string{"Failed to initialize SDL2: "} + SDL_GetError()).c_str()};
         }
-    }
-    else
-    {
-        throw sdl_initialization_error{"SDL is already initialized."};
+        is_sdl_initialized_ = true;
     }
 }
 
@@ -107,12 +137,12 @@ void sdl_window::swap_buffers()
     SDL_GL_SwapWindow(window_);
 }
 
-color4_f sdl_window::get_clear_color()
+glm::vec4 sdl_window::get_clear_color()
 {
     return clear_color_;
 }
 
-void sdl_window::set_clear_color(const color4_f color)
+void sdl_window::set_clear_color(glm::vec4 color)
 {
     clear_color_ = color;
 }

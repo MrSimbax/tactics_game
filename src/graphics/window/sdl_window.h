@@ -13,6 +13,10 @@ class sdl_window : public window
 {
 public:
     sdl_window(const std::string& title, window_size size, window_settings settings);
+    sdl_window(const sdl_window&) = delete;
+    sdl_window& operator=(const sdl_window&) = delete;
+    sdl_window(sdl_window&&) noexcept;
+    sdl_window& operator=(sdl_window&&) noexcept;
     ~sdl_window() override;
 
     window_size get_size() const override;
@@ -21,8 +25,8 @@ public:
     void resize() override;
     void swap_buffers() override;
 
-    color4_f get_clear_color() override;
-    void set_clear_color(color4_f color) override;
+    glm::vec4 get_clear_color() override;
+    void set_clear_color(glm::vec4 color) override;
 
     bool is_wireframe_mode_on() override;
     void set_wireframe_mode(bool mode) override;
@@ -32,13 +36,15 @@ private:
     static SDL_Window* create_sdl_window(const std::string& title, window_size size,
                                          window_settings settings);
 
+    static bool is_sdl_initialized_;
+
     SDL_Window* window_;
     SDL_GLContext context_;
 
     window_size size_;
     window_settings settings_;
 
-    color4_f clear_color_{};
+    glm::vec4 clear_color_{};
     bool wireframe_mode_{};
 };
 

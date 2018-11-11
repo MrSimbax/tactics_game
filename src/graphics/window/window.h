@@ -1,9 +1,6 @@
 #pragma once
 
-#include "../color.h"
-
-#include <memory>
-#include <string>
+#include <glm/vec4.hpp>
 
 namespace tactics_game
 {
@@ -38,8 +35,8 @@ public:
     virtual bool is_wireframe_mode_on() = 0;
     virtual void set_wireframe_mode(bool mode) = 0;
 
-    virtual color4_f get_clear_color() = 0;
-    virtual void set_clear_color(color4_f color) = 0;
+    virtual glm::vec4 get_clear_color() = 0;
+    virtual void set_clear_color(glm::vec4 color) = 0;
 
 protected:
     window() = default;
