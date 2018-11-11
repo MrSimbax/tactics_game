@@ -1,8 +1,5 @@
 #include "utils.h"
 
-#include <cstring>
-
-namespace TacticsGame::Utils
+namespace tactics_game::utils
 {
-
 }

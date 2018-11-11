@@ -1,22 +1,20 @@
 #include "services.h"
 
-using namespace TacticsGame;
+using namespace tactics_game;
 
-std::unique_ptr<Service::Resources::ResourcesManager> Services::resourcesManager = nullptr;
-Service::Resources::NullResourcesManager Services::nullResourcesManager{};
+std::unique_ptr<assets_service> services::assets_service_ = nullptr;
 
-void Services::initialize()
+void services::initialize()
 {
-    // Here would be setting of every service to its null alernative but I dont know how to do that with unique_ptr
+    assets_service_.reset(new null_assets_service{});
 }
 
-Service::Resources::ResourcesManager& Services::getResourcesManager()
+assets_service& services::get_assets_service()
 {
-    if (!Services::resourcesManager) return Services::nullResourcesManager;
-    return *Services::resourcesManager;
+    return *assets_service_;
 }
 
-void Services::provide(std::unique_ptr<Service::Resources::ResourcesManager> resourcesManager)
+void services::provide(std::unique_ptr<assets_service> service)
 {
-    Services::resourcesManager = std::move(resourcesManager);
+    assets_service_ = std::move(service);
 }

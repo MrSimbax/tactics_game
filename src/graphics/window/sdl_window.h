@@ -7,45 +7,65 @@
 
 #include <SDL2/SDL.h>
 
-namespace TacticsGame::Graphics
+namespace tactics_game
 {
-
-class SDLWindow : public Window, public WindowFactory
+class sdl_window : public window
 {
 public:
-    static std::unique_ptr<SDLWindow> create(const std::string& title, WindowSize size, WindowSettings settings);
-    ~SDLWindow() override;
+    sdl_window(const std::string& title, window_size size, window_settings settings);
+    ~sdl_window() override;
 
-    WindowSize getCurrentSize() const override;
+    window_size get_size() const override;
 
-    void clearScreen() override;
+    void clear_screen() override;
     void resize() override;
-    void swapBuffers() override;
+    void swap_buffers() override;
 
-    Color4f getClearColor() override;
-    void setClearColor(Color4f color) override;
+    color4_f get_clear_color() override;
+    void set_clear_color(color4_f color) override;
 
-    bool isWireframeModeOn() override;
-    void setWireframeMode(bool mode) override;
+    bool is_wireframe_mode_on() override;
+    void set_wireframe_mode(bool mode) override;
 
 private:
-    SDLWindow(SDL_Window *window, SDL_GLContext context, WindowSettings settings);
+    static void init_sdl();
+    static SDL_Window* create_sdl_window(const std::string& title, window_size size,
+                                         window_settings settings);
 
-    SDL_Window *window;
-    SDL_GLContext context;
+    SDL_Window* window_;
+    SDL_GLContext context_;
 
-    WindowSize size;
-    WindowSettings settings;
+    window_size size_;
+    window_settings settings_;
 
-    Color4f clearColor;
-    bool wireframeMode;
+    color4_f clear_color_{};
+    bool wireframe_mode_{};
 };
 
-namespace InternalSDLWindow
+class sdl_initialization_error : public std::runtime_error
 {
+public:
+    explicit sdl_initialization_error(const char* what)
+        : runtime_error(what)
+    {
+    }
+};
 
-extern bool initSDL();
+class sdl_window_not_created_error : public std::runtime_error
+{
+public:
+    explicit sdl_window_not_created_error(const char* what)
+        : runtime_error(what)
+    {
+    }
+};
 
-}
-
+class opengl_initialization_error : public std::runtime_error
+{
+public:
+    explicit opengl_initialization_error(const char* what)
+        : runtime_error(what)
+    {
+    }
+};
 }

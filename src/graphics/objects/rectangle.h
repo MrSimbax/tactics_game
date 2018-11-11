@@ -4,9 +4,8 @@
 
 #include <array>
 
-namespace TacticsGame::Graphics::Objects
+namespace tactics_game::Graphics::Objects
 {
-
 class Rectangle : public AbstractObject
 {
 public:
@@ -20,6 +19,10 @@ public:
      * 2-3
      */
     explicit Rectangle(VerticesContainer&& vertices);
+    Rectangle(const Rectangle& other);
+    Rectangle& operator=(const Rectangle& other);
+    Rectangle(Rectangle&& other);
+    Rectangle& operator=(Rectangle&& other);
     ~Rectangle() override;
 
     void render() const override;
@@ -35,5 +38,4 @@ private:
     unsigned int vertexArrayObjectId;
     unsigned int elementBufferObjectId;
 };
-
 }

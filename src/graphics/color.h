@@ -1,14 +1,12 @@
 #pragma once
 
-namespace TacticsGame::Graphics
+namespace tactics_game
 {
-
-struct Color4f
+struct color4_f
 {
-    float r;
-    float g;
-    float b;
-    float a;
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
+    float a = 0.0f;
 };
-
 }

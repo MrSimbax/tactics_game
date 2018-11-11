@@ -65,7 +65,7 @@ endif()
 
 # Directories
 set(SOURCES_DIR "${PROJECT_SOURCE_DIR}/src")
-set(LIBS_DIR "${PROJECT_SOURCE_DIR}/src/libs")
+set(LIBS_DIR "${PROJECT_SOURCE_DIR}/libs")
 set(LIBS_SOURCES_DIR "${LIBS_DIR}/src")
 set(LIBS_INCLUDE_DIR "${LIBS_DIR}/include")
 set(ASSETS_FOLDER "assets")
@@ -76,13 +76,20 @@ SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 find_package(SDL2 CONFIG REQUIRED)
 
-find_library(PLOG NAMES plog REQUIRED)
+#find_library(PLOG NAMES plog REQUIRED)
+
+add_library(PLOG INTERFACE)
+target_include_directories(PLOG INTERFACE "${LIBS_DIR}/plog/include")
+
+add_library(plog::plog ALIAS PLOG)
+
 
 add_library(GLAD STATIC "${LIBS_SOURCES_DIR}/glad.c")
 target_include_directories(GLAD PRIVATE "${LIBS_INCLUDE_DIR}")
 
 set(LIBS
 	GLAD
+    PLOG
 	SDL2::SDL2main
 	SDL2::SDL2-static
 )
@@ -101,13 +108,16 @@ endif()
 set(SOURCE_FILES
 	"${SOURCES_DIR}/misc/custom_log.cpp"
 	"${SOURCES_DIR}/misc/utils.cpp"
-	"${SOURCES_DIR}/services/resources/resources_manager_impl.cpp"
+	"${SOURCES_DIR}/services/assets/assets_service_impl.cpp"
 	"${SOURCES_DIR}/services/services.cpp"
 	"${SOURCES_DIR}/graphics/window/sdl_window.cpp"
 	"${SOURCES_DIR}/graphics/objects/triangle.cpp"
-    "${SOURCES_DIR}/graphics/objects/rectangle.cpp"
-	"${SOURCES_DIR}/graphics/shader_program.cpp"
-	"${SOURCES_DIR}/application/application.cpp"
+    #"${SOURCES_DIR}/graphics/objects/rectangle.cpp"
+    "${SOURCES_DIR}/graphics/model/vao.cpp"
+    "${SOURCES_DIR}/graphics/model/bo.cpp"
+    "${SOURCES_DIR}/graphics/shader/shader.cpp"
+	"${SOURCES_DIR}/graphics/shader/shader_program.cpp"
+	"${SOURCES_DIR}/application/game_application.cpp"
 	"${SOURCES_DIR}/main.cpp"
 )
 

@@ -1,30 +1,34 @@
 #pragma once
 
-#include "graphics_object.h"
+#include "../model/graphics_object.h"
+#include "../model/bo.h"
+#include "../model/vao.h"
 
 #include <array>
 
-namespace TacticsGame::Graphics::Objects
+namespace tactics_game
 {
-
-class Triangle : public AbstractObject
+class triangle : public graphics_object
 {
 public:
-    typedef std::array<float, 3 * 3> VerticesContainer;
+    typedef std::array<float, 3 * 3> vertices_container;
 
-    explicit Triangle(VerticesContainer&& vertices);
-    ~Triangle() override;
+    explicit triangle(vertices_container&& vertices);
+    triangle(const triangle& other);
+    triangle& operator=(const triangle& other);
+    triangle(triangle&& other) noexcept;
+    triangle& operator=(triangle&& other) noexcept;
+    ~triangle() override;
 
     void render() const override;
 
 private:
-    void setUpBuffers();
+    void set_up_buffers();
 
 private:
-    VerticesContainer vertices;
+    vertices_container vertices_;
 
-    unsigned int vertexBufferObjectId;
-    unsigned int vertexArrayObjectId;
+    buffer_object vbo_;
+    vertex_array_object vao_;
 };
-
 }

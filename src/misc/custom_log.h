@@ -7,10 +7,7 @@
 
 namespace plog
 {
-
-// Note: if using plog version <=1.1.4, use `LOG << "" << customObject;` (a string first) otherwise it won't compile
-
-template<typename T>
+template <typename T>
 Record& operator<<(Record& record, const std::vector<T>& container)
 {
     record << "\n{";
@@ -25,7 +22,7 @@ Record& operator<<(Record& record, const std::vector<T>& container)
     return record;
 }
 
-template<typename T, size_t Size>
+template <typename T, size_t Size>
 Record& operator<<(Record& record, const std::array<T, Size>& container)
 {
     record << "\n{";
@@ -39,5 +36,4 @@ Record& operator<<(Record& record, const std::array<T, Size>& container)
     record << "}";
     return record;
 }
-
 }

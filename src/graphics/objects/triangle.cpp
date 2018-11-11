@@ -5,52 +5,61 @@
 #include <glad/glad.h>
 #include <plog/Log.h>
 
-using namespace TacticsGame::Graphics::Objects;
+using namespace tactics_game;
 
-Triangle::Triangle(Triangle::VerticesContainer&& vertices) :
-    vertices{ vertices },
-    vertexArrayObjectId{ 0 },
-    vertexBufferObjectId{ 0 }
+triangle::triangle(vertices_container&& vertices)
+    : vertices_{vertices}
 {
-    this->setUpBuffers();
+    this->set_up_buffers();
 }
 
-void Triangle::setUpBuffers()
+triangle::triangle(const triangle& other)
+    : vertices_{other.vertices_}
 {
-    if (!this->vertexArrayObjectId)
-    {
-        glGenVertexArrays(1, &this->vertexArrayObjectId);
-    }
+    this->set_up_buffers();
+}
 
-    if (!this->vertexBufferObjectId)
-    {
-        glGenBuffers(1, &this->vertexBufferObjectId);
-    }
+triangle& triangle::operator=(const triangle& other)
+{
+    this->vertices_ = other.vertices_;
+    this->set_up_buffers();
+    return *this;
+}
 
-    glBindVertexArray(this->vertexArrayObjectId);
-    glBindBuffer(GL_ARRAY_BUFFER, this->vertexBufferObjectId);
-    glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(float), &this->vertices[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, static_cast<void*>(0));
+triangle::triangle(triangle&& other) noexcept
+    :
+    vertices_{other.vertices_},
+    vbo_{std::move(other.vbo_)},
+    vao_{std::move(other.vao_)}
+{
+}
+
+triangle& triangle::operator=(triangle&& other) noexcept
+{
+    this->vertices_ = other.vertices_;
+    this->vao_ = std::move(other.vao_);
+    this->vbo_ = std::move(other.vbo_);
+    return *this;
+}
+
+void triangle::set_up_buffers()
+{
+    vao_.bind();
+    vbo_.bind(GL_ARRAY_BUFFER);
+
+    glBufferData(GL_ARRAY_BUFFER, this->vertices_.size() * sizeof(float), &this->vertices_[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, static_cast<void*>(nullptr));
     glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    vertex_array_object::unbind();
+    buffer_object::unbind(GL_ARRAY_BUFFER);
 }
 
-void Triangle::render() const
+void triangle::render() const
 {
-    glBindVertexArray(this->vertexArrayObjectId);
+    vao_.bind();
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-Triangle::~Triangle()
-{
-    if (!this->vertexArrayObjectId)
-    {
-        glDeleteVertexArrays(1, &this->vertexArrayObjectId);
-    }
-
-    if (!this->vertexBufferObjectId)
-    {
-        glDeleteBuffers(1, &this->vertexBufferObjectId);
-    }
-}
+triangle::~triangle() = default;

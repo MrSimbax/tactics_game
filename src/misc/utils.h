@@ -3,7 +3,6 @@
 #include <memory>
 #include <string>
 
-namespace TacticsGame::Utils
+namespace tactics_game::utils
 {
-
 }

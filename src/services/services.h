@@ -1,23 +1,20 @@
 #pragma once
 
-#include "resources/resources_manager.h"
-#include "resources/resources_manager_null.h"
+#include "assets/assets_service.h"
+#include "assets/null_assets_service.h"
 
-namespace TacticsGame
+namespace tactics_game
 {
-
-class Services
+class services
 {
 public:
     static void initialize();
 
-    static Service::Resources::ResourcesManager& getResourcesManager();
+    static assets_service& get_assets_service();
 
-    static void provide(std::unique_ptr<Service::Resources::ResourcesManager> manager);
+    static void provide(std::unique_ptr<assets_service> service);
 
 private:
-    static std::unique_ptr<Service::Resources::ResourcesManager> resourcesManager;
-    static Service::Resources::NullResourcesManager nullResourcesManager;
+    static std::unique_ptr<assets_service> assets_service_;
 };
-
 }
