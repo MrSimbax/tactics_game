@@ -76,20 +76,11 @@ SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 find_package(SDL2 CONFIG REQUIRED)
 
-#find_library(PLOG NAMES plog REQUIRED)
-
-add_library(PLOG INTERFACE)
-target_include_directories(PLOG INTERFACE "${LIBS_DIR}/plog/include")
-
-add_library(plog::plog ALIAS PLOG)
-
-
 add_library(GLAD STATIC "${LIBS_SOURCES_DIR}/glad.c")
 target_include_directories(GLAD PRIVATE "${LIBS_INCLUDE_DIR}")
 
 set(LIBS
 	GLAD
-    PLOG
 	SDL2::SDL2main
 	SDL2::SDL2-static
 )
