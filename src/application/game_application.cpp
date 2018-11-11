@@ -44,8 +44,6 @@ int game_application::execute(int argc, char* argv[])
         render();
     }
 
-    clean_up();
-
     return 0;
 }
 
