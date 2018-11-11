@@ -5,6 +5,7 @@ project(mylearnopenglplayground)
 
 # Options
 option(BUILD_STATIC "Creates a static build" ON)
+option(FAST_STL "Improves performance for assimp" ON)
 
 # C++11
 set(CMAKE_CXX_STANDARD 17)
@@ -75,11 +76,13 @@ set(ASSETS_DIR "${PROJECT_SOURCE_DIR}/${ASSETS_FOLDER}")
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 find_package(SDL2 CONFIG REQUIRED)
+find_package(ASSIMP REQUIRED)
 
 add_library(GLAD STATIC "${LIBS_SOURCES_DIR}/glad.c")
 target_include_directories(GLAD PRIVATE "${LIBS_INCLUDE_DIR}")
 
 set(LIBS
+    ${ASSIMP_LIBRARIES}
 	GLAD
 	SDL2::SDL2main
 	SDL2::SDL2-static
@@ -119,3 +122,7 @@ target_include_directories(mylearnopenglplayground PRIVATE ${LIBS_INCLUDE_DIR})
 add_custom_command(TARGET mylearnopenglplayground POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_DIR} $<TARGET_FILE_DIR:mylearnopenglplayground>/${ASSETS_FOLDER}
 )
+
+if(${FAST_STL})
+    add_definitions(-D_HAS_ITERATOR_DEBUGGING=0 -D_SECURE_SCL=0)
+endif()

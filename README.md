@@ -9,7 +9,8 @@ Budowanie napisane w `cmake`, więc teoretycznie powinno działać wszędzie, al
 tylko pod `Visual Studio 2017`, statyczne linkowanie, z użyciem `vcpkg` do pobierania zależności.
 
 Obecne zależności:
-* `SDL2`
+* `SDL2` -- tworzenie okna, obsługa klawiatury itp.
+* `assimp` -- ładowanie modeli 3D
 
 Nieobowiązkowe:
 * `Visual Leak Detector` (https://kinddragon.github.io/vld/) do raportowania wycieków pamięci po zakończeniu programu
@@ -17,8 +18,9 @@ Nieobowiązkowe:
 Póki co wykrywane są tylko 2-3 leaki wynikające z używania biblioteki SDL2.
 
 Niektóre zależności są budowane bezpośrednio z projektem, ale wypisuję je dla porządku:
-* `glad`
-* `plog` (https://github.com/SergiusTheBest/plog)
+* `glad` -- funkcje OpenGL
+* `plog` -- logowanie
+* `glm` -- operacje matematyczne
 
 # Licencja
 
