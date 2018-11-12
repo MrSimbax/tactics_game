@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../graphics/model/model.h"
+
 #include <string>
 
 namespace tactics_game
@@ -17,6 +19,7 @@ public:
     virtual void set_root(const std::string& root) = 0;
 
     virtual std::string get_shader_source(const std::string& name) const = 0;
+    virtual model get_model(const std::string& name) const = 0;
 
 protected:
     assets_service() = default;;

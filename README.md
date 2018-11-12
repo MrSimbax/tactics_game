@@ -11,6 +11,7 @@ tylko pod `Visual Studio 2017`, statyczne linkowanie, z użyciem `vcpkg` do pobi
 Obecne zależności:
 * `SDL2` -- tworzenie okna, obsługa klawiatury itp.
 * `assimp` -- ładowanie modeli 3D
+* `zlib` -- zależność `assimp`
 
 Nieobowiązkowe:
 * `Visual Leak Detector` (https://kinddragon.github.io/vld/) do raportowania wycieków pamięci po zakończeniu programu
@@ -21,6 +22,7 @@ Niektóre zależności są budowane bezpośrednio z projektem, ale wypisuję je 
 * `glad` -- funkcje OpenGL
 * `plog` -- logowanie
 * `glm` -- operacje matematyczne
+* `irrxml` -- zależność `assimp`
 
 # Licencja
 

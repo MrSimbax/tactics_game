@@ -1,15 +1,15 @@
 #include "game_application.h"
 
 #include "../graphics/window/sdl_window.h"
-#include "../graphics/objects/triangle.h"
+#include "../graphics/shader/shader_program.h"
 #include "../services/services.h"
 #include "../services/assets//assets_service_impl.h"
 
-#include <glad/glad.h>
 #include <plog/Log.h>
 #include <plog/Appenders/ColorConsoleAppender.h>
 #include <plog/Appenders/DebugOutputAppender.h>
-#include "../graphics/shader/shader_program.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace tactics_game;
 
@@ -28,6 +28,7 @@ int game_application::execute(int argc, char* argv[])
     if (!init())
     {
         LOG_FATAL << "game_application could not be started due to initialization error.";
+        std::getchar();
         return 1;
     }
 
@@ -86,41 +87,40 @@ void game_application::init_window()
 {
     const std::string title = "Tactics Game";
 
-    window_size size{};
+    window_size size;
     size.width = 800;
     size.height = 600;
 
-    window_settings settings{};
+    window_settings settings;
     settings.fullscreen = false;
     settings.resizable = true;
     settings.vsync = false;
 
     window_.reset(new sdl_window(title, size, settings));
+
+    window_->set_wireframe_mode(true);
 }
 
 void game_application::init_graphics()
 {
-    this->object_.reset(new triangle{
-        {
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f
-        }
-    });
-
-    /*this->object.reset(new Graphics::Objects::Rectangle{
-        {
-            -0.5f, 0.5f, 0.0f,
-            0.5f, 0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f
-        }
-    });*/
+    const auto cube_model = services::get_assets_service().get_model("cube.obj");
+    object_.reset(new graphics_object{cube_model});
 
     shader_program_.reset(new shader_program{
         services::get_assets_service().get_shader_source("main.vert"),
         services::get_assets_service().get_shader_source("main.frag")
     });
+
+    object_->set_rotation({glm::radians(-55.0f), 0.0f, 0.0f});
+    object_->set_scale({0.5f, 0.5f, 0.5f});
+
+    view_ = translate(view_, glm::vec3{0.0f, 0.0f, -3.0f});
+
+    const auto aspect_ratio =
+        static_cast<float>(window_->get_size().width)
+        /
+        static_cast<float>(window_->get_size().height);
+    projection_ = glm::perspective(glm::radians(45.0f), aspect_ratio, 0.1f, 100.0f);
 }
 
 void game_application::handle_event(SDL_Event* event)
@@ -149,6 +149,12 @@ void game_application::render() const
 {
     window_->clear_screen();
     shader_program_->use();
-    object_->render();
+
+    shader_program_->set_mat4("model", object_->get_model_matrix());
+    shader_program_->set_mat4("view", view_);
+    shader_program_->set_mat4("projection", projection_);
+
+    object_->render(*shader_program_);
+
     window_->swap_buffers();
 }

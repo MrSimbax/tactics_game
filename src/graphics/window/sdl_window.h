@@ -12,6 +12,7 @@ namespace tactics_game
 class sdl_window : public window
 {
 public:
+    void set_up_opengl_debug_output() const;
     sdl_window(const std::string& title, window_size size, window_settings settings);
     sdl_window(const sdl_window&) = delete;
     sdl_window& operator=(const sdl_window&) = delete;

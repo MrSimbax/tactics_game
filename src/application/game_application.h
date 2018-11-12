@@ -7,6 +7,8 @@
 #include <memory>
 
 #include <SDL2/SDL.h>
+#include "../graphics/model/mesh.h"
+#include "glm/mat4x2.hpp"
 
 namespace tactics_game
 {
@@ -39,5 +41,9 @@ private:
 
     std::unique_ptr<shader_program> shader_program_{};
     std::unique_ptr<graphics_object> object_{};
+
+    glm::mat4 projection_{1.0f};
+    glm::mat4 view_{1.0f};
+    glm::mat4 model_{1.0f};
 };
 } // namespace tactics_game

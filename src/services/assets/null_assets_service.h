@@ -28,6 +28,12 @@ public:
         return this->empty_;
     }
 
+    model get_model(const std::string& name) const override
+    {
+        model ret{{}};
+        return ret;
+    }
+
 private:
     std::string empty_;
 };

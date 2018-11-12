@@ -25,7 +25,7 @@ private:
     std::string source_;
 };
 
-class shader_compilation_error : std::runtime_error
+class shader_compilation_error : public std::runtime_error
 {
 public:
     explicit shader_compilation_error(const char* what)

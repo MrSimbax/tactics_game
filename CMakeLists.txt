@@ -5,7 +5,7 @@ project(mylearnopenglplayground)
 
 # Options
 option(BUILD_STATIC "Creates a static build" ON)
-option(FAST_STL "Improves performance for assimp" ON)
+option(FAST_STL "Improves performance for assimp" OFF)
 
 # C++11
 set(CMAKE_CXX_STANDARD 17)
@@ -76,13 +76,17 @@ set(ASSETS_DIR "${PROJECT_SOURCE_DIR}/${ASSETS_FOLDER}")
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(ASSIMP REQUIRED)
+find_package(ASSIMP CONFIG REQUIRED)
+find_package(ZLIB REQUIRED)
 
 add_library(GLAD STATIC "${LIBS_SOURCES_DIR}/glad.c")
+add_library(IRRXML STATIC "${LIBS_INCLUDE_DIR}/irrXML/irrXML.cpp")
 target_include_directories(GLAD PRIVATE "${LIBS_INCLUDE_DIR}")
 
 set(LIBS
     ${ASSIMP_LIBRARIES}
+    ZLIB::ZLIB
+    IRRXML
 	GLAD
 	SDL2::SDL2main
 	SDL2::SDL2-static
@@ -105,10 +109,11 @@ set(SOURCE_FILES
 	"${SOURCES_DIR}/services/assets/assets_service_impl.cpp"
 	"${SOURCES_DIR}/services/services.cpp"
 	"${SOURCES_DIR}/graphics/window/sdl_window.cpp"
-	"${SOURCES_DIR}/graphics/objects/triangle.cpp"
-    #"${SOURCES_DIR}/graphics/objects/rectangle.cpp"
     "${SOURCES_DIR}/graphics/model/vao.cpp"
     "${SOURCES_DIR}/graphics/model/bo.cpp"
+    "${SOURCES_DIR}/graphics/model/mesh.cpp"
+    "${SOURCES_DIR}/graphics/model/model.cpp"
+    "${SOURCES_DIR}/graphics/model/graphics_object.cpp"
     "${SOURCES_DIR}/graphics/shader/shader.cpp"
 	"${SOURCES_DIR}/graphics/shader/shader_program.cpp"
 	"${SOURCES_DIR}/application/game_application.cpp"
