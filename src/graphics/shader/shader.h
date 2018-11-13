@@ -1,6 +1,5 @@
 #pragma once
 #include <stdexcept>
-#include <array>
 
 namespace tactics_game
 {

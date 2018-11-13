@@ -2,7 +2,6 @@
 
 #include <string>
 #include "shader.h"
-#include "glad/glad.h"
 #include "glm/mat4x2.hpp"
 
 namespace tactics_game

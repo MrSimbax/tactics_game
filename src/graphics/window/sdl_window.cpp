@@ -44,7 +44,7 @@ sdl_window::sdl_window(const std::string& title, window_size size, const window_
     if (!gladLoadGLLoader(static_cast<GLADloadproc>(SDL_GL_GetProcAddress)))
     {
         std::string message{"Failed to initialize GLAD: "};
-        message =+ SDL_GetError();
+        message += SDL_GetError();
         SDL_DestroyWindow(window_);
         SDL_GL_DeleteContext(context_);
         SDL_Quit();
@@ -147,7 +147,7 @@ void sdl_window::swap_buffers()
     SDL_GL_SwapWindow(window_);
 }
 
-glm::vec4 sdl_window::get_clear_color()
+glm::vec4 sdl_window::get_clear_color() const
 {
     return clear_color_;
 }
@@ -157,7 +157,7 @@ void sdl_window::set_clear_color(const glm::vec4 color)
     clear_color_ = color;
 }
 
-bool sdl_window::is_wireframe_mode_on()
+bool sdl_window::is_wireframe_mode_on() const
 {
     return wireframe_mode_;
 }
@@ -173,6 +173,16 @@ void sdl_window::set_wireframe_mode(const bool mode)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
+}
+
+bool sdl_window::is_mouse_trapped() const
+{
+    return SDL_GetRelativeMouseMode();
+}
+
+void sdl_window::set_mouse_trapped(const bool is_trapped)
+{
+    SDL_SetRelativeMouseMode(static_cast<SDL_bool>(is_trapped));
 }
 
 void sdl_window::set_up_opengl_debug_output() const

@@ -6,8 +6,6 @@
 #include "../services/assets//assets_service_impl.h"
 
 #include <plog/Log.h>
-#include <plog/Appenders/ColorConsoleAppender.h>
-#include <plog/Appenders/DebugOutputAppender.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -36,12 +34,16 @@ int game_application::execute(int argc, char* argv[])
     SDL_Event event{};
     while (is_running_)
     {
+        const auto time = SDL_GetTicks() / 1000.0f;
+        const auto delta_time = time - last_frame_time_;
+        last_frame_time_ = time;
+
         while (SDL_PollEvent(&event))
         {
             handle_event(&event);
         }
 
-        update();
+        update(delta_time);
         render();
     }
 
@@ -53,9 +55,9 @@ bool game_application::init()
     try
     {
         init_services();
-        init_logger();
         init_window();
         init_graphics();
+        init_input();
     }
     catch (const std::runtime_error& e)
     {
@@ -75,14 +77,6 @@ void game_application::init_services() const
     LOG_INFO << "services initialized.";
 }
 
-void game_application::init_logger() const
-{
-    static plog::ColorConsoleAppender<plog::TxtFormatter> console_appender;
-    static plog::DebugOutputAppender<plog::TxtFormatter> debug_output_appender;
-    plog::init(plog::verbose, &console_appender).addAppender(&debug_output_appender);
-    LOG_INFO << "Logger is working.";
-}
-
 void game_application::init_window()
 {
     const std::string title = "Tactics Game";
@@ -99,6 +93,16 @@ void game_application::init_window()
     window_.reset(new sdl_window(title, size, settings));
 
     window_->set_wireframe_mode(true);
+    window_->set_mouse_trapped(true);
+}
+
+void game_application::update_perspective_matrix()
+{
+    const auto aspect_ratio =
+        static_cast<float>(window_->get_size().width)
+        /
+        static_cast<float>(window_->get_size().height);
+    camera_.set_ratio(aspect_ratio);
 }
 
 void game_application::init_graphics()
@@ -114,35 +118,74 @@ void game_application::init_graphics()
     object_->set_rotation({glm::radians(-55.0f), 0.0f, 0.0f});
     object_->set_scale({0.5f, 0.5f, 0.5f});
 
-    view_ = translate(view_, glm::vec3{0.0f, 0.0f, -3.0f});
+    camera_.set_position({0.0f, 0.0f, 3.0f});
+    camera_.set_rotation({0.0f, glm::radians(-90.0f)});
+    camera_.set_mouse_sensitivity(input_manager_.get_mouse_sensitivity());
 
-    const auto aspect_ratio =
-        static_cast<float>(window_->get_size().width)
-        /
-        static_cast<float>(window_->get_size().height);
-    projection_ = glm::perspective(glm::radians(45.0f), aspect_ratio, 0.1f, 100.0f);
+    update_perspective_matrix();
+}
+
+void game_application::init_input()
+{
+    input_manager_.bind_key_to_action(SDLK_a, input_action::camera_left);
+    input_manager_.bind_key_to_action(SDLK_d, input_action::camera_right);
+    input_manager_.bind_key_to_action(SDLK_w, input_action::camera_forward);
+    input_manager_.bind_key_to_action(SDLK_s, input_action::camera_backward);
+    input_manager_.bind_key_to_action(SDLK_SPACE, input_action::camera_up);
+    input_manager_.bind_key_to_action(SDLK_LCTRL, input_action::camera_down);
+
+    input_manager_.bind_action_down(input_action::camera_left, [this]{ camera_direction_.x -= 1.0f; });
+    input_manager_.bind_action_up(input_action::camera_left, [this]{ camera_direction_.x += 1.0f; });
+
+    input_manager_.bind_action_down(input_action::camera_right, [this]{ camera_direction_.x += 1.0f; });
+    input_manager_.bind_action_up(input_action::camera_right, [this]{ camera_direction_.x -= 1.0f; });
+
+    input_manager_.bind_action_down(input_action::camera_forward, [this]{ camera_direction_.z += 1.0f; });
+    input_manager_.bind_action_up(input_action::camera_forward, [this]{ camera_direction_.z -= 1.0f; });
+
+    input_manager_.bind_action_down(input_action::camera_backward, [this]{ camera_direction_.z -= 1.0f; });
+    input_manager_.bind_action_up(input_action::camera_backward, [this]{ camera_direction_.z += 1.0f; });
+
+    input_manager_.bind_action_down(input_action::camera_up, [this]{ camera_direction_.y += 1.0f; });
+    input_manager_.bind_action_up(input_action::camera_up, [this]{ camera_direction_.y -= 1.0f; });
+
+    input_manager_.bind_action_down(input_action::camera_down, [this]{ camera_direction_.y -= 1.0f; });
+    input_manager_.bind_action_up(input_action::camera_down, [this]{ camera_direction_.y += 1.0f; });
+
+    input_manager_.bind_mouse_motion([this](const glm::ivec2 offset){ camera_.process_mouse(offset); });
+    input_manager_.bind_mouse_scroll([this](const int offset){ camera_.process_scroll(offset); });
 }
 
 void game_application::handle_event(SDL_Event* event)
 {
-    if (event->type == SDL_QUIT)
+    switch (event->type)
     {
+    case SDL_QUIT:
         is_running_ = false;
-    }
-    else if (event->type == SDL_WINDOWEVENT)
-    {
+        break;
+    case SDL_WINDOWEVENT:
         switch (event->window.event)
         {
         case SDL_WINDOWEVENT_SIZE_CHANGED:
             window_->resize();
+            update_perspective_matrix();
             break;
         default: ;
         }
+        break;
+    case SDL_KEYDOWN:
+    case SDL_KEYUP:
+    case SDL_MOUSEMOTION:
+    case SDL_MOUSEWHEEL:
+        input_manager_.handle_event(event);
+        break;
+    default:;
     }
 }
 
-void game_application::update() const
+void game_application::update(const float delta_time)
 {
+    camera_.process_keyboard(camera_direction_, delta_time);
 }
 
 void game_application::render() const
@@ -151,8 +194,8 @@ void game_application::render() const
     shader_program_->use();
 
     shader_program_->set_mat4("model", object_->get_model_matrix());
-    shader_program_->set_mat4("view", view_);
-    shader_program_->set_mat4("projection", projection_);
+    shader_program_->set_mat4("view", camera_.get_view_matrix());
+    shader_program_->set_mat4("projection", camera_.get_projection_matrix());
 
     object_->render(*shader_program_);
 

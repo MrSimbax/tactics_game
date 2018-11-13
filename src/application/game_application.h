@@ -3,12 +3,13 @@
 #include "../graphics/window/window.h"
 #include "../graphics/shader/shader_program.h"
 #include "../graphics/model/graphics_object.h"
+#include "../graphics/model/free_roam_camera.h"
 
 #include <memory>
 
 #include <SDL2/SDL.h>
-#include "../graphics/model/mesh.h"
-#include "glm/mat4x2.hpp"
+#include <glm/glm.hpp>
+#include "input_manager.h"
 
 namespace tactics_game
 {
@@ -25,25 +26,29 @@ public:
     int execute(int argc, char* argv[]);
 
 private:
+    void init_input();
     bool init();
     void init_services() const;
-    void init_logger() const;
     void init_window();
     void init_graphics();
 
     void handle_event(SDL_Event* event);
-    void update() const;
+    void update(float delta_time);
     void render() const;
 
-private:
+    void update_perspective_matrix();
+
+    input_manager input_manager_{};
+
     bool is_running_;
     std::unique_ptr<window> window_{};
 
     std::unique_ptr<shader_program> shader_program_{};
     std::unique_ptr<graphics_object> object_{};
 
-    glm::mat4 projection_{1.0f};
-    glm::mat4 view_{1.0f};
-    glm::mat4 model_{1.0f};
+    free_roam_camera camera_{};
+    glm::vec3 camera_direction_{};
+
+    float last_frame_time_{0.0f};
 };
 } // namespace tactics_game

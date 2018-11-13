@@ -2,8 +2,10 @@
 
 using namespace tactics_game;
 
-#include <glad/glad.h>
 #include <utility>
+#include <array>
+
+#include <glad/glad.h>
 
 shader::shader(std::string source, const unsigned int type)
     : id_{0},

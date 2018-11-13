@@ -1,10 +1,13 @@
 #include "shader_program.h"
 
+#include <utility>
+#include <array>
+
+#include "shader.h"
+
 #include <glad/glad.h>
 #include <plog/Log.h>
-#include <utility>
-#include "shader.h"
-#include "glm/gtc/type_ptr.inl"
+#include <glm/gtc/type_ptr.inl>
 
 using namespace tactics_game;
 

@@ -109,6 +109,7 @@ set(SOURCE_FILES
 	"${SOURCES_DIR}/services/assets/assets_service_impl.cpp"
 	"${SOURCES_DIR}/services/services.cpp"
 	"${SOURCES_DIR}/graphics/window/sdl_window.cpp"
+    "${SOURCES_DIR}/graphics/model/free_roam_camera.cpp"
     "${SOURCES_DIR}/graphics/model/vao.cpp"
     "${SOURCES_DIR}/graphics/model/bo.cpp"
     "${SOURCES_DIR}/graphics/model/mesh.cpp"
@@ -116,6 +117,7 @@ set(SOURCE_FILES
     "${SOURCES_DIR}/graphics/model/graphics_object.cpp"
     "${SOURCES_DIR}/graphics/shader/shader.cpp"
 	"${SOURCES_DIR}/graphics/shader/shader_program.cpp"
+    "${SOURCES_DIR}/application/input_manager.cpp"
 	"${SOURCES_DIR}/application/game_application.cpp"
 	"${SOURCES_DIR}/main.cpp"
 )

@@ -3,7 +3,6 @@
 #include "window.h"
 
 #include <string>
-#include <memory>
 
 #include <SDL2/SDL.h>
 
@@ -26,11 +25,14 @@ public:
     void resize() override;
     void swap_buffers() override;
 
-    glm::vec4 get_clear_color() override;
+    glm::vec4 get_clear_color() const override;
     void set_clear_color(glm::vec4 color) override;
 
-    bool is_wireframe_mode_on() override;
+    bool is_wireframe_mode_on() const override;
     void set_wireframe_mode(bool mode) override;
+
+    bool is_mouse_trapped() const override;
+    void set_mouse_trapped(bool is_trapped) override;
 
 private:
     static void init_sdl();
