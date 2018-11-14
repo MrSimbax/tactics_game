@@ -27,7 +27,9 @@ private:
 class vertex_array_object_not_created_error : public std::runtime_error
 {
 public:
-    explicit vertex_array_object_not_created_error(const char* what) : runtime_error(what) {}
+    explicit vertex_array_object_not_created_error(const char* what)
+        : runtime_error(what)
+    {
+    }
 };
-
 }

@@ -363,3 +363,6 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+# Assets
+!assets/**/*.obj

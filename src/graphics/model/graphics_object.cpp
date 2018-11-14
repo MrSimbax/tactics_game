@@ -11,9 +11,9 @@ graphics_object::graphics_object(model model)
 {
 }
 
-void graphics_object::render(shader_program& program) const
+graphics_object::graphics_object(const mesh& m)
+    : model_{model{std::vector<mesh>{m}}}
 {
-    model_.render(program);
 }
 
 glm::vec3 graphics_object::get_position() const
@@ -49,10 +49,20 @@ void graphics_object::set_scale(const glm::vec3 scale)
 glm::mat4 graphics_object::get_model_matrix() const
 {
     glm::mat4 model{1};
-    model = glm::scale(model, scale_);
-    model = glm::rotate(model, rotation_.x, {1.0f, 0.0f, 0.0f});
-    model = glm::rotate(model, rotation_.y, {0.0f, 1.0f, 0.0f});
-    model = glm::rotate(model, rotation_.z, {0.0f, 0.0f, 1.0f});
-    model = glm::translate(model, position_);
+    model = scale(model, scale_);
+    model = rotate(model, rotation_.x, {1.0f, 0.0f, 0.0f});
+    model = rotate(model, rotation_.y, {0.0f, 1.0f, 0.0f});
+    model = rotate(model, rotation_.z, {0.0f, 0.0f, 1.0f});
+    model = translate(model, position_);
     return model;
+}
+
+graphics_object graphics_object::transformed() const
+{
+    return graphics_object{model_.transformed(get_model_matrix())};
+}
+
+const model& graphics_object::get_model() const
+{
+    return model_;
 }

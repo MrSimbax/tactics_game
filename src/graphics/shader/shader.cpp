@@ -53,7 +53,7 @@ shader::~shader()
 {
     if (!id_)
     {
-        glDeleteShader(id_);;
+        glDeleteShader(id_);
     }
 }
 

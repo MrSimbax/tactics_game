@@ -1,7 +1,5 @@
 #pragma once
 
-#include "bo.h"
-#include "vao.h"
 #include "../shader/shader_program.h"
 
 #include <vector>
@@ -10,7 +8,6 @@
 
 namespace tactics_game
 {
-
 struct vertex
 {
     glm::vec3 position;
@@ -21,22 +18,14 @@ class mesh
 {
 public:
     mesh(std::vector<vertex> vertices, std::vector<unsigned int> indices);
-    mesh(const mesh& other);
-    mesh& operator=(const mesh& other);
-    mesh(mesh&& other) noexcept;
-    mesh& operator=(mesh&& other) noexcept;
-    ~mesh();
 
-    void render(const shader_program& program) const;
+    mesh transformed(glm::mat4 transform) const;
+
+    const std::vector<vertex>& get_vertices() const;
+    const std::vector<unsigned int>& get_indices() const;
 
 private:
-    void set_up_buffers();
-
     std::vector<vertex> vertices_;
     std::vector<unsigned int> indices_;
-
-    buffer_object vbo_{};
-    buffer_object ebo_{};
-    vertex_array_object vao_{};
 };
 }

@@ -2,8 +2,6 @@
 
 #include "../graphics/window/sdl_window.h"
 #include "../graphics/shader/shader_program.h"
-#include "../services/services.h"
-#include "../services/assets//assets_service_impl.h"
 
 #include <plog/Log.h>
 #include <glm/glm.hpp>
@@ -12,10 +10,7 @@
 using namespace tactics_game;
 
 game_application::game_application()
-    : is_running_{false},
-      window_{nullptr},
-      shader_program_{nullptr},
-      object_{nullptr}
+    : is_running_{false}
 {
 }
 
@@ -54,7 +49,6 @@ bool game_application::init()
 {
     try
     {
-        init_services();
         init_window();
         init_graphics();
         init_input();
@@ -68,13 +62,6 @@ bool game_application::init()
     is_running_ = true;
     LOG_INFO << "game_application initialized successfully.";
     return true;
-}
-
-void game_application::init_services() const
-{
-    services::initialize();
-    services::provide(std::make_unique<assets_service_impl>("assets/"));
-    LOG_INFO << "services initialized.";
 }
 
 void game_application::init_window()
@@ -107,22 +94,25 @@ void game_application::update_perspective_matrix()
 
 void game_application::init_graphics()
 {
-    const auto cube_model = services::get_assets_service().get_model("cube.obj");
-    object_.reset(new graphics_object{cube_model});
-
     shader_program_.reset(new shader_program{
-        services::get_assets_service().get_shader_source("main.vert"),
-        services::get_assets_service().get_shader_source("main.frag")
+        assets_manager_.get_shader_source("main.vert"),
+        assets_manager_.get_shader_source("main.frag")
     });
-
-    object_->set_rotation({glm::radians(-55.0f), 0.0f, 0.0f});
-    object_->set_scale({0.5f, 0.5f, 0.5f});
 
     camera_.set_position({0.0f, 0.0f, 3.0f});
     camera_.set_rotation({0.0f, glm::radians(-90.0f)});
     camera_.set_mouse_sensitivity(input_manager_.get_mouse_sensitivity());
 
     update_perspective_matrix();
+
+    current_map_.reset(new game_map{assets_manager_.get_map("demo")});
+
+    map_renderer_.reset(new game_map_renderer{
+        current_map_,
+        std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj")),
+        std::make_unique<graphics_object>(assets_manager_.get_model("wall.obj")),
+        std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj"))
+    });
 }
 
 void game_application::init_input()
@@ -134,26 +124,68 @@ void game_application::init_input()
     input_manager_.bind_key_to_action(SDLK_SPACE, input_action::camera_up);
     input_manager_.bind_key_to_action(SDLK_LCTRL, input_action::camera_down);
 
-    input_manager_.bind_action_down(input_action::camera_left, [this]{ camera_direction_.x -= 1.0f; });
-    input_manager_.bind_action_up(input_action::camera_left, [this]{ camera_direction_.x += 1.0f; });
+    input_manager_.bind_action_down(input_action::camera_left, [this]
+    {
+        camera_direction_.x -= 1.0f;
+    });
+    input_manager_.bind_action_up(input_action::camera_left, [this]
+    {
+        camera_direction_.x += 1.0f;
+    });
 
-    input_manager_.bind_action_down(input_action::camera_right, [this]{ camera_direction_.x += 1.0f; });
-    input_manager_.bind_action_up(input_action::camera_right, [this]{ camera_direction_.x -= 1.0f; });
+    input_manager_.bind_action_down(input_action::camera_right, [this]
+    {
+        camera_direction_.x += 1.0f;
+    });
+    input_manager_.bind_action_up(input_action::camera_right, [this]
+    {
+        camera_direction_.x -= 1.0f;
+    });
 
-    input_manager_.bind_action_down(input_action::camera_forward, [this]{ camera_direction_.z += 1.0f; });
-    input_manager_.bind_action_up(input_action::camera_forward, [this]{ camera_direction_.z -= 1.0f; });
+    input_manager_.bind_action_down(input_action::camera_forward, [this]
+    {
+        camera_direction_.z += 1.0f;
+    });
+    input_manager_.bind_action_up(input_action::camera_forward, [this]
+    {
+        camera_direction_.z -= 1.0f;
+    });
 
-    input_manager_.bind_action_down(input_action::camera_backward, [this]{ camera_direction_.z -= 1.0f; });
-    input_manager_.bind_action_up(input_action::camera_backward, [this]{ camera_direction_.z += 1.0f; });
+    input_manager_.bind_action_down(input_action::camera_backward, [this]
+    {
+        camera_direction_.z -= 1.0f;
+    });
+    input_manager_.bind_action_up(input_action::camera_backward, [this]
+    {
+        camera_direction_.z += 1.0f;
+    });
 
-    input_manager_.bind_action_down(input_action::camera_up, [this]{ camera_direction_.y += 1.0f; });
-    input_manager_.bind_action_up(input_action::camera_up, [this]{ camera_direction_.y -= 1.0f; });
+    input_manager_.bind_action_down(input_action::camera_up, [this]
+    {
+        camera_direction_.y += 1.0f;
+    });
+    input_manager_.bind_action_up(input_action::camera_up, [this]
+    {
+        camera_direction_.y -= 1.0f;
+    });
 
-    input_manager_.bind_action_down(input_action::camera_down, [this]{ camera_direction_.y -= 1.0f; });
-    input_manager_.bind_action_up(input_action::camera_down, [this]{ camera_direction_.y += 1.0f; });
+    input_manager_.bind_action_down(input_action::camera_down, [this]
+    {
+        camera_direction_.y -= 1.0f;
+    });
+    input_manager_.bind_action_up(input_action::camera_down, [this]
+    {
+        camera_direction_.y += 1.0f;
+    });
 
-    input_manager_.bind_mouse_motion([this](const glm::ivec2 offset){ camera_.process_mouse(offset); });
-    input_manager_.bind_mouse_scroll([this](const int offset){ camera_.process_scroll(offset); });
+    input_manager_.bind_mouse_motion([this](const glm::ivec2 offset)
+    {
+        camera_.process_mouse(offset);
+    });
+    input_manager_.bind_mouse_scroll([this](const int offset)
+    {
+        camera_.process_scroll(offset);
+    });
 }
 
 void game_application::handle_event(SDL_Event* event)
@@ -179,7 +211,7 @@ void game_application::handle_event(SDL_Event* event)
     case SDL_MOUSEWHEEL:
         input_manager_.handle_event(event);
         break;
-    default:;
+    default: ;
     }
 }
 
@@ -193,11 +225,10 @@ void game_application::render() const
     window_->clear_screen();
     shader_program_->use();
 
-    shader_program_->set_mat4("model", object_->get_model_matrix());
     shader_program_->set_mat4("view", camera_.get_view_matrix());
     shader_program_->set_mat4("projection", camera_.get_projection_matrix());
 
-    object_->render(*shader_program_);
+    map_renderer_->render(*shader_program_, current_map_->get_layers().size());
 
     window_->swap_buffers();
 }

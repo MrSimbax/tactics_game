@@ -62,7 +62,7 @@ shader_program::~shader_program()
 }
 
 void shader_program::set_vertex_attrib(const int index, const int size, const unsigned type, const int stride,
-                                           const size_t offset)
+                                       const size_t offset)
 {
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, size, type, GL_FALSE, stride, reinterpret_cast<void*>(offset));
@@ -116,10 +116,10 @@ void shader_program::set_float(const std::string& name, const float value) const
 
 void shader_program::set_mat4(const std::string& name, glm::mat4 value) const
 {
-    glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+    glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, value_ptr(value));
 }
 
 void shader_program::set_vec3(const std::string& name, glm::vec3 value) const
 {
-    glUniform3fv(glGetUniformLocation(id_, name.c_str()), 1, glm::value_ptr(value));
+    glUniform3fv(glGetUniformLocation(id_, name.c_str()), 1, value_ptr(value));
 }

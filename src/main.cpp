@@ -11,7 +11,7 @@ void init_logger()
 {
     static plog::ColorConsoleAppender<plog::TxtFormatter> console_appender;
     static plog::DebugOutputAppender<plog::TxtFormatter> debug_output_appender;
-    plog::init(plog::verbose, &console_appender).addAppender(&debug_output_appender);
+    init(plog::verbose, &console_appender).addAppender(&debug_output_appender);
     LOG_INFO << "Logger is working.";
 }
 

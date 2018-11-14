@@ -5,12 +5,14 @@
 
 namespace tactics_game
 {
+class buffered_graphics_object;
+
 class graphics_object
 {
+    friend class buffered_graphics_object;
 public:
     explicit graphics_object(model model);
-
-    void render(shader_program& program) const;
+    explicit graphics_object(const mesh& m);
 
     glm::vec3 get_position() const;
     glm::vec3 get_rotation() const;
@@ -22,8 +24,11 @@ public:
 
     glm::mat4 get_model_matrix() const;
 
+    graphics_object transformed() const;
+    const model& get_model() const;
+
 private:
-    model model_;
+    const model model_;
 
     glm::vec3 position_{0};
     glm::vec3 rotation_{0};

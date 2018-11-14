@@ -2,14 +2,15 @@
 
 #include "../graphics/window/window.h"
 #include "../graphics/shader/shader_program.h"
-#include "../graphics/model/graphics_object.h"
+#include "../graphics/model/buffered_graphics_object.h"
 #include "../graphics/model/free_roam_camera.h"
+#include "input_manager.h"
+#include "assets_manager.h"
 
 #include <memory>
 
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
-#include "input_manager.h"
 
 namespace tactics_game
 {
@@ -28,7 +29,6 @@ public:
 private:
     void init_input();
     bool init();
-    void init_services() const;
     void init_window();
     void init_graphics();
 
@@ -38,13 +38,16 @@ private:
 
     void update_perspective_matrix();
 
+    assets_manager assets_manager_{"assets/"};
     input_manager input_manager_{};
 
     bool is_running_;
     std::unique_ptr<window> window_{};
 
     std::unique_ptr<shader_program> shader_program_{};
-    std::unique_ptr<graphics_object> object_{};
+
+    std::shared_ptr<game_map> current_map_{};
+    std::unique_ptr<game_map_renderer> map_renderer_{};
 
     free_roam_camera camera_{};
     glm::vec3 camera_direction_{};

@@ -4,7 +4,6 @@
 
 namespace tactics_game
 {
-
 class free_roam_camera
 {
 public:
@@ -15,7 +14,7 @@ public:
 
     void process_keyboard(glm::vec3 direction, float delta_time);
     void process_mouse(glm::ivec2 offset);
-    void process_scroll(const int offset);
+    void process_scroll(int offset);
 
     glm::vec3 get_position() const;
     void set_position(glm::vec3 position);

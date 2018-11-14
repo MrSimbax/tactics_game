@@ -27,7 +27,9 @@ private:
 class buffer_object_not_created_error : public std::runtime_error
 {
 public:
-    explicit buffer_object_not_created_error(const char* what) : runtime_error(what) {}
+    explicit buffer_object_not_created_error(const char* what)
+        : runtime_error(what)
+    {
+    }
 };
-
 }

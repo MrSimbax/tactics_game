@@ -68,5 +68,4 @@ inline Record& operator<<(Record& record, const glm::vec2 vec)
 {
     return record << "\n[" << vec.x << ", " << vec.y << "]";
 }
-
 }

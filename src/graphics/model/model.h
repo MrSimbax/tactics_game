@@ -1,14 +1,19 @@
 #pragma once
-#include "mesh.h"
+#include "buffered_mesh.h"
 
 namespace tactics_game
 {
 class model
 {
 public:
+    model();
     explicit model(std::vector<mesh> meshes);
 
-    void render(shader_program& program) const;
+    const std::vector<mesh>& get_meshes() const;
+    void add_mesh(const mesh& mesh);
+
+    model transformed(glm::mat4 transform) const;
+    mesh merged() const;
 
 private:
     std::vector<mesh> meshes_;
