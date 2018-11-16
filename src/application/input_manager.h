@@ -14,7 +14,8 @@ enum class input_action
     camera_left,
     camera_right,
     camera_up,
-    camera_down
+    camera_down,
+    debug
 };
 
 class input_manager

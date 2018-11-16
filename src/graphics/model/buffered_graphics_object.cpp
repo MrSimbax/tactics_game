@@ -1,8 +1,10 @@
 #include "buffered_graphics_object.h"
 
+#include "../../misc/custom_log.h"
+
 using namespace tactics_game;
 
-buffered_graphics_object::buffered_graphics_object(const graphics_object* object)
+buffered_graphics_object::buffered_graphics_object(const std::shared_ptr<graphics_object>& object)
     : object_{object},
       model_{object->model_}
 {

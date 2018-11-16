@@ -1,7 +1,7 @@
 # Blender v2.79 (sub 0) OBJ File: ''
 # www.blender.org
 mtllib floor.mtl
-o Plane
+o Plane_Plane.001
 v -0.500000 0.000000 0.500000
 v 0.500000 0.000000 0.500000
 v -0.500000 0.000000 -0.500000

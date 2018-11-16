@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../misc/custom_log.h"
+
 using namespace tactics_game;
 
 game_application::game_application()
@@ -105,14 +107,39 @@ void game_application::init_graphics()
 
     update_perspective_matrix();
 
-    current_map_.reset(new game_map{assets_manager_.get_map("demo")});
+    //current_map_.reset(new game_map{assets_manager_.get_map("demo")});
 
-    map_renderer_.reset(new game_map_renderer{
+    /*map_renderer_.reset(new game_map_renderer{
         current_map_,
         std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj")),
         std::make_unique<graphics_object>(assets_manager_.get_model("wall.obj")),
         std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj"))
+    });*/
+
+    current_scene_.reset(new game_scene{assets_manager_.get_scene("demo")});
+
+    std::shared_ptr<game_map_renderer> map_renderer{
+        new game_map_renderer{
+            std::shared_ptr<game_map>{current_scene_->get_game_map()},
+            std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj")),
+            std::make_unique<graphics_object>(assets_manager_.get_model("wall.obj")),
+            std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj"))
+        }
+    };
+
+    std::vector<std::shared_ptr<player_renderer>> player_renderers;
+
+    player_renderers.emplace_back(new player_renderer{
+        current_scene_->get_players()[0], assets_manager_.get_model("player1.obj")
     });
+    player_renderers.emplace_back(new player_renderer{
+        current_scene_->get_players()[1], assets_manager_.get_model("player2.obj")
+    });
+
+    scene_renderer_.reset(new game_scene_renderer(current_scene_, std::move(map_renderer),
+                                                  std::move(player_renderers)));
+
+    LOG_INFO << "Loaded map \"" << current_scene_->get_name();
 }
 
 void game_application::init_input()
@@ -123,6 +150,7 @@ void game_application::init_input()
     input_manager_.bind_key_to_action(SDLK_s, input_action::camera_backward);
     input_manager_.bind_key_to_action(SDLK_SPACE, input_action::camera_up);
     input_manager_.bind_key_to_action(SDLK_LCTRL, input_action::camera_down);
+    input_manager_.bind_key_to_action(SDLK_SEMICOLON, input_action::debug);
 
     input_manager_.bind_action_down(input_action::camera_left, [this]
     {
@@ -186,6 +214,11 @@ void game_application::init_input()
     {
         camera_.process_scroll(offset);
     });
+
+    input_manager_.bind_action_down(input_action::debug, [this]
+    {
+        LOG_DEBUG << camera_.get_position();
+    });
 }
 
 void game_application::handle_event(SDL_Event* event)
@@ -228,7 +261,8 @@ void game_application::render() const
     shader_program_->set_mat4("view", camera_.get_view_matrix());
     shader_program_->set_mat4("projection", camera_.get_projection_matrix());
 
-    map_renderer_->render(*shader_program_, current_map_->get_layers().size());
+    //map_renderer_->render(*shader_program_, current_map_->get_layers().size());
+    scene_renderer_->render(*shader_program_);
 
     window_->swap_buffers();
 }

@@ -44,7 +44,7 @@ mesh model::merged() const
         all_vertices.insert(all_vertices.end(), mesh.get_vertices().begin(), mesh.get_vertices().end());
 
         std::transform(mesh.get_indices().begin(), mesh.get_indices().end(), std::back_inserter(all_indices),
-                       [&](unsigned index)
+                       [&](const unsigned index)
                        {
                            return vertices_size + index;
                        });

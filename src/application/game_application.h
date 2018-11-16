@@ -2,7 +2,6 @@
 
 #include "../graphics/window/window.h"
 #include "../graphics/shader/shader_program.h"
-#include "../graphics/model/buffered_graphics_object.h"
 #include "../graphics/model/free_roam_camera.h"
 #include "input_manager.h"
 #include "assets_manager.h"
@@ -11,6 +10,7 @@
 
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
+#include "../logic/rendering/game_scene_renderer.h"
 
 namespace tactics_game
 {
@@ -46,8 +46,10 @@ private:
 
     std::unique_ptr<shader_program> shader_program_{};
 
-    std::shared_ptr<game_map> current_map_{};
-    std::unique_ptr<game_map_renderer> map_renderer_{};
+    //std::shared_ptr<game_map> current_map_{};
+    //std::unique_ptr<game_map_renderer> map_renderer_{};
+    std::shared_ptr<game_scene> current_scene_{};
+    std::unique_ptr<game_scene_renderer> scene_renderer_{};
 
     free_roam_camera camera_{};
     glm::vec3 camera_direction_{};

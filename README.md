@@ -23,6 +23,7 @@ Niektóre zależności są budowane bezpośrednio z projektem, ale wypisuję je 
 * `plog` -- logowanie
 * `glm` -- operacje matematyczne
 * `irrxml` -- zależność `assimp`
+* `nlohmann-json` -- obsługa plików JSON
 
 # Licencja
 

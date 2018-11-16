@@ -2,13 +2,13 @@
 
 #include <array>
 #include <fstream>
+#include <filesystem>
 #include <utility>
 
 #include <plog/Log.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <filesystem>
 
 using namespace tactics_game;
 
@@ -65,27 +65,62 @@ model assets_manager::get_model(const std::string& name) const
     return model{meshes};
 }
 
-game_map assets_manager::get_map(const std::string& name) const
+game_scene assets_manager::get_scene(const std::string& name) const
 {
     const auto directory_path{this->root_ + this->maps_path_ + name};
     if (!exists(std::filesystem::path{directory_path}))
     {
-        LOG_ERROR << "Could not load map: the directory " << directory_path << " does not exist";
-        return game_map{{}};
+        LOG_ERROR << "Could not load scene: the directory " << directory_path << " does not exist";
+        return game_scene{};
     }
 
+    auto scene_file_path = directory_path + "/";
+    scene_file_path += game_map_main_file_name;
+    if (!exists(std::filesystem::path{scene_file_path}))
+    {
+        LOG_ERROR << "The map does not have main file: " << scene_file_path << " does not exist";
+        return game_scene{};
+    }
+
+    auto info = load_json(scene_file_path);
+    const std::string scene_name = info["name"];
+    const glm::ivec3 size{info["size"]["x"], info["size"]["y"], info["size"]["z"]};
+
+    const std::shared_ptr<game_map> map{new game_map{get_map(directory_path, size)}};
+
+    std::vector<std::shared_ptr<player>> players;
+    auto players_json = info["players"];
+    size_t player_id = 0;
+    for (const auto& player_json : players_json)
+    {
+        std::vector<std::shared_ptr<game_unit>> units;
+        size_t unit_id = 0;
+        for (const auto& unit_json : player_json["units"])
+        {
+            auto position = unit_json["position"];
+            units.emplace_back(new game_unit{
+                unit_id, player_id, glm::ivec3{position["x"], position["y"], position["z"]}
+            });
+            unit_id += 1;
+        }
+        players.emplace_back(new player{player_id, units});
+        player_id += 1;
+    }
+
+    return game_scene{scene_name, map, players};
+}
+
+game_map assets_manager::get_map(const std::string& directory_path, const glm::ivec3 size) const
+{
     std::vector<game_map::fields_t> layers{};
-    for (size_t y = 0; ; ++y)
+    for (auto y = 0; y < size.y; ++y)
     {
         auto layer_file_path = directory_path + "/";
         layer_file_path += std::to_string(y);
         layer_file_path += game_map_layer_extension;
         if (!exists(std::filesystem::path{layer_file_path}))
         {
-            if (y == 0)
-            {
-                LOG_WARNING << "The map could not load any layers: " << layer_file_path << " does not exist";
-            }
+            LOG_WARNING << "The map could not load layer: " << layer_file_path << " does not exist";
             break;
         }
 
@@ -98,16 +133,54 @@ game_map assets_manager::get_map(const std::string& name) const
         game_map::fields_t layer{};
         std::stringstream ss{layer_data};
         std::string line;
+        auto x = 0;
         while (std::getline(ss, line))
         {
-            std::vector<field_type> column;
             if (line.empty())
                 continue;
+            if (x >= size.x)
+            {
+                LOG_WARNING << "Layer " << y << " too high, discarding the rest";
+                break;
+            }
+
+            std::vector<field_type> row;
+            auto z = 0;
             for (const auto& c : line)
             {
-                column.push_back(static_cast<field_type>(static_cast<int>(c - '0')));
+                if (z >= size.z)
+                {
+                    LOG_WARNING << "Layer " << y << "too wide on line " << z << ", discarding the rest";
+                    break;
+                }
+                row.push_back(static_cast<field_type>(static_cast<int>(c - '0')));
+                ++z;
             }
-            layer.push_back(column);
+            if (z < size.z)
+            {
+                LOG_WARNING << "Layer " << y << " too thin on line " << z << ", appending empty columns";
+                while (z < size.z)
+                {
+                    row.push_back(static_cast<field_type>(0));
+                    ++z;
+                }
+            }
+            layer.push_back(row);
+            ++x;
+        }
+        if (x < size.x)
+        {
+            LOG_WARNING << "Layer " << y << " too low, appending empty rows";
+            while (x < size.z)
+            {
+                std::vector<field_type> row;
+                for (auto z = 0; z < size.z; ++z)
+                {
+                    row.push_back(static_cast<field_type>(0));
+                }
+                layer.push_back(row);
+                ++x;
+            }
         }
         layers.push_back(layer);
     }
@@ -129,6 +202,22 @@ std::string assets_manager::load_text_file(const std::string& path)
     std::ostringstream ss;
     ss << text_file.rdbuf();
     return ss.str();
+}
+
+json assets_manager::load_json(const std::string& path)
+{
+    std::ifstream text_file{path};
+    std::array<char, 512> error_str{};
+    if (!text_file.is_open() || !text_file.good())
+    {
+        strerror_s(&error_str[0], error_str.size(), errno);
+        LOG_ERROR << "Could not load JSON file \"" << path << "\": " << &error_str[0];
+        return "";
+    }
+
+    json j;
+    text_file >> j;
+    return j;
 }
 
 std::vector<mesh> assets_manager::process_model_node(aiNode* const ai_node, const aiScene* const scene)

@@ -80,8 +80,9 @@ find_package(ASSIMP CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
 
 add_library(GLAD STATIC "${LIBS_SOURCES_DIR}/glad.c")
-add_library(IRRXML STATIC "${LIBS_INCLUDE_DIR}/irrXML/irrXML.cpp")
 target_include_directories(GLAD PRIVATE "${LIBS_INCLUDE_DIR}")
+
+add_library(IRRXML STATIC "${LIBS_INCLUDE_DIR}/irrXML/irrXML.cpp")
 
 set(LIBS
     ${ASSIMP_LIBRARIES}
@@ -118,7 +119,14 @@ set(SOURCE_FILES
     "${SOURCES_DIR}/graphics/model/buffered_graphics_object.cpp"
     "${SOURCES_DIR}/graphics/shader/shader.cpp"
 	"${SOURCES_DIR}/graphics/shader/shader_program.cpp"
+    "${SOURCES_DIR}/logic/game_unit.cpp"
+    "${SOURCES_DIR}/logic/player.cpp"
     "${SOURCES_DIR}/logic/game_map.cpp"
+    "${SOURCES_DIR}/logic/game_scene.cpp"
+    "${SOURCES_DIR}/logic/rendering/unit_renderer.cpp"
+    "${SOURCES_DIR}/logic/rendering/player_renderer.cpp"
+    "${SOURCES_DIR}/logic/rendering/game_scene_renderer.cpp"
+    "${SOURCES_DIR}/logic/rendering/game_map_renderer.cpp"
     "${SOURCES_DIR}/application/assets_manager.cpp"
     "${SOURCES_DIR}/application/input_manager.cpp"
 	"${SOURCES_DIR}/application/game_application.cpp"
@@ -130,7 +138,7 @@ target_link_libraries(mylearnopenglplayground PRIVATE ${LIBS})
 target_include_directories(mylearnopenglplayground PRIVATE ${LIBS_INCLUDE_DIR})
 
 add_custom_command(TARGET mylearnopenglplayground POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_DIR} $<TARGET_FILE_DIR:mylearnopenglplayground>/${ASSETS_FOLDER}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_DIR} $<TARGET_FILE_DIR:mylearnopenglplayground>/${ASSETS_FOLDER}
 )
 
 if(${FAST_STL})

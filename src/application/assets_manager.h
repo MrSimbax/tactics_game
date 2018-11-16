@@ -1,8 +1,12 @@
 #pragma once
 #include <string>
 #include <assimp/scene.h>
+#include <nlohmann/json.hpp>
 #include "../graphics/model/model.h"
 #include "../logic/game_map.h"
+#include "../logic/game_scene.h"
+
+using json = nlohmann::json;
 
 namespace tactics_game
 {
@@ -19,10 +23,13 @@ public:
 
     model get_model(const std::string& name) const;
 
-    game_map get_map(const std::string& name) const;
+    game_scene get_scene(const std::string& name) const;
 
 private:
+    game_map get_map(const std::string& name, const glm::ivec3 size) const;
+
     static std::string load_text_file(const std::string& path);
+    static json load_json(const std::string& path);
 
     static std::vector<mesh> process_model_node(aiNode* ai_node, const aiScene* scene);
     static mesh process_model_mesh(aiMesh* ai_mesh, const aiScene* scene);
