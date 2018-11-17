@@ -8,7 +8,7 @@ buffered_model::buffered_model(const model& model)
 {
     meshes_.reserve(model.get_meshes().size());
     std::transform(model.get_meshes().begin(), model.get_meshes().end(), std::back_inserter(meshes_),
-                   [](const mesh& mesh)
+                   [](const std::shared_ptr<mesh> mesh)
                    {
                        return buffered_mesh{mesh};
                    });

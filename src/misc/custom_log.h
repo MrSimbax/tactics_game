@@ -56,21 +56,21 @@ inline Record& operator<<(Record& record, const glm::mat4 matrix)
 
 inline Record& operator<<(Record& record, const glm::vec3 vec)
 {
-    return record << "\n[" << vec.x << ", " << vec.y << ", " << vec.z << "]";
+    return record << "[" << vec.x << ", " << vec.y << ", " << vec.z << "]";
 }
 
 inline Record& operator<<(Record& record, const glm::ivec3 vec)
 {
-    return record << "\n[" << vec.x << ", " << vec.y << ", " << vec.z << "]";
+    return record << "[" << vec.x << ", " << vec.y << ", " << vec.z << "]";
 }
 
 inline Record& operator<<(Record& record, const glm::ivec2 vec)
 {
-    return record << "\n[" << vec.x << ", " << vec.y << "]";
+    return record << "[" << vec.x << ", " << vec.y << "]";
 }
 
 inline Record& operator<<(Record& record, const glm::vec2 vec)
 {
-    return record << "\n[" << vec.x << ", " << vec.y << "]";
+    return record << "[" << vec.x << ", " << vec.y << "]";
 }
 }

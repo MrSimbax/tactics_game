@@ -10,7 +10,7 @@ namespace tactics_game
 class buffered_mesh
 {
 public:
-    explicit buffered_mesh(const mesh& m);
+    explicit buffered_mesh(std::shared_ptr<mesh> m);
     buffered_mesh(const buffered_mesh& other) = delete;
     buffered_mesh& operator=(const buffered_mesh& other) = delete;
     buffered_mesh(buffered_mesh&& other) noexcept;
@@ -20,9 +20,10 @@ public:
     void render(const shader_program& program) const;
 
 private:
-    void set_up_buffers(const mesh& mesh) const;
+    void set_up_buffers() const;
+    void set_material(const shader_program& program) const;
 
-    int indices_size_;
+    std::shared_ptr<mesh> mesh_;
 
     buffer_object vbo_{};
     buffer_object ebo_{};

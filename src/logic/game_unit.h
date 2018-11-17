@@ -34,6 +34,8 @@ private:
     size_t player_id_;
     unsigned int hit_points_{1};
     bool is_visible_{true};
+    std::vector<glm::ivec2> visible_fields_{};
+    std::vector<glm::ivec2> movable_fields_{};
     glm::ivec3 position_;
 };
 };

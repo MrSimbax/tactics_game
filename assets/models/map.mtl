@@ -1,0 +1,12 @@
+# Blender MTL File: 'toobj.blend'
+# Material Count: 1
+
+newmtl MapMat
+Ns 0.400000
+Ka 0.192250 0.192250 0.192250
+Kd 0.507540 0.507540 0.507540
+Ks 0.508273 0.508273 0.508273
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2

@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../misc/custom_log.h"
+#include "glad/glad.h"
 
 using namespace tactics_game;
 
@@ -81,8 +82,8 @@ void game_application::init_window()
 
     window_.reset(new sdl_window(title, size, settings));
 
-    window_->set_wireframe_mode(true);
-    window_->set_mouse_trapped(true);
+    window_->set_wireframe_mode(false);
+    window_->set_mouse_trapped(false);
 }
 
 void game_application::update_perspective_matrix()
@@ -101,9 +102,18 @@ void game_application::init_graphics()
         assets_manager_.get_shader_source("main.frag")
     });
 
-    camera_.set_position({0.0f, 0.0f, 3.0f});
-    camera_.set_rotation({0.0f, glm::radians(-90.0f)});
-    camera_.set_mouse_sensitivity(input_manager_.get_mouse_sensitivity());
+    light_object_shader_program_.reset(new shader_program{
+        assets_manager_.get_shader_source("lamp.vert"),
+        assets_manager_.get_shader_source("lamp.frag")
+    });
+
+    //camera_.set_position({3.0f, 0.5f, 3.0f});
+    //camera_.set_rotation({0.0f, glm::radians(90.0f)});
+    //camera_.set_mouse_sensitivity(input_manager_.get_mouse_sensitivity());
+    camera_.set_orientation(top_camera_orientation::bottom_left);
+    camera_.set_offset({5.0f, 7.5f, 5.0f});
+    camera_.set_speed(6.0f);
+    camera_.set_target({1.0f, 0.0f, 1.0f}); //TODO set up player cameras from scene
 
     update_perspective_matrix();
 
@@ -116,14 +126,16 @@ void game_application::init_graphics()
         std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj"))
     });*/
 
-    current_scene_.reset(new game_scene{assets_manager_.get_scene("demo")});
+    auto loaded_scene{assets_manager_.get_scene("demo")};
+
+    current_scene_.reset(new game_scene{loaded_scene.scene});
 
     std::shared_ptr<game_map_renderer> map_renderer{
         new game_map_renderer{
             std::shared_ptr<game_map>{current_scene_->get_game_map()},
             std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj")),
             std::make_unique<graphics_object>(assets_manager_.get_model("wall.obj")),
-            std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj"))
+            std::make_unique<graphics_object>(assets_manager_.get_model("climber.obj"))
         }
     };
 
@@ -136,10 +148,26 @@ void game_application::init_graphics()
         current_scene_->get_players()[1], assets_manager_.get_model("player2.obj")
     });
 
-    scene_renderer_.reset(new game_scene_renderer(current_scene_, std::move(map_renderer),
-                                                  std::move(player_renderers)));
+    std::vector<std::shared_ptr<light_object>> light_objects;
+    const auto light_model = assets_manager_.get_model("point_light.obj");
+    for (const auto& light : loaded_scene.point_lights)
+    {
+        std::shared_ptr<light_object> light_obj{new light_object{light_model}};
+        light_obj->set_position(light.position);
+        light_obj->set_color(glm::vec4{light.diffuse, 1.0f});
+        light_objects.push_back(light_obj);
+    }
+    std::shared_ptr<light_objects_renderer> light_objs_renderer{new light_objects_renderer{light_objects}};
 
-    LOG_INFO << "Loaded map \"" << current_scene_->get_name();
+    scene_renderer_.reset(new game_scene_renderer{
+        current_scene_, std::move(map_renderer),
+        std::move(player_renderers), loaded_scene.point_lights, std::move(light_objs_renderer),
+        loaded_scene.world_ambient
+    });
+
+    scene_renderer_->set_lights(*shader_program_);
+
+    LOG_INFO << "Loaded map \"" << current_scene_->get_name() << "\"";
 }
 
 void game_application::init_input()
@@ -148,6 +176,8 @@ void game_application::init_input()
     input_manager_.bind_key_to_action(SDLK_d, input_action::camera_right);
     input_manager_.bind_key_to_action(SDLK_w, input_action::camera_forward);
     input_manager_.bind_key_to_action(SDLK_s, input_action::camera_backward);
+    input_manager_.bind_key_to_action(SDLK_q, input_action::camera_rotate_left);
+    input_manager_.bind_key_to_action(SDLK_e, input_action::camera_rotate_right);
     input_manager_.bind_key_to_action(SDLK_SPACE, input_action::camera_up);
     input_manager_.bind_key_to_action(SDLK_LCTRL, input_action::camera_down);
     input_manager_.bind_key_to_action(SDLK_SEMICOLON, input_action::debug);
@@ -188,7 +218,7 @@ void game_application::init_input()
         camera_direction_.z += 1.0f;
     });
 
-    input_manager_.bind_action_down(input_action::camera_up, [this]
+    /*input_manager_.bind_action_down(input_action::camera_up, [this]
     {
         camera_direction_.y += 1.0f;
     });
@@ -204,20 +234,38 @@ void game_application::init_input()
     input_manager_.bind_action_up(input_action::camera_down, [this]
     {
         camera_direction_.y += 1.0f;
+    });*/
+
+    input_manager_.bind_action_down(input_action::camera_rotate_left, [this]
+    {
+        camera_.rotate_left();
+    });
+    input_manager_.bind_action_up(input_action::camera_rotate_right, [this]
+    {
+        camera_.rotate_right();
     });
 
-    input_manager_.bind_mouse_motion([this](const glm::ivec2 offset)
+    /*input_manager_.bind_mouse_motion([this](const glm::ivec2 offset)
     {
         camera_.process_mouse(offset);
     });
     input_manager_.bind_mouse_scroll([this](const int offset)
     {
         camera_.process_scroll(offset);
+    });*/
+
+    if (length(camera_direction_) != 0.0f)
+        camera_direction_ = normalize(camera_direction_);
+
+    input_manager_.bind_mouse_button_down([this](const glm::ivec2 mouse_pos, int button)
+    {
+        const glm::ivec2 size{window_->get_size().width, window_->get_size().height};
+        LOG_DEBUG << camera_.mouse_to_xz_plane(mouse_pos, size, 0);
     });
 
     input_manager_.bind_action_down(input_action::debug, [this]
     {
-        LOG_DEBUG << camera_.get_position();
+        LOG_DEBUG << "Camera position: " << camera_.get_position();
     });
 }
 
@@ -240,6 +288,8 @@ void game_application::handle_event(SDL_Event* event)
         break;
     case SDL_KEYDOWN:
     case SDL_KEYUP:
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
     case SDL_MOUSEMOTION:
     case SDL_MOUSEWHEEL:
         input_manager_.handle_event(event);
@@ -256,13 +306,18 @@ void game_application::update(const float delta_time)
 void game_application::render() const
 {
     window_->clear_screen();
-    shader_program_->use();
 
-    shader_program_->set_mat4("view", camera_.get_view_matrix());
-    shader_program_->set_mat4("projection", camera_.get_projection_matrix());
+    shader_program_->use();
+    shader_program_->set_mat4("u_view", camera_.get_view_matrix());
+    shader_program_->set_mat4("u_projection", camera_.get_projection_matrix());
+    shader_program_->set_vec3("u_view_pos", camera_.get_position());
+
+    light_object_shader_program_->use();
+    light_object_shader_program_->set_mat4("u_view", camera_.get_view_matrix());
+    light_object_shader_program_->set_mat4("u_projection", camera_.get_projection_matrix());
 
     //map_renderer_->render(*shader_program_, current_map_->get_layers().size());
-    scene_renderer_->render(*shader_program_);
+    scene_renderer_->render(*shader_program_, *light_object_shader_program_);
 
     window_->swap_buffers();
 }

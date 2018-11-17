@@ -1,4 +1,6 @@
 #include "game_map_renderer.h"
+#include <plog/Log.h>
+#include "../../misc/custom_log.h"
 
 using namespace tactics_game;
 
@@ -21,6 +23,7 @@ void game_map_renderer::render(shader_program& program, const size_t layer_index
         const auto& layer = buffered_static_layers_[y];
         layer.render(program);
     }
+    climbers_->render(program);
 }
 
 void game_map_renderer::create_static_buffers()
@@ -38,6 +41,7 @@ void game_map_renderer::create_static_buffers()
 void game_map_renderer::create_static_layer(const game_map::fields_t& layer, const size_t y)
 {
     model static_layer_model{};
+    model climbers_model{};
 
     for (size_t x = 0; x < layer.size(); ++x)
     {
@@ -56,9 +60,20 @@ void game_map_renderer::create_static_layer(const game_map::fields_t& layer, con
                 }
             case field_type::wall:
                 {
+
                     wall_->set_position(glm::vec3(x, y + 0.5f, z));
-                    const auto wall = wall_->transformed().get_model().merged();
                     static_layer_model.add_mesh(wall_->transformed().get_model().merged());
+                    break;
+                }
+            case field_type::climber:
+                {
+                    climber_->set_position(glm::vec3(x, y + 0.2f, z));
+                    climbers_model.add_mesh(climber_->transformed().get_model().merged());
+                    if (y == 0 || map_->get_layers()[y-1][x][z] != field_type::climber)
+                    {
+                        floor_->set_position(glm::vec3(x, y, z));
+                        static_layer_model.add_mesh(floor_->transformed().get_model().merged());
+                    }
                     break;
                 }
             default: ;
@@ -68,4 +83,6 @@ void game_map_renderer::create_static_layer(const game_map::fields_t& layer, con
 
     static_layers_.emplace_back(new graphics_object{static_layer_model.merged()});
     buffered_static_layers_.emplace_back(static_layers_[y]);
+
+    climbers_.reset(new buffered_graphics_object{std::make_shared<graphics_object>(climbers_model)});
 }

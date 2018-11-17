@@ -13,6 +13,8 @@ public:
 private:
     std::shared_ptr<game_unit> unit_;
 
+
+
     std::shared_ptr<graphics_object> graphics_object_;
     buffered_graphics_object buffered_graphics_object_;
 };

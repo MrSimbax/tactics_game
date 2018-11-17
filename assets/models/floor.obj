@@ -1,13 +1,13 @@
-# Blender v2.79 (sub 0) OBJ File: ''
+# Blender v2.79 (sub 0) OBJ File: 'toobj.blend'
 # www.blender.org
-mtllib floor.mtl
+mtllib map.mtl
 o Plane_Plane.001
-v -0.500000 0.000000 0.500000
-v 0.500000 0.000000 0.500000
+v 0.500000 -0.000000 0.500000
 v -0.500000 0.000000 -0.500000
+v -0.500000 -0.000000 0.500000
 v 0.500000 0.000000 -0.500000
 vn 0.0000 1.0000 0.0000
-usemtl None
-s off
-f 2//1 3//1 1//1
-f 2//1 4//1 3//1
+usemtl MapMat
+s 1
+f 1//1 2//1 3//1
+f 1//1 4//1 2//1

@@ -16,6 +16,12 @@ sdl_window::sdl_window(const std::string& title, window_size size, const window_
 {
     init_sdl();
 
+    // Antialiasing
+    if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1) != 0)
+        LOG_WARNING << "Could not set SDL_GL_MULTISAMPLEBUFFERS";
+    if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4) != 0)
+        LOG_WARNING << "Could not set SDL_GL_MULTISAMPLEBUFFERS";
+
     window_ = create_sdl_window(title, size, settings);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -51,10 +57,24 @@ sdl_window::sdl_window(const std::string& title, window_size size, const window_
         throw opengl_initialization_error{message.c_str()};
     }
 
+    if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1) != 0)
+        LOG_WARNING << "Could not set SDL_GL_MULTISAMPLEBUFFERS";
+    if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4) != 0)
+        LOG_WARNING << "Could not set SDL_GL_MULTISAMPLEBUFFERS";
+
+    int buffers, sample;
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &buffers);
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sample);
+    if (sample > 0 && buffers > 0)
+        LOG_INFO << "Anti-aliasing on";
+    else
+        LOG_WARNING << "Could not set anti-aliasing on";
+
     set_up_opengl_debug_output();
     sdl_window::resize();
     sdl_window::set_wireframe_mode(false);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 }
 
 SDL_Window* sdl_window::create_sdl_window(const std::string& title, const window_size size,

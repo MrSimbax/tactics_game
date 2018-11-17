@@ -1,4 +1,5 @@
 #include "input_manager.h"
+#include "plog/Log.h"
 
 using namespace tactics_game;
 
@@ -24,6 +25,10 @@ void input_manager::handle_event(SDL_Event* event)
                 callback();
         }
         keys_state_[key].is_pressed = false;
+        break;
+    case SDL_MOUSEBUTTONDOWN:
+        if (on_mouse_button_down_)
+            on_mouse_button_down_(glm::ivec2{event->button.x, event->button.y}, event->button.button);
         break;
     case SDL_MOUSEMOTION:
         if (on_mouse_motion_)
@@ -55,6 +60,11 @@ void input_manager::bind_mouse_motion(const callback_mouse_motion_t& callback)
 void input_manager::bind_mouse_scroll(const callback_mouse_scroll_t& callback)
 {
     on_mouse_scroll_ = callback;
+}
+
+void input_manager::bind_mouse_button_down(const callback_mouse_button_down_t& callback)
+{
+    on_mouse_button_down_ = callback;
 }
 
 void input_manager::bind_action_up(const input_action action, const callback_t& callback)

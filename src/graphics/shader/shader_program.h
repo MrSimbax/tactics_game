@@ -21,8 +21,10 @@ public:
     void set_bool(const std::string& name, bool value) const;
     void set_int(const std::string& name, int value) const;
     void set_float(const std::string& name, float value) const;
+    void set_mat3(const std::string& name, glm::mat3 value) const;
     void set_mat4(const std::string& name, glm::mat4 value) const;
     void set_vec3(const std::string& name, glm::vec3 value) const;
+    void set_vec4(const std::string& name, glm::vec4 value) const;
 
     static const unsigned int position_location = 0;
     static const unsigned int normal_location = 1;

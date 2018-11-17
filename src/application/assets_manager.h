@@ -5,11 +5,20 @@
 #include "../graphics/model/model.h"
 #include "../logic/game_map.h"
 #include "../logic/game_scene.h"
+#include "../graphics/model/lights.h"
 
 using json = nlohmann::json;
 
 namespace tactics_game
 {
+
+struct game_scene_with_other_data
+{
+    game_scene scene;
+    std::vector<point_light> point_lights;
+    glm::vec3 world_ambient;
+};
+
 class assets_manager
 {
 public:
@@ -23,16 +32,16 @@ public:
 
     model get_model(const std::string& name) const;
 
-    game_scene get_scene(const std::string& name) const;
+    game_scene_with_other_data get_scene(const std::string& name) const;
 
 private:
-    game_map get_map(const std::string& name, const glm::ivec3 size) const;
+    game_map get_map(const std::string& directory_path, const glm::ivec3 size) const;
 
     static std::string load_text_file(const std::string& path);
     static json load_json(const std::string& path);
 
-    static std::vector<mesh> process_model_node(aiNode* ai_node, const aiScene* scene);
-    static mesh process_model_mesh(aiMesh* ai_mesh, const aiScene* scene);
+    static std::vector<std::shared_ptr<mesh>> process_model_node(aiNode* ai_node, const aiScene* scene);
+    static std::shared_ptr<mesh> process_model_mesh(aiMesh* ai_mesh, const aiScene* scene);
 
     std::string root_;
     const std::string shaders_path_{"shaders/"};

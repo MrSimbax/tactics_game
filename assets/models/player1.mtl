@@ -1,10 +1,10 @@
-# Blender MTL File: 'toobj.blend'
+# Blender MTL File: 'None'
 # Material Count: 1
 
-newmtl None
-Ns 0
-Ka 0.000000 0.000000 0.000000
-Kd 0.8 0.8 0.8
-Ks 0.8 0.8 0.8
+newmtl Ruby
+Ns 0.6
+Ka 0.1745 0.01175 0.01175
+Kd 0.61424 0.04136 0.04136
+Ks 0.727811 0.626959 0.626959
 d 1
 illum 2

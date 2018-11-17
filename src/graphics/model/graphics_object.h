@@ -12,7 +12,7 @@ class graphics_object
     friend class buffered_graphics_object;
 public:
     explicit graphics_object(model model);
-    explicit graphics_object(const mesh& m);
+    explicit graphics_object(std::shared_ptr<mesh> m);
 
     glm::vec3 get_position() const;
     glm::vec3 get_rotation() const;

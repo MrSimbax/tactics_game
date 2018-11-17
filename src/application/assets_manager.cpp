@@ -10,6 +10,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "../misc/custom_log.h"
+
 using namespace tactics_game;
 
 const std::string assets_manager::game_map_layer_extension{".layer"};
@@ -54,6 +56,7 @@ std::string assets_manager::get_shader_source(const std::string& name) const
 
 model assets_manager::get_model(const std::string& name) const
 {
+    LOG_INFO << "Loading " << name;
     Assimp::Importer importer;
     const auto scene = importer.ReadFile(root_ + models_path_ + name, 0);
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -65,13 +68,14 @@ model assets_manager::get_model(const std::string& name) const
     return model{meshes};
 }
 
-game_scene assets_manager::get_scene(const std::string& name) const
+game_scene_with_other_data assets_manager::get_scene(const std::string& name) const
 {
+    // Load from file
     const auto directory_path{this->root_ + this->maps_path_ + name};
     if (!exists(std::filesystem::path{directory_path}))
     {
         LOG_ERROR << "Could not load scene: the directory " << directory_path << " does not exist";
-        return game_scene{};
+        return {};
     }
 
     auto scene_file_path = directory_path + "/";
@@ -79,15 +83,17 @@ game_scene assets_manager::get_scene(const std::string& name) const
     if (!exists(std::filesystem::path{scene_file_path}))
     {
         LOG_ERROR << "The map does not have main file: " << scene_file_path << " does not exist";
-        return game_scene{};
+        return {};
     }
 
     auto info = load_json(scene_file_path);
     const std::string scene_name = info["name"];
     const glm::ivec3 size{info["size"]["x"], info["size"]["y"], info["size"]["z"]};
 
+    // Load map
     const std::shared_ptr<game_map> map{new game_map{get_map(directory_path, size)}};
 
+    // Load player data
     std::vector<std::shared_ptr<player>> players;
     auto players_json = info["players"];
     size_t player_id = 0;
@@ -107,7 +113,29 @@ game_scene assets_manager::get_scene(const std::string& name) const
         player_id += 1;
     }
 
-    return game_scene{scene_name, map, players};
+    // Load lights
+    std::vector<point_light> point_lights;
+    for (const auto& light : info["lights"])
+    {
+        if (light["type"] != "point") continue;
+        point_lights.push_back({
+            glm::vec3{light["position"][0], light["position"][1], light["position"][2]},
+            glm::vec3{light["ambient"][0], light["ambient"][1], light["ambient"][2]},
+            glm::vec3{light["diffuse"][0], light["diffuse"][1], light["diffuse"][2]},
+            glm::vec3{light["specular"][0], light["specular"][1], light["specular"][2]},
+            light["constant"],
+            light["linear"],
+            light["quadratic"]
+        });
+    }
+
+    const auto world_ambient = glm::vec3(info["worldAmbient"][0], info["worldAmbient"][1], info["worldAmbient"][2]);
+
+    return {
+        game_scene{scene_name, map, players},
+        point_lights,
+        world_ambient
+    };
 }
 
 game_map assets_manager::get_map(const std::string& directory_path, const glm::ivec3 size) const
@@ -131,14 +159,16 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
         }
 
         game_map::fields_t layer{};
+        layer.resize(size.x);
+
         std::stringstream ss{layer_data};
         std::string line;
-        auto x = 0;
+        auto x = size.x - 1;;
         while (std::getline(ss, line))
         {
             if (line.empty())
                 continue;
-            if (x >= size.x)
+            if (x < 0)
             {
                 LOG_WARNING << "Layer " << y << " too high, discarding the rest";
                 break;
@@ -165,13 +195,13 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
                     ++z;
                 }
             }
-            layer.push_back(row);
-            ++x;
+            layer[x] = row;
+            --x;
         }
-        if (x < size.x)
+        if (x >= 0)
         {
             LOG_WARNING << "Layer " << y << " too low, appending empty rows";
-            while (x < size.z)
+            while (x >= 0)
             {
                 std::vector<field_type> row;
                 for (auto z = 0; z < size.z; ++z)
@@ -179,7 +209,7 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
                     row.push_back(static_cast<field_type>(0));
                 }
                 layer.push_back(row);
-                ++x;
+                --x;
             }
         }
         layers.push_back(layer);
@@ -220,9 +250,9 @@ json assets_manager::load_json(const std::string& path)
     return j;
 }
 
-std::vector<mesh> assets_manager::process_model_node(aiNode* const ai_node, const aiScene* const scene)
+std::vector<std::shared_ptr<mesh>> assets_manager::process_model_node(aiNode* const ai_node, const aiScene* const scene)
 {
-    std::vector<mesh> meshes;
+    std::vector<std::shared_ptr<mesh>> meshes;
 
     for (unsigned int i = 0; i < ai_node->mNumMeshes; ++i)
     {
@@ -239,10 +269,11 @@ std::vector<mesh> assets_manager::process_model_node(aiNode* const ai_node, cons
     return meshes;
 }
 
-mesh assets_manager::process_model_mesh(aiMesh* ai_mesh, const aiScene* const scene)
+std::shared_ptr<mesh> assets_manager::process_model_mesh(aiMesh* ai_mesh, const aiScene* const scene)
 {
     std::vector<vertex> vertices;
     std::vector<unsigned int> indices;
+    material mat{};
 
     for (unsigned int i = 0; i < ai_mesh->mNumVertices; ++i)
     {
@@ -261,5 +292,28 @@ mesh assets_manager::process_model_mesh(aiMesh* ai_mesh, const aiScene* const sc
         }
     }
 
-    return mesh{vertices, indices};
+    if (ai_mesh->mMaterialIndex >= 0)
+    {
+        const auto ai_material = scene->mMaterials[ai_mesh->mMaterialIndex];
+        aiColor3D ai_color;
+
+        // ReSharper disable once CppExpressionWithoutSideEffects
+        ai_material->Get(AI_MATKEY_COLOR_AMBIENT, ai_color);
+        mat.ambient = glm::vec3(ai_color.r, ai_color.g, ai_color.b);
+
+        // ReSharper disable once CppExpressionWithoutSideEffects
+        ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, ai_color);
+        mat.diffuse = glm::vec3(ai_color.r, ai_color.g, ai_color.b);
+
+        // ReSharper disable once CppExpressionWithoutSideEffects
+        ai_material->Get(AI_MATKEY_COLOR_SPECULAR, ai_color);
+        mat.specular = glm::vec3(ai_color.r, ai_color.g, ai_color.b);
+
+        auto f{0.0f};
+        // ReSharper disable once CppExpressionWithoutSideEffects
+        ai_material->Get(AI_MATKEY_SHININESS, f);
+        mat.shininess = f;
+    }
+
+    return std::make_shared<mesh>(vertices, indices, mat);
 }
