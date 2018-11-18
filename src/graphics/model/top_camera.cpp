@@ -125,10 +125,8 @@ void top_camera::process_keyboard(const glm::vec3 direction, const float delta_t
     update();
 }
 
-glm::vec3 top_camera::mouse_to_xz_plane(const glm::ivec2 mouse_pos, const glm::ivec2 frame_size, const float y) const
+glm::vec3 top_camera::mouse_to_ray(const glm::ivec2 mouse_pos, const glm::ivec2 frame_size) const
 {
-    // Ray cast to plane xz on height y
-
     // The ray has origin in camera position and is directed out of the screen
 
     // Convert mouse pos to NDC coordinates
@@ -141,13 +139,7 @@ glm::vec3 top_camera::mouse_to_xz_plane(const glm::ivec2 mouse_pos, const glm::i
     ray = inverse(get_projection_matrix()) * glm::vec4(ray, 0.0f);
     ray = normalize(inverse(get_view_matrix()) * glm::vec4(ray.x, ray.y, -1.0f, 0.0f));
 
-    // Intersect with plane
-    // It's just solving the equation for t
-    // (cam_pos + ray * t) * plane_normal + d = 0
-    // plane_normal = [0, 1, 0]
-    // d = y
-    const auto t = -(position_.y + y) / ray.y;
-    return position_ + ray * t;
+    return ray;
 }
 
 float top_camera::get_speed() const
@@ -200,6 +192,16 @@ float top_camera::get_far() const
 void top_camera::set_far(const float ffar)
 {
     far_ = ffar;
+}
+
+int top_camera::get_current_layer() const
+{
+    return current_layer_;
+}
+
+void top_camera::set_current_layer(const int layer)
+{
+    current_layer_ = layer;
 }
 
 void top_camera::update()

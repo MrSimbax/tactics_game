@@ -2,6 +2,7 @@
 #include <vector>
 #include <glm/vec2.hpp>
 #include "glm/vec3.hpp"
+#include "glm/detail/_noise.hpp"
 
 namespace tactics_game
 {
@@ -23,6 +24,7 @@ public:
     glm::ivec3 get_size() const;
 
     const std::vector<fields_t>& get_layers() const;
+    field_type get_field(const glm::ivec3 pos) const;
 
 private:
     std::vector<fields_t> layers_;

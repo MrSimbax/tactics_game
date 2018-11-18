@@ -20,7 +20,6 @@ public:
 private:
     void create_static_buffers();
 
-    glm::ivec2 find_wall_blob(const game_map::fields_t& layer, int x, int y);
     void create_static_layer(const game_map::fields_t& layer, size_t y);
 
     std::vector<std::vector<bool>> visited_;
@@ -34,6 +33,6 @@ private:
     std::vector<std::shared_ptr<graphics_object>> static_layers_;
     std::vector<buffered_graphics_object> buffered_static_layers_;
 
-    std::unique_ptr<buffered_graphics_object> climbers_;
+    std::vector<buffered_graphics_object> climbers_;
 };
 }

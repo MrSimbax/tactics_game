@@ -18,3 +18,8 @@ void buffered_graphics_object::render(shader_program& program) const
     program.set_mat3("u_normal_model", inverseTranspose(glm::mat3(model_matrix)));
     model_.render(program);
 }
+
+std::shared_ptr<graphics_object> buffered_graphics_object::get_graphics_object() const
+{
+    return object_;
+}

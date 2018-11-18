@@ -11,6 +11,9 @@
 #include "glm/detail/_noise.hpp"
 #include "glm/detail/_noise.hpp"
 #include "glm/detail/_noise.hpp"
+#include "glm/detail/_noise.hpp"
+#include "glm/detail/_noise.hpp"
+#include "glm/detail/_noise.hpp"
 
 namespace tactics_game
 {
@@ -33,7 +36,7 @@ public:
     void process_keyboard(glm::vec3 direction, float delta_time);
     //void process_mouse(glm::ivec2 offset);
     //void process_scroll(int offset);
-    glm::vec3 mouse_to_xz_plane(glm::ivec2 mouse_pos, glm::ivec2 frame_size, float y) const;
+    glm::vec3 mouse_to_ray(glm::ivec2 mouse_pos, glm::ivec2 frame_size) const;
 
     glm::vec3 get_offset() const;
     void set_offset(glm::vec3 position);
@@ -67,6 +70,9 @@ public:
     float get_far() const;
     void set_far(float ffar);
 
+    int get_current_layer() const;
+    void set_current_layer(int layer);
+
 private:
     void update();
 
@@ -84,5 +90,7 @@ private:
 
     float speed_{2.5f};
     float fov_{45.0f};
+
+    int current_layer_{0};
 };
 }

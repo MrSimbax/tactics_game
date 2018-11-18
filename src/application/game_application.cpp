@@ -86,13 +86,14 @@ void game_application::init_window()
     window_->set_mouse_trapped(false);
 }
 
-void game_application::update_perspective_matrix()
+void game_application::update_aspect_ratio_in_cameras()
 {
     const auto aspect_ratio =
         static_cast<float>(window_->get_size().width)
         /
         static_cast<float>(window_->get_size().height);
-    camera_.set_ratio(aspect_ratio);
+    for (const auto& camera : cameras_)
+        camera->set_ratio(aspect_ratio);
 }
 
 void game_application::init_graphics()
@@ -110,23 +111,18 @@ void game_application::init_graphics()
     //camera_.set_position({3.0f, 0.5f, 3.0f});
     //camera_.set_rotation({0.0f, glm::radians(90.0f)});
     //camera_.set_mouse_sensitivity(input_manager_.get_mouse_sensitivity());
-    camera_.set_orientation(top_camera_orientation::bottom_left);
-    camera_.set_offset({5.0f, 7.5f, 5.0f});
-    camera_.set_speed(6.0f);
-    camera_.set_target({1.0f, 0.0f, 1.0f}); //TODO set up player cameras from scene
-
-    update_perspective_matrix();
-
-    //current_map_.reset(new game_map{assets_manager_.get_map("demo")});
-
-    /*map_renderer_.reset(new game_map_renderer{
-        current_map_,
-        std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj")),
-        std::make_unique<graphics_object>(assets_manager_.get_model("wall.obj")),
-        std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj"))
-    });*/
 
     auto loaded_scene{assets_manager_.get_scene("demo")};
+
+    cameras_ = loaded_scene.player_cameras;
+
+    for (const auto& camera : cameras_)
+    {
+        camera->set_speed(8.0f);
+        camera->set_offset(glm::vec3{5.0f, 7.5f, 5.0f});
+    }
+
+    update_aspect_ratio_in_cameras();
 
     current_scene_.reset(new game_scene{loaded_scene.scene});
 
@@ -142,26 +138,39 @@ void game_application::init_graphics()
     std::vector<std::shared_ptr<player_renderer>> player_renderers;
 
     player_renderers.emplace_back(new player_renderer{
-        current_scene_->get_players()[0], assets_manager_.get_model("player1.obj")
+        current_scene_->get_players()[0], cameras_[0], assets_manager_.get_model("player1.obj")
     });
     player_renderers.emplace_back(new player_renderer{
-        current_scene_->get_players()[1], assets_manager_.get_model("player2.obj")
+        current_scene_->get_players()[1], cameras_[1], assets_manager_.get_model("player2.obj")
     });
 
-    std::vector<std::shared_ptr<light_object>> light_objects;
+    std::vector<std::vector<std::shared_ptr<light_object>>> light_objects;
+    light_objects.reserve(loaded_scene.scene.get_game_map()->get_size().y);
     const auto light_model = assets_manager_.get_model("point_light.obj");
-    for (const auto& light : loaded_scene.point_lights)
+    for (const auto& layer : loaded_scene.point_lights)
     {
-        std::shared_ptr<light_object> light_obj{new light_object{light_model}};
-        light_obj->set_position(light.position);
-        light_obj->set_color(glm::vec4{light.diffuse, 1.0f});
-        light_objects.push_back(light_obj);
+        std::vector<std::shared_ptr<light_object>> light_objects_layer;
+        for (const auto& light : layer)
+        {
+            std::shared_ptr<light_object> light_obj{new light_object{light_model}};
+            light_obj->set_position(light.position);
+            light_obj->set_color(glm::vec4{light.diffuse, 1.0f});
+            light_objects_layer.push_back(light_obj);
+        }
+        light_objects.push_back(light_objects_layer);
     }
     std::shared_ptr<light_objects_renderer> light_objs_renderer{new light_objects_renderer{light_objects}};
 
+    auto grid_obj = std::make_unique<buffered_graphics_object>(
+        std::make_shared<graphics_object>(assets_manager_.get_model("grid.obj")));
+
     scene_renderer_.reset(new game_scene_renderer{
-        current_scene_, std::move(map_renderer),
-        std::move(player_renderers), loaded_scene.point_lights, std::move(light_objs_renderer),
+        current_scene_,
+        std::move(map_renderer),
+        std::move(player_renderers),
+        loaded_scene.point_lights,
+        std::move(grid_obj),
+        std::move(light_objs_renderer),
         loaded_scene.world_ambient
     });
 
@@ -218,31 +227,23 @@ void game_application::init_input()
         camera_direction_.z += 1.0f;
     });
 
-    /*input_manager_.bind_action_down(input_action::camera_up, [this]
+    input_manager_.bind_action_down(input_action::camera_up, [this]
     {
-        camera_direction_.y += 1.0f;
-    });
-    input_manager_.bind_action_up(input_action::camera_up, [this]
-    {
-        camera_direction_.y -= 1.0f;
+        scene_renderer_->set_current_layer(scene_renderer_->get_current_layer() + 1);
     });
 
     input_manager_.bind_action_down(input_action::camera_down, [this]
     {
-        camera_direction_.y -= 1.0f;
+        scene_renderer_->set_current_layer(scene_renderer_->get_current_layer() - 1);
     });
-    input_manager_.bind_action_up(input_action::camera_down, [this]
-    {
-        camera_direction_.y += 1.0f;
-    });*/
 
     input_manager_.bind_action_down(input_action::camera_rotate_left, [this]
     {
-        camera_.rotate_left();
+        scene_renderer_->get_current_camera()->rotate_left();
     });
     input_manager_.bind_action_up(input_action::camera_rotate_right, [this]
     {
-        camera_.rotate_right();
+        scene_renderer_->get_current_camera()->rotate_right();
     });
 
     /*input_manager_.bind_mouse_motion([this](const glm::ivec2 offset)
@@ -259,13 +260,17 @@ void game_application::init_input()
 
     input_manager_.bind_mouse_button_down([this](const glm::ivec2 mouse_pos, int button)
     {
-        const glm::ivec2 size{window_->get_size().width, window_->get_size().height};
-        LOG_DEBUG << camera_.mouse_to_xz_plane(mouse_pos, size, 0);
     });
 
     input_manager_.bind_action_down(input_action::debug, [this]
     {
-        LOG_DEBUG << "Camera position: " << camera_.get_position();
+        LOG_DEBUG << "Camera position: " << scene_renderer_->get_current_camera()->get_position();
+    });
+
+    input_manager_.bind_mouse_motion([this](const glm::ivec2 mouse_pos, const glm::ivec2 offset)
+    {
+        const glm::ivec2 size{window_->get_size().width, window_->get_size().height};
+        scene_renderer_->on_mouse_motion(scene_renderer_->get_current_camera()->mouse_to_ray(mouse_pos, size));
     });
 }
 
@@ -281,7 +286,7 @@ void game_application::handle_event(SDL_Event* event)
         {
         case SDL_WINDOWEVENT_SIZE_CHANGED:
             window_->resize();
-            update_perspective_matrix();
+            update_aspect_ratio_in_cameras();
             break;
         default: ;
         }
@@ -300,7 +305,7 @@ void game_application::handle_event(SDL_Event* event)
 
 void game_application::update(const float delta_time)
 {
-    camera_.process_keyboard(camera_direction_, delta_time);
+    scene_renderer_->get_current_camera()->process_keyboard(camera_direction_, delta_time);
 }
 
 void game_application::render() const
@@ -308,13 +313,14 @@ void game_application::render() const
     window_->clear_screen();
 
     shader_program_->use();
-    shader_program_->set_mat4("u_view", camera_.get_view_matrix());
-    shader_program_->set_mat4("u_projection", camera_.get_projection_matrix());
-    shader_program_->set_vec3("u_view_pos", camera_.get_position());
+    shader_program_->set_mat4("u_view", scene_renderer_->get_current_camera()->get_view_matrix());
+    shader_program_->set_mat4("u_projection", scene_renderer_->get_current_camera()->get_projection_matrix());
+    shader_program_->set_vec3("u_view_pos", scene_renderer_->get_current_camera()->get_position());
 
     light_object_shader_program_->use();
-    light_object_shader_program_->set_mat4("u_view", camera_.get_view_matrix());
-    light_object_shader_program_->set_mat4("u_projection", camera_.get_projection_matrix());
+    light_object_shader_program_->set_mat4("u_view", scene_renderer_->get_current_camera()->get_view_matrix());
+    light_object_shader_program_->set_mat4("u_projection",
+                                           scene_renderer_->get_current_camera()->get_projection_matrix());
 
     //map_renderer_->render(*shader_program_, current_map_->get_layers().size());
     scene_renderer_->render(*shader_program_, *light_object_shader_program_);

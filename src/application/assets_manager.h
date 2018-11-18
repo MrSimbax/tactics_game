@@ -6,6 +6,7 @@
 #include "../logic/game_map.h"
 #include "../logic/game_scene.h"
 #include "../graphics/model/lights.h"
+#include "../graphics/model/top_camera.h"
 
 using json = nlohmann::json;
 
@@ -15,8 +16,9 @@ namespace tactics_game
 struct game_scene_with_other_data
 {
     game_scene scene;
-    std::vector<point_light> point_lights;
+    std::vector<std::vector<point_light>> point_lights;
     glm::vec3 world_ambient;
+    std::vector<std::shared_ptr<top_camera>> player_cameras;
 };
 
 class assets_manager

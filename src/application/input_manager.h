@@ -23,7 +23,7 @@ enum class input_action
 class input_manager
 {
     typedef std::function<void()> callback_t;
-    typedef std::function<void(glm::ivec2)> callback_mouse_motion_t;
+    typedef std::function<void(glm::ivec2, glm::ivec2)> callback_mouse_motion_t;
     typedef std::function<void(int)> callback_mouse_scroll_t;
     typedef std::function<void(glm::ivec2, int)> callback_mouse_button_down_t;
     typedef SDL_Keycode key_t;

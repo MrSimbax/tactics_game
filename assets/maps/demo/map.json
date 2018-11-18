@@ -3,7 +3,7 @@
   "size": {
     "x": 50,
     "z": 25,
-    "y": 1
+    "y": 2
   },
   "startingPlayer": 0,
   "worldAmbient": [0.1, 0.1, 0.1],
@@ -43,10 +43,10 @@
     },
     {
       "camera": {
-        "orientation": "top-left",
+        "orientation": "top-right",
         "lookAt": {
-          "x": 50,
-          "z": 50,
+          "x": 49,
+          "z": 49,
           "y": 1
         }
       },
@@ -122,6 +122,45 @@
 
       "ambient": [0.1, 0.1, 0.1],
       "diffuse": [0.8, 0.5, 0.2],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.022,
+      "quadratic": 0.0019
+    },
+    {
+      "type": "point",
+
+      "position": [36.0, 1.5, 13.0],
+
+      "ambient": [0.1, 0.1, 0.1],
+      "diffuse": [0.4, 0.4, 0.8],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.022,
+      "quadratic": 0.0019
+    },
+    {
+      "type": "point",
+
+      "position": [25.0, 1.5, 13.0],
+
+      "ambient": [0.1, 0.1, 0.1],
+      "diffuse": [0.8, 0.8, 0.8],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.022,
+      "quadratic": 0.0019
+    },
+    {
+      "type": "point",
+
+      "position": [3.0, 1.5, 13.0],
+
+      "ambient": [0.1, 0.1, 0.1],
+      "diffuse": [0.8, 0.8, 0.8],
       "specular": [1.0, 1.0, 1.0],
 
       "constant": 1.0, 

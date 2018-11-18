@@ -2,20 +2,26 @@
 
 using namespace tactics_game;
 
-light_objects_renderer::light_objects_renderer(std::vector<std::shared_ptr<light_object>> light_objects)
+light_objects_renderer::light_objects_renderer(std::vector<std::vector<std::shared_ptr<light_object>>> light_objects)
     : light_objects_{std::move(light_objects)}
 {
-    for (const auto& light : light_objects_)
+    buffered_light_objects_.resize(light_objects_.size());
+    for (auto i = 0u; i < light_objects_.size(); ++i)
     {
-        buffered_light_objects_.emplace_back(light);
+        for (const auto& light : light_objects_[i])
+        {
+            buffered_light_objects_[i].emplace_back(light);
+        }
     }
 }
 
-void light_objects_renderer::render(shader_program& program) const
+void light_objects_renderer::render(shader_program& program, const int layer) const
 {
-    program.use();
-    for (const auto& light : buffered_light_objects_)
+    for (auto i = 0; i < layer; ++i)
     {
-        light.render(program);
+        for (const auto& light : buffered_light_objects_[i])
+        {
+            light.render(program);
+        }
     }
 }

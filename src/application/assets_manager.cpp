@@ -97,6 +97,7 @@ game_scene_with_other_data assets_manager::get_scene(const std::string& name) co
     std::vector<std::shared_ptr<player>> players;
     auto players_json = info["players"];
     size_t player_id = 0;
+    std::vector<std::shared_ptr<top_camera>> player_cameras;
     for (const auto& player_json : players_json)
     {
         std::vector<std::shared_ptr<game_unit>> units;
@@ -110,15 +111,32 @@ game_scene_with_other_data assets_manager::get_scene(const std::string& name) co
             unit_id += 1;
         }
         players.emplace_back(new player{player_id, units});
+        
+        player_cameras.emplace_back(new top_camera);
+        auto camera_json = player_json["camera"];
+        player_cameras[player_id]->set_target(glm::vec3{camera_json["lookAt"]["x"], camera_json["lookAt"]["y"], camera_json["lookAt"]["z"]});
+        player_cameras[player_id]->set_current_layer(camera_json["lookAt"]["y"]);
+        auto orient = camera_json["orientation"];
+        if (orient == "top-left")
+            player_cameras[player_id]->set_orientation(top_camera_orientation::top_left);
+        else if (orient == "top-right")
+            player_cameras[player_id]->set_orientation(top_camera_orientation::top_right);
+        else if (orient == "bottom-right")
+            player_cameras[player_id]->set_orientation(top_camera_orientation::bottom_right);
+        else
+            player_cameras[player_id]->set_orientation(top_camera_orientation::bottom_left);
         player_id += 1;
     }
 
+
     // Load lights
-    std::vector<point_light> point_lights;
+    std::vector<std::vector<point_light>> point_lights;
+    point_lights.resize(map->get_size().y);
     for (const auto& light : info["lights"])
     {
         if (light["type"] != "point") continue;
-        point_lights.push_back({
+        const auto y = static_cast<int>(light["position"][1]);
+        point_lights[y].push_back({
             glm::vec3{light["position"][0], light["position"][1], light["position"][2]},
             glm::vec3{light["ambient"][0], light["ambient"][1], light["ambient"][2]},
             glm::vec3{light["diffuse"][0], light["diffuse"][1], light["diffuse"][2]},
@@ -134,7 +152,8 @@ game_scene_with_other_data assets_manager::get_scene(const std::string& name) co
     return {
         game_scene{scene_name, map, players},
         point_lights,
-        world_ambient
+        world_ambient,
+        player_cameras
     };
 }
 

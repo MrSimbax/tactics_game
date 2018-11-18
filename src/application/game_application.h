@@ -37,7 +37,7 @@ private:
     void update(float delta_time);
     void render() const;
 
-    void update_perspective_matrix();
+    void update_aspect_ratio_in_cameras();
 
     assets_manager assets_manager_{"assets/"};
     input_manager input_manager_{};
@@ -53,7 +53,7 @@ private:
     std::shared_ptr<game_scene> current_scene_{};
     std::unique_ptr<game_scene_renderer> scene_renderer_{};
 
-    top_camera camera_{};
+    std::vector<std::shared_ptr<top_camera>> cameras_{};
     glm::vec3 camera_direction_{};
 
     float last_frame_time_{0.0f};

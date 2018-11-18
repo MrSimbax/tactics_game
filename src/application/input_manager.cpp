@@ -32,7 +32,8 @@ void input_manager::handle_event(SDL_Event* event)
         break;
     case SDL_MOUSEMOTION:
         if (on_mouse_motion_)
-            on_mouse_motion_(glm::ivec2{event->motion.xrel, event->motion.yrel});
+            on_mouse_motion_(glm::ivec2{event->motion.x, event->motion.y},
+                             glm::ivec2{event->motion.xrel, event->motion.yrel});
         break;
     case SDL_MOUSEWHEEL:
         if (on_mouse_scroll_)

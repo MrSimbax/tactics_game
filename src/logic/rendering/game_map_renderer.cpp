@@ -20,10 +20,9 @@ void game_map_renderer::render(shader_program& program, const size_t layer_index
 {
     for (size_t y = 0; y < layer_index; ++y)
     {
-        const auto& layer = buffered_static_layers_[y];
-        layer.render(program);
+        buffered_static_layers_[y].render(program);
+        climbers_[y].render(program);
     }
-    climbers_->render(program);
 }
 
 void game_map_renderer::create_static_buffers()
@@ -61,12 +60,14 @@ void game_map_renderer::create_static_layer(const game_map::fields_t& layer, con
             case field_type::wall:
                 {
 
-                    wall_->set_position(glm::vec3(x, y + 0.5f, z));
+                    wall_->set_position(glm::vec3(x, y + 0.45f, z));
+                    wall_->set_scale(glm::vec3(1.0f, 0.9f, 1.0f));
                     static_layer_model.add_mesh(wall_->transformed().get_model().merged());
                     break;
                 }
             case field_type::climber:
                 {
+                    LOG_DEBUG << "climber";
                     climber_->set_position(glm::vec3(x, y + 0.2f, z));
                     climbers_model.add_mesh(climber_->transformed().get_model().merged());
                     if (y == 0 || map_->get_layers()[y-1][x][z] != field_type::climber)
@@ -83,6 +84,5 @@ void game_map_renderer::create_static_layer(const game_map::fields_t& layer, con
 
     static_layers_.emplace_back(new graphics_object{static_layer_model.merged()});
     buffered_static_layers_.emplace_back(static_layers_[y]);
-
-    climbers_.reset(new buffered_graphics_object{std::make_shared<graphics_object>(climbers_model)});
+    climbers_.emplace_back(std::make_shared<graphics_object>(climbers_model));
 }

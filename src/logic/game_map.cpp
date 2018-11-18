@@ -22,3 +22,8 @@ const std::vector<game_map::fields_t>& game_map::get_layers() const
 {
     return layers_;
 }
+
+field_type game_map::get_field(const glm::ivec3 pos) const
+{
+    return get_layers()[pos.y][pos.x][pos.z];
+}

@@ -16,6 +16,8 @@ public:
 
     void render(shader_program& program) const;
 
+    std::shared_ptr<graphics_object> get_graphics_object() const;
+
 private:
     std::shared_ptr<graphics_object> object_;
     buffered_model model_;
