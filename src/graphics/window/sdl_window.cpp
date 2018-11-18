@@ -18,9 +18,15 @@ sdl_window::sdl_window(const std::string& title, window_size size, const window_
 
     // Antialiasing
     if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1) != 0)
+    {
         LOG_WARNING << "Could not set SDL_GL_MULTISAMPLEBUFFERS";
+    }
     if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4) != 0)
+    {
         LOG_WARNING << "Could not set SDL_GL_MULTISAMPLEBUFFERS";
+    }
+    
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 1);
 
     window_ = create_sdl_window(title, size, settings);
 
@@ -58,9 +64,13 @@ sdl_window::sdl_window(const std::string& title, window_size size, const window_
     }
 
     if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1) != 0)
+    {
         LOG_WARNING << "Could not set SDL_GL_MULTISAMPLEBUFFERS";
+    }
     if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4) != 0)
+    {
         LOG_WARNING << "Could not set SDL_GL_MULTISAMPLEBUFFERS";
+    }
 
     int buffers, sample;
     SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &buffers);
@@ -74,6 +84,7 @@ sdl_window::sdl_window(const std::string& title, window_size size, const window_
     sdl_window::resize();
     sdl_window::set_wireframe_mode(false);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
     glEnable(GL_MULTISAMPLE);
 }
 
@@ -153,7 +164,7 @@ window_size sdl_window::get_size() const
 void sdl_window::clear_screen()
 {
     glClearColor(clear_color_.r, clear_color_.g, clear_color_.b, clear_color_.a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void sdl_window::resize()

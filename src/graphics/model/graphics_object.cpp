@@ -49,11 +49,11 @@ void graphics_object::set_scale(const glm::vec3 scale)
 glm::mat4 graphics_object::get_model_matrix() const
 {
     glm::mat4 model{1};
-    model = scale(model, scale_);
+    model = translate(model, position_);
     model = rotate(model, rotation_.x, {1.0f, 0.0f, 0.0f});
     model = rotate(model, rotation_.y, {0.0f, 1.0f, 0.0f});
     model = rotate(model, rotation_.z, {0.0f, 0.0f, 1.0f});
-    model = translate(model, position_);
+    model = scale(model, scale_);
     return model;
 }
 

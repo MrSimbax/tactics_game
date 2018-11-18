@@ -67,7 +67,6 @@ void game_map_renderer::create_static_layer(const game_map::fields_t& layer, con
                 }
             case field_type::climber:
                 {
-                    LOG_DEBUG << "climber";
                     climber_->set_position(glm::vec3(x, y + 0.2f, z));
                     climbers_model.add_mesh(climber_->transformed().get_model().merged());
                     if (y == 0 || map_->get_layers()[y-1][x][z] != field_type::climber)

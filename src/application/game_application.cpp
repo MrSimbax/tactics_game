@@ -103,9 +103,9 @@ void game_application::init_graphics()
         assets_manager_.get_shader_source("main.frag")
     });
 
-    light_object_shader_program_.reset(new shader_program{
-        assets_manager_.get_shader_source("lamp.vert"),
-        assets_manager_.get_shader_source("lamp.frag")
+    simple_color_shader_program_.reset(new shader_program{
+        assets_manager_.get_shader_source("simple_color.vert"),
+        assets_manager_.get_shader_source("simple_color.frag")
     });
 
     //camera_.set_position({3.0f, 0.5f, 3.0f});
@@ -258,8 +258,10 @@ void game_application::init_input()
     if (length(camera_direction_) != 0.0f)
         camera_direction_ = normalize(camera_direction_);
 
-    input_manager_.bind_mouse_button_down([this](const glm::ivec2 mouse_pos, int button)
+    input_manager_.bind_mouse_button_down([this](const glm::ivec2 mouse_pos, const int button)
     {
+        const glm::ivec2 size{window_->get_size().width, window_->get_size().height};
+        scene_renderer_->on_mouse_click(scene_renderer_->get_current_camera()->mouse_to_ray(mouse_pos, size), button);
     });
 
     input_manager_.bind_action_down(input_action::debug, [this]
@@ -317,13 +319,13 @@ void game_application::render() const
     shader_program_->set_mat4("u_projection", scene_renderer_->get_current_camera()->get_projection_matrix());
     shader_program_->set_vec3("u_view_pos", scene_renderer_->get_current_camera()->get_position());
 
-    light_object_shader_program_->use();
-    light_object_shader_program_->set_mat4("u_view", scene_renderer_->get_current_camera()->get_view_matrix());
-    light_object_shader_program_->set_mat4("u_projection",
+    simple_color_shader_program_->use();
+    simple_color_shader_program_->set_mat4("u_view", scene_renderer_->get_current_camera()->get_view_matrix());
+    simple_color_shader_program_->set_mat4("u_projection",
                                            scene_renderer_->get_current_camera()->get_projection_matrix());
 
     //map_renderer_->render(*shader_program_, current_map_->get_layers().size());
-    scene_renderer_->render(*shader_program_, *light_object_shader_program_);
+    scene_renderer_->render(*shader_program_, *simple_color_shader_program_);
 
     window_->swap_buffers();
 }

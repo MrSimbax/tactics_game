@@ -5,6 +5,7 @@
 #include "player_renderer.h"
 #include "light_objects_renderer.h"
 #include "../../graphics/model/lights.h"
+#include "glm/detail/_noise.hpp"
 
 namespace tactics_game
 {
@@ -19,19 +20,22 @@ public:
                         std::shared_ptr<light_objects_renderer> light_objects_renderer = {},
                         glm::vec3 world_ambient = {});
 
-    void render(shader_program& program, shader_program& light_objects_program);
+    void render(shader_program& program, shader_program& simple_color_program);
 
     void set_lights(shader_program& program);
     void count_point_lights();
 
-    void on_mouse_motion(const glm::vec3 ray);
-    void on_mouse_click(glm::ivec3 position, int button);
+    void on_mouse_motion(glm::vec3 ray);
+    void on_mouse_click(glm::vec3 ray, int button);
 
     int get_current_layer();
     void set_current_layer(int layer);
     std::shared_ptr<top_camera> get_current_camera();
 
 private:
+    void handle_left_mouse_button(glm::ivec3 position);
+    void handle_right_mouse_button(glm::ivec3 position) const;
+
     glm::ivec3 get_map_position_from_camera_ray(glm::vec3 ray);
     static glm::vec3 raycast_to_xz_plane(glm::vec3 from, glm::vec3 ray, float y);
 
@@ -48,5 +52,7 @@ private:
     bool should_render_grid_cursor_{false};
 
     int point_lights_count_{0};
+
+    std::shared_ptr<unit_renderer> currently_selected_unit_{};
 };
 }

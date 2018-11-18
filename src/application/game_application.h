@@ -46,7 +46,7 @@ private:
     std::unique_ptr<window> window_{};
 
     std::unique_ptr<shader_program> shader_program_{};
-    std::unique_ptr<shader_program> light_object_shader_program_{};
+    std::unique_ptr<shader_program> simple_color_shader_program_{};
 
     //std::shared_ptr<game_map> current_map_{};
     //std::unique_ptr<game_map_renderer> map_renderer_{};
