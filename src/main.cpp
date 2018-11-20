@@ -4,8 +4,8 @@
 
 #include "application/game_application.h"
 #include <plog/Appenders/ColorConsoleAppender.h>
-#include "plog/Appenders/DebugOutputAppender.h"
-#include "plog/Log.h"
+#include <plog/Appenders/DebugOutputAppender.h>
+#include <plog/Log.h>
 
 void init_logger()
 {

@@ -33,8 +33,9 @@ public:
     std::shared_ptr<top_camera> get_current_camera();
 
 private:
+    bool game_scene_renderer::hovered_position_changed(glm::vec3 ray);
     void handle_left_mouse_button(glm::ivec3 position);
-    void handle_right_mouse_button(glm::ivec3 position) const;
+    void handle_right_mouse_button(glm::ivec3 position);
 
     glm::ivec3 get_map_position_from_camera_ray(glm::vec3 ray);
     static glm::vec3 raycast_to_xz_plane(glm::vec3 from, glm::vec3 ray, float y);
@@ -54,5 +55,8 @@ private:
     int point_lights_count_{0};
 
     std::shared_ptr<unit_renderer> currently_selected_unit_{};
+    std::shared_ptr<unit_renderer> currently_hovered_unit_{};
+
+    glm::ivec3 currently_hovered_position_{0};
 };
 }

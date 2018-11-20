@@ -6,6 +6,9 @@
 #include <glad/glad.h>
 #include <SDL2/SDL_mouse.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/compatibility.hpp>
+
 using namespace tactics_game;
 
 game_scene_renderer::game_scene_renderer(std::shared_ptr<game_scene> scene,
@@ -80,17 +83,78 @@ void game_scene_renderer::count_point_lights()
         point_lights_count_ += static_cast<int>(point_lights_[y].size());
 }
 
+bool game_scene_renderer::hovered_position_changed(const glm::vec3 ray)
+{
+    // Update position
+    const auto position = get_map_position_from_camera_ray(ray);
+
+    if (currently_hovered_position_ == position)
+        return false;
+
+    currently_hovered_position_ = position;
+
+    // Find hovered unit
+    if (!currently_hovered_unit_ || // nothing hovered
+        currently_hovered_unit_->get_unit()->get_position() != currently_hovered_position_) // position mismatch
+    {
+        if (currently_hovered_unit_)
+        {
+            // turn off outline if not selected
+            if (currently_hovered_unit_ != currently_selected_unit_)
+                currently_hovered_unit_->set_outline(false);
+            currently_hovered_unit_.reset();
+        }
+
+        // try to find a unit under cursor
+        for (const auto& player : player_renderers_)
+        {
+            for (auto& unit_renderer : player->get_unit_renderers())
+            {
+                if (unit_renderer->get_unit()->get_position() == currently_hovered_position_)
+                {
+                    if (unit_renderer->get_unit()->is_dead() || !unit_renderer->get_unit()->is_visible())
+                        break;
+                    currently_hovered_unit_ = unit_renderer;
+                    break;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 void game_scene_renderer::on_mouse_motion(const glm::vec3 ray)
 {
-    const auto position = get_map_position_from_camera_ray(ray);
-    if (position.x == -1)
+    if (!hovered_position_changed(ray))
+        return;
+
+     // Update hover grid under cursor
+    if (currently_hovered_position_.x != -1)
+    {
+        const auto field = scene_->get_game_map()->get_field(currently_hovered_position_);
+        should_render_grid_cursor_ = !(field == field_type::wall);
+        grid_cursor_object_->get_graphics_object()->set_position(currently_hovered_position_);
+    }
+    else
     {
         should_render_grid_cursor_ = false;
-        return;
     }
-    const auto field = scene_->get_game_map()->get_field(position);
-    should_render_grid_cursor_ = !(field == field_type::wall);
-    grid_cursor_object_->get_graphics_object()->set_position(position);
+
+    // Hover enemy unit outline
+    if (currently_hovered_unit_ && currently_selected_unit_)
+    {
+        if (currently_hovered_unit_->get_unit()->get_player_id() != scene_->get_current_player_id())
+        {
+            currently_hovered_unit_->set_outline(true);
+            currently_hovered_unit_->set_outline_color(
+                lerp(outline_color_shoot_probability_low,
+                     outline_color_shoot_probability_high,
+                     scene_->calculate_shooting_probability(
+                         *currently_selected_unit_->get_unit(),
+                         *currently_hovered_unit_->get_unit())));
+        }
+    }
 }
 
 glm::ivec3 game_scene_renderer::get_map_position_from_camera_ray(const glm::vec3 ray)
@@ -133,28 +197,49 @@ glm::ivec3 game_scene_renderer::get_map_position_from_camera_ray(const glm::vec3
 
 void game_scene_renderer::handle_left_mouse_button(const glm::ivec3 position)
 {
-    if (currently_selected_unit_)
+    if (currently_selected_unit_ && // something selected
+        !currently_hovered_unit_) // no unit under cursor
     {
-        if (currently_selected_unit_->get_unit()->get_position() == position)
-            return;
-        currently_selected_unit_->set_selected(false);
+        currently_selected_unit_->set_outline(false);
         currently_selected_unit_.reset();
     }
 
-    for (auto& unit_renderer : player_renderers_[scene_->get_current_player_id()]->get_unit_renderers())
+    if (currently_hovered_unit_ && // hovered unit belongs to current player
+        currently_hovered_unit_->get_unit()->get_player_id() == scene_->get_current_player_id())
     {
-        if (unit_renderer->get_unit()->get_position() == position)
-        {
-            currently_selected_unit_ = unit_renderer;
-            unit_renderer->set_selected(true);
-            break;
-        }
+        // select it
+        currently_selected_unit_ = currently_hovered_unit_;
+        currently_selected_unit_->set_outline(true);
+        currently_selected_unit_->set_outline_color(outline_color_selected);
     }
 }
 
-void game_scene_renderer::handle_right_mouse_button(const glm::ivec3 position) const
+void game_scene_renderer::handle_right_mouse_button(const glm::ivec3 position)
 {
-    if (currently_selected_unit_)
+    if (currently_hovered_position_.x == -1)
+        return;
+
+    // Shoot enemy units
+    if (currently_selected_unit_ && // selected
+        currently_hovered_unit_ && // hovered
+        currently_selected_unit_ != currently_hovered_unit_ && // different
+        currently_hovered_unit_->get_unit()->get_player_id() != scene_->get_current_player_id()) // hovered enemy
+    {
+        auto& target = *currently_hovered_unit_->get_unit();
+        if (!target.is_dead())
+        {
+            scene_->shoot_unit(*currently_selected_unit_->get_unit(), target);
+        }
+        if (target.is_dead())
+        {
+            currently_hovered_unit_->set_outline(false);
+            currently_hovered_unit_.reset();
+        }
+    }
+    // Move unit
+    else if (currently_selected_unit_ && // something selected
+        !currently_hovered_unit_ && // no unit under cursor
+        scene_->can_unit_move(*currently_selected_unit_->get_unit(), position)) // move is legal
     {
         currently_selected_unit_->get_unit()->set_position(position);
     }
@@ -162,14 +247,12 @@ void game_scene_renderer::handle_right_mouse_button(const glm::ivec3 position) c
 
 void game_scene_renderer::on_mouse_click(const glm::vec3 ray, const int button)
 {
-    const auto position = get_map_position_from_camera_ray(ray);
-    if (position.x == -1)
-        return;
+    hovered_position_changed(ray);
 
     if (button == SDL_BUTTON_LEFT)
-        handle_left_mouse_button(position);
+        handle_left_mouse_button(currently_hovered_position_);
     else if (button == SDL_BUTTON_RIGHT)
-        handle_right_mouse_button(position);
+        handle_right_mouse_button(currently_hovered_position_);
 }
 
 int game_scene_renderer::get_current_layer()

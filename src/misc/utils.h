@@ -3,6 +3,7 @@
 #include <vector>
 #include <numeric>
 #include <functional>
+#include <random>
 
 namespace tactics_game::utils
 {
@@ -37,5 +38,13 @@ std::vector<Q> flatten(std::vector<T>& v, F vector_getter)
         result.insert(result.end(), q.begin(), q.end());
     }
     return result;
+}
+
+inline float random_float()
+{
+    static std::random_device rd;
+    static std::mt19937 e{rd()};
+    static std::uniform_real_distribution<float> dist{0.0f, 1.0f};
+    return dist(e);
 }
 }

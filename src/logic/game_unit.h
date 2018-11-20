@@ -27,7 +27,7 @@ public:
     void set_hit_points(unsigned hit_points);
     
     glm::ivec3 get_position() const;
-    void set_position(const glm::ivec3 position);
+    void set_position(glm::ivec3 position);
 
 private:
     size_t id_;

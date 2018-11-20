@@ -1,7 +1,8 @@
 #include "unit_renderer.h"
 #include <utility>
-#include "plog/Log.h"
+#include <plog/Log.h>
 #include "../../misc/custom_log.h"
+#include <glm/glm.hpp>
 
 using namespace tactics_game;
 
@@ -27,8 +28,8 @@ void unit_renderer::render(shader_program& program) const
 
 void unit_renderer::render_outline(shader_program& program) const
 {
-    if (selected_)
-        program.set_vec4("u_color", outline_color_selected);
+    if (outline_)
+        program.set_vec4("u_color", outline_color_);
     else
         return;
 
@@ -43,14 +44,24 @@ void unit_renderer::render_outline(shader_program& program) const
     graphics_object_->set_scale(glm::vec3(1.0f));
 }
 
-bool unit_renderer::get_selected() const
+bool unit_renderer::get_outline() const
 {
-    return selected_;
+    return outline_;
 }
 
-void unit_renderer::set_selected(const bool selected)
+void unit_renderer::set_outline(const bool selected)
 {
-    selected_ = selected;
+    outline_ = selected;
+}
+
+glm::vec4 unit_renderer::get_outline_color() const
+{
+    return outline_color_;
+}
+
+void unit_renderer::set_outline_color(glm::vec4 color)
+{
+    outline_color_ = color;
 }
 
 std::shared_ptr<game_unit> unit_renderer::get_unit() const
