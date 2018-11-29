@@ -29,6 +29,8 @@ public:
     const std::vector<tiles_t>& get_layers() const;
     tile_type get_tile(glm::ivec3 pos) const;
 
+    tile_type get_static_tile(glm::ivec3 pos) const;
+
     void set_blocked(glm::ivec3 pos, bool blocked);
 
 private:

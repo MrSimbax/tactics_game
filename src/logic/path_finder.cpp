@@ -147,7 +147,8 @@ std::vector<path_finder::node*> path_finder::get_neighbors(paths_t& paths, const
         is_left_neighbor = true;
     }
 
-    if (map.get_tile(from_array_to_map_pos(start_pos, array_pos)) == tile_type::climber)
+    if (map.get_tile(from_array_to_map_pos(start_pos, array_pos)) == tile_type::climber ||
+        (glm::ivec3(center, center, center) == array_pos && map.get_static_tile(from_array_to_map_pos(start_pos, array_pos)) == tile_type::climber))
     {
         // top
         pos = glm::ivec3(array_pos.x, array_pos.y + 1, array_pos.z);
@@ -198,8 +199,7 @@ std::vector<path_finder::node*> path_finder::get_neighbors(paths_t& paths, const
 bool path_finder::is_tile_movable(const glm::ivec3 pos, const game_map& map)
 {
     const auto tile = map.get_tile(pos);
-    return (tile != tile_type::wall && tile != tile_type::empty && tile != tile_type::blocked) ||
-        tile == tile_type::climber;
+    return (tile != tile_type::wall && tile != tile_type::empty && tile != tile_type::blocked) || tile == tile_type::climber;
 }
 
 glm::ivec3 path_finder::from_map_to_array_pos(const glm::ivec3 start_pos, const glm::ivec3 map_pos)

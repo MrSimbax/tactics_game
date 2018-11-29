@@ -29,6 +29,11 @@ tile_type game_map::get_tile(const glm::ivec3 pos) const
     return blocked_tiles_[pos.y][pos.x][pos.z];
 }
 
+tile_type game_map::get_static_tile(const glm::ivec3 pos) const
+{
+    return layers_[pos.y][pos.x][pos.z];
+}
+
 void game_map::set_blocked(const glm::ivec3 pos, const bool blocked)
 {
     if (!blocked)
