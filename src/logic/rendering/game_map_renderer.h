@@ -1,7 +1,6 @@
 #pragma once
 #include "../../graphics/model/buffered_graphics_object.h"
 #include "../game_map.h"
-#include "glm/detail/_noise.hpp"
 
 namespace tactics_game
 {
@@ -20,7 +19,7 @@ public:
 private:
     void create_static_buffers();
 
-    void create_static_layer(const game_map::fields_t& layer, size_t y);
+    void create_static_layer(const game_map::tiles_t& layer, size_t y);
 
     std::vector<std::vector<bool>> visited_;
 

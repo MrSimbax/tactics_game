@@ -109,6 +109,7 @@ game_scene_with_other_data assets_manager::get_scene(const std::string& name) co
                 unit_id, player_id, glm::ivec3{position["x"], position["y"], position["z"]}
             });
             unit_id += 1;
+            map->set_blocked(units.back()->get_position(), true);
         }
         players.emplace_back(new player{player_id, units});
         
@@ -159,7 +160,7 @@ game_scene_with_other_data assets_manager::get_scene(const std::string& name) co
 
 game_map assets_manager::get_map(const std::string& directory_path, const glm::ivec3 size) const
 {
-    std::vector<game_map::fields_t> layers{};
+    std::vector<game_map::tiles_t> layers{};
     for (auto y = 0; y < size.y; ++y)
     {
         auto layer_file_path = directory_path + "/";
@@ -177,7 +178,7 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
             break;
         }
 
-        game_map::fields_t layer{};
+        game_map::tiles_t layer{};
         layer.resize(size.x);
 
         std::stringstream ss{layer_data};
@@ -193,7 +194,7 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
                 break;
             }
 
-            std::vector<field_type> row;
+            std::vector<tile_type> row;
             auto z = 0;
             for (const auto& c : line)
             {
@@ -202,7 +203,7 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
                     LOG_WARNING << "Layer " << y << "too wide on line " << z << ", discarding the rest";
                     break;
                 }
-                row.push_back(static_cast<field_type>(static_cast<int>(c - '0')));
+                row.push_back(static_cast<tile_type>(static_cast<int>(c - '0')));
                 ++z;
             }
             if (z < size.z)
@@ -210,7 +211,7 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
                 LOG_WARNING << "Layer " << y << " too thin on line " << z << ", appending empty columns";
                 while (z < size.z)
                 {
-                    row.push_back(static_cast<field_type>(0));
+                    row.push_back(static_cast<tile_type>(0));
                     ++z;
                 }
             }
@@ -222,10 +223,10 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
             LOG_WARNING << "Layer " << y << " too low, appending empty rows";
             while (x >= 0)
             {
-                std::vector<field_type> row;
+                std::vector<tile_type> row;
                 for (auto z = 0; z < size.z; ++z)
                 {
-                    row.push_back(static_cast<field_type>(0));
+                    row.push_back(static_cast<tile_type>(0));
                 }
                 layer.push_back(row);
                 --x;

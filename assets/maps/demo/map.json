@@ -45,9 +45,9 @@
       "camera": {
         "orientation": "top-right",
         "lookAt": {
-          "x": 49,
-          "z": 49,
-          "y": 1
+          "x": 48,
+          "z": 23,
+          "y": 0
         }
       },
       "units": [

@@ -137,22 +137,24 @@ void game_application::init_graphics()
 
     std::vector<std::shared_ptr<player_renderer>> player_renderers;
 
+    const auto grid_model = assets_manager_.get_model("frame.obj");
+
     player_renderers.emplace_back(new player_renderer{
-        current_scene_->get_players()[0], cameras_[0], assets_manager_.get_model("player1.obj")
+        current_scene_->get_players()[0], cameras_[0], assets_manager_.get_model("player1.obj"), grid_model
     });
     player_renderers.emplace_back(new player_renderer{
-        current_scene_->get_players()[1], cameras_[1], assets_manager_.get_model("player2.obj")
+        current_scene_->get_players()[1], cameras_[1], assets_manager_.get_model("player2.obj"), grid_model
     });
 
-    std::vector<std::vector<std::shared_ptr<light_object>>> light_objects;
+    std::vector<std::vector<std::shared_ptr<simple_color_object>>> light_objects;
     light_objects.reserve(loaded_scene.scene.get_game_map()->get_size().y);
     const auto light_model = assets_manager_.get_model("point_light.obj");
     for (const auto& layer : loaded_scene.point_lights)
     {
-        std::vector<std::shared_ptr<light_object>> light_objects_layer;
+        std::vector<std::shared_ptr<simple_color_object>> light_objects_layer;
         for (const auto& light : layer)
         {
-            std::shared_ptr<light_object> light_obj{new light_object{light_model}};
+            std::shared_ptr<simple_color_object> light_obj{new simple_color_object{light_model}};
             light_obj->set_position(light.position);
             light_obj->set_color(glm::vec4{light.diffuse, 1.0f});
             light_objects_layer.push_back(light_obj);
@@ -189,6 +191,8 @@ void game_application::init_input()
     input_manager_.bind_key_to_action(SDLK_e, input_action::camera_rotate_right);
     input_manager_.bind_key_to_action(SDLK_SPACE, input_action::camera_up);
     input_manager_.bind_key_to_action(SDLK_LCTRL, input_action::camera_down);
+    input_manager_.bind_key_to_action(SDLK_RETURN, input_action::end_turn);
+    input_manager_.bind_key_to_action(SDLK_TAB, input_action::next_unit);
     input_manager_.bind_key_to_action(SDLK_SEMICOLON, input_action::debug);
 
     input_manager_.bind_action_down(input_action::camera_left, [this]
@@ -273,6 +277,16 @@ void game_application::init_input()
     {
         const glm::ivec2 size{window_->get_size().width, window_->get_size().height};
         scene_renderer_->on_mouse_motion(scene_renderer_->get_current_camera()->mouse_to_ray(mouse_pos, size));
+    });
+
+    input_manager_.bind_action_down(input_action::end_turn, [this]()
+    {
+        scene_renderer_->start_new_turn();
+    });
+
+    input_manager_.bind_action_down(input_action::next_unit, [this]()
+    {
+        scene_renderer_->select_next_unit();
     });
 }
 

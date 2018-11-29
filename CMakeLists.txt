@@ -123,6 +123,7 @@ set(SOURCE_FILES
     "${SOURCES_DIR}/graphics/model/buffered_graphics_object.cpp"
     "${SOURCES_DIR}/graphics/shader/shader.cpp"
 	"${SOURCES_DIR}/graphics/shader/shader_program.cpp"
+    "${SOURCES_DIR}/logic/path_finder.cpp"
     "${SOURCES_DIR}/logic/game_unit.cpp"
     "${SOURCES_DIR}/logic/player.cpp"
     "${SOURCES_DIR}/logic/game_map.cpp"

@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "../graphics/model/buffered_graphics_object.h"
+#include "path_finder.h"
 
 namespace tactics_game
 {
@@ -20,22 +20,34 @@ public:
 
     bool is_dead() const;
 
+    bool turn_done() const;
+
+    bool can_shoot() const;
+    bool can_move() const;
+
     bool is_visible() const;
     void set_visible(bool is_visible);
 
-    unsigned get_hit_points() const;
-    void set_hit_points(unsigned hit_points);
+    int get_hit_points() const;
+    void set_hit_points(int hit_points);
+
+    int get_action_points() const;
+    void set_action_points(int action_points);
     
     glm::ivec3 get_position() const;
     void set_position(glm::ivec3 position);
 
+    const path_finder::paths_t& get_movable_tiles() const;
+    void set_movable_tiles(path_finder::paths_t paths);
+
 private:
     size_t id_;
     size_t player_id_;
-    unsigned int hit_points_{1};
+    int hit_points_{1};
+    int action_points_{2};
     bool is_visible_{true};
-    std::vector<glm::ivec2> visible_fields_{};
-    std::vector<glm::ivec2> movable_fields_{};
+    std::vector<glm::ivec2> visible_tiles_{};
+    path_finder::paths_t movable_tiles_{};
     glm::ivec3 position_;
 };
 };

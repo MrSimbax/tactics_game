@@ -30,6 +30,21 @@ bool game_unit::is_dead() const
     return hit_points_ <= 0;
 }
 
+bool game_unit::turn_done() const
+{
+    return action_points_ <= 0;
+}
+
+bool game_unit::can_shoot() const
+{
+    return action_points_ > 0;
+}
+
+bool game_unit::can_move() const
+{
+    return action_points_ > 0;
+}
+
 bool game_unit::is_visible() const
 {
     return is_visible_;
@@ -40,14 +55,24 @@ void game_unit::set_visible(const bool is_visible)
     is_visible_ = is_visible;
 }
 
-unsigned game_unit::get_hit_points() const
+int game_unit::get_hit_points() const
 {
     return hit_points_;
 }
 
-void game_unit::set_hit_points(const unsigned hit_points)
+void game_unit::set_hit_points(const int hit_points)
 {
     hit_points_ = hit_points;
+}
+
+int game_unit::get_action_points() const
+{
+    return action_points_;
+}
+
+void game_unit::set_action_points(const int action_points)
+{
+    action_points_ = action_points;
 }
 
 glm::ivec3 game_unit::get_position() const
@@ -58,4 +83,14 @@ glm::ivec3 game_unit::get_position() const
 void game_unit::set_position(const glm::ivec3 position)
 {
     position_ = position;
+}
+
+const path_finder::paths_t& game_unit::get_movable_tiles() const
+{
+    return movable_tiles_;
+}
+
+void game_unit::set_movable_tiles(const path_finder::paths_t paths)
+{
+    this->movable_tiles_ = paths;
 }

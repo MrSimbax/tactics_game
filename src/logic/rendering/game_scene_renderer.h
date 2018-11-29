@@ -24,6 +24,7 @@ public:
 
     void set_lights(shader_program& program);
     void count_point_lights();
+    void try_to_find_hovered_unit();
 
     void on_mouse_motion(glm::vec3 ray);
     void on_mouse_click(glm::vec3 ray, int button);
@@ -32,12 +33,29 @@ public:
     void set_current_layer(int layer);
     std::shared_ptr<top_camera> get_current_camera();
 
+    void start_new_turn();
+    void move_camera_to_unit(const std::shared_ptr<unit_renderer>& unit);
+    bool try_select_and_move_to_unit(std::shared_ptr<unit_renderer> unit);
+    void select_next_unit();
+
 private:
-    bool game_scene_renderer::hovered_position_changed(glm::vec3 ray);
+    bool hovered_position_changed(glm::vec3 ray);
     void handle_left_mouse_button(glm::ivec3 position);
     void handle_right_mouse_button(glm::ivec3 position);
 
+    void init_new_turn();
+    void update_movable_grids();
+    void end_turn();
+    bool is_unit_selected() const;
+    bool is_unit_hovered() const;
+    bool is_hovered_unit_selected() const;
+    bool is_unit_from_current_player(std::shared_ptr<unit_renderer>& unit) const;
+    bool is_hovered_position_on_map() const;
+    void turn_off_outline(std::shared_ptr<unit_renderer>& unit) const;
+    static void turn_on_outline(std::shared_ptr<unit_renderer>& unit, glm::vec4 color);
+
     glm::ivec3 get_map_position_from_camera_ray(glm::vec3 ray);
+    void select_unit(std::shared_ptr<unit_renderer>& unit);
     static glm::vec3 raycast_to_xz_plane(glm::vec3 from, glm::vec3 ray, float y);
 
     std::shared_ptr<game_scene> scene_;

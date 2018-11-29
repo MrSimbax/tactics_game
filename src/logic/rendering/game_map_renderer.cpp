@@ -37,7 +37,7 @@ void game_map_renderer::create_static_buffers()
     }
 }
 
-void game_map_renderer::create_static_layer(const game_map::fields_t& layer, const size_t y)
+void game_map_renderer::create_static_layer(const game_map::tiles_t& layer, const size_t y)
 {
     model static_layer_model{};
     model climbers_model{};
@@ -46,18 +46,18 @@ void game_map_renderer::create_static_layer(const game_map::fields_t& layer, con
     {
         for (size_t z = 0; z < layer[x].size(); ++z)
         {
-            const auto field = layer[x][z];
-            switch (field)
+            const auto tile = layer[x][z];
+            switch (tile)
             {
-            case field_type::empty:
+            case tile_type::empty:
                 break;
-            case field_type::floor:
+            case tile_type::floor:
                 {
                     floor_->set_position(glm::vec3(x, y, z));
                     static_layer_model.add_mesh(floor_->transformed().get_model().merged());
                     break;
                 }
-            case field_type::wall:
+            case tile_type::wall:
                 {
 
                     wall_->set_position(glm::vec3(x, y + 0.45f, z));
@@ -65,11 +65,11 @@ void game_map_renderer::create_static_layer(const game_map::fields_t& layer, con
                     static_layer_model.add_mesh(wall_->transformed().get_model().merged());
                     break;
                 }
-            case field_type::climber:
+            case tile_type::climber:
                 {
                     climber_->set_position(glm::vec3(x, y + 0.2f, z));
                     climbers_model.add_mesh(climber_->transformed().get_model().merged());
-                    if (y == 0 || map_->get_layers()[y-1][x][z] != field_type::climber)
+                    if (y == 0 || map_->get_layers()[y-1][x][z] != tile_type::climber)
                     {
                         floor_->set_position(glm::vec3(x, y, z));
                         static_layer_model.add_mesh(floor_->transformed().get_model().merged());

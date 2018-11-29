@@ -26,21 +26,35 @@ game_scene_renderer::game_scene_renderer(std::shared_ptr<game_scene> scene,
       world_ambient_{world_ambient},
       grid_cursor_object_{std::move(grid_object)}
 {
+    init_new_turn();
 }
 
 void game_scene_renderer::render(shader_program& program, shader_program& simple_color_program)
 {
     program.use();
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
+    
     glStencilMask(0x00);
+
+    // Static map
     program.set_int("u_point_lights_count", point_lights_count_);
     map_renderer_->render(program, get_current_layer() + 1);
 
+    // Grid cursor
     if (should_render_grid_cursor_)
         grid_cursor_object_->render(program);
 
+    simple_color_program.use();
+    // Render light objects
+    if (!!light_objects_renderer_)
+        light_objects_renderer_->render(simple_color_program, get_current_layer() + 1);
+
+    // Movable tiles grid
+    if (is_unit_selected())
+        currently_selected_unit_->render_grid(simple_color_program, get_current_layer() + 1);
+
     // Rendering units
+    program.use();
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     for (auto& player_renderer : player_renderers_)
@@ -56,10 +70,6 @@ void game_scene_renderer::render(shader_program& program, shader_program& simple
     // Back
     glStencilMask(0xFF);
     glEnable(GL_DEPTH_TEST);
-
-    simple_color_program.use();
-    if (!!light_objects_renderer_)
-        light_objects_renderer_->render(simple_color_program, get_current_layer() + 1);
 }
 
 void game_scene_renderer::set_lights(shader_program& program)
@@ -83,6 +93,27 @@ void game_scene_renderer::count_point_lights()
         point_lights_count_ += static_cast<int>(point_lights_[y].size());
 }
 
+void game_scene_renderer::try_to_find_hovered_unit()
+{
+    // try to find a unit under cursor
+    currently_hovered_unit_.reset();
+    for (const auto& player : player_renderers_)
+    {
+        for (auto& unit_renderer : player->get_unit_renderers())
+        {
+            if (unit_renderer->get_unit()->get_position() == currently_hovered_position_)
+            {
+                if (unit_renderer->get_unit()->is_dead() ||
+                    !unit_renderer->get_unit()->is_visible() ||
+                    unit_renderer->get_unit()->turn_done())
+                    break;
+                currently_hovered_unit_ = unit_renderer;
+                break;
+            }
+        }
+    }
+}
+
 bool game_scene_renderer::hovered_position_changed(const glm::vec3 ray)
 {
     // Update position
@@ -93,32 +124,20 @@ bool game_scene_renderer::hovered_position_changed(const glm::vec3 ray)
 
     currently_hovered_position_ = position;
 
+    if (!is_hovered_position_on_map())
+        return true;
+
     // Find hovered unit
-    if (!currently_hovered_unit_ || // nothing hovered
-        currently_hovered_unit_->get_unit()->get_position() != currently_hovered_position_) // position mismatch
+    if (!is_unit_hovered() || currently_hovered_unit_->get_unit()->get_position() != currently_hovered_position_)
     {
-        if (currently_hovered_unit_)
+        if (is_unit_hovered())
         {
             // turn off outline if not selected
-            if (currently_hovered_unit_ != currently_selected_unit_)
-                currently_hovered_unit_->set_outline(false);
-            currently_hovered_unit_.reset();
+            if (!is_hovered_unit_selected())
+                turn_off_outline(currently_hovered_unit_);
         }
 
-        // try to find a unit under cursor
-        for (const auto& player : player_renderers_)
-        {
-            for (auto& unit_renderer : player->get_unit_renderers())
-            {
-                if (unit_renderer->get_unit()->get_position() == currently_hovered_position_)
-                {
-                    if (unit_renderer->get_unit()->is_dead() || !unit_renderer->get_unit()->is_visible())
-                        break;
-                    currently_hovered_unit_ = unit_renderer;
-                    break;
-                }
-            }
-        }
+        try_to_find_hovered_unit();
     }
 
     return true;
@@ -129,11 +148,11 @@ void game_scene_renderer::on_mouse_motion(const glm::vec3 ray)
     if (!hovered_position_changed(ray))
         return;
 
-     // Update hover grid under cursor
-    if (currently_hovered_position_.x != -1)
+    // Update hover grid under cursor
+    if (is_hovered_position_on_map())
     {
-        const auto field = scene_->get_game_map()->get_field(currently_hovered_position_);
-        should_render_grid_cursor_ = !(field == field_type::wall);
+        const auto tile = scene_->get_game_map()->get_tile(currently_hovered_position_);
+        should_render_grid_cursor_ = !(tile == tile_type::wall);
         grid_cursor_object_->get_graphics_object()->set_position(currently_hovered_position_);
     }
     else
@@ -142,18 +161,17 @@ void game_scene_renderer::on_mouse_motion(const glm::vec3 ray)
     }
 
     // Hover enemy unit outline
-    if (currently_hovered_unit_ && currently_selected_unit_)
+    if (is_unit_hovered() && is_unit_selected() && !is_unit_from_current_player(currently_hovered_unit_))
     {
-        if (currently_hovered_unit_->get_unit()->get_player_id() != scene_->get_current_player_id())
-        {
-            currently_hovered_unit_->set_outline(true);
-            currently_hovered_unit_->set_outline_color(
-                lerp(outline_color_shoot_probability_low,
-                     outline_color_shoot_probability_high,
-                     scene_->calculate_shooting_probability(
-                         *currently_selected_unit_->get_unit(),
-                         *currently_hovered_unit_->get_unit())));
-        }
+        turn_on_outline(currently_hovered_unit_,
+                        lerp(outline_color_shoot_probability_low,
+                             outline_color_shoot_probability_high,
+                             scene_->calculate_shooting_probability(
+                                 *currently_selected_unit_->get_unit(),
+                                 *currently_hovered_unit_->get_unit()
+                             )
+                        )
+        );
     }
 }
 
@@ -175,9 +193,9 @@ glm::ivec3 game_scene_renderer::get_map_position_from_camera_ray(const glm::vec3
             position = glm::vec3{-1};
             break;
         }
-        const auto field = scene_->get_game_map()->get_field(position);
+        const auto tile = scene_->get_game_map()->get_tile(position);
 
-        if (field == field_type::empty)
+        if (tile == tile_type::empty)
         {
             if (layer_id == 0)
             {
@@ -187,62 +205,99 @@ glm::ivec3 game_scene_renderer::get_map_position_from_camera_ray(const glm::vec3
             --layer_id;
         }
         else
-        {
             // ok!
             break;
-        }
     }
     return position;
 }
 
+void game_scene_renderer::select_unit(std::shared_ptr<unit_renderer>& unit)
+{
+    currently_selected_unit_ = unit;
+    turn_on_outline(currently_selected_unit_, outline_color_selected);
+}
+
 void game_scene_renderer::handle_left_mouse_button(const glm::ivec3 position)
 {
-    if (currently_selected_unit_ && // something selected
-        !currently_hovered_unit_) // no unit under cursor
+    if (is_unit_selected() && !is_hovered_unit_selected())
     {
-        currently_selected_unit_->set_outline(false);
+        turn_off_outline(currently_selected_unit_);
         currently_selected_unit_.reset();
     }
 
-    if (currently_hovered_unit_ && // hovered unit belongs to current player
-        currently_hovered_unit_->get_unit()->get_player_id() == scene_->get_current_player_id())
-    {
-        // select it
-        currently_selected_unit_ = currently_hovered_unit_;
-        currently_selected_unit_->set_outline(true);
-        currently_selected_unit_->set_outline_color(outline_color_selected);
-    }
+    if (is_unit_hovered() && is_unit_from_current_player(currently_hovered_unit_))
+        select_unit(currently_hovered_unit_);
 }
 
 void game_scene_renderer::handle_right_mouse_button(const glm::ivec3 position)
 {
-    if (currently_hovered_position_.x == -1)
+    if (!is_hovered_position_on_map())
         return;
 
-    // Shoot enemy units
-    if (currently_selected_unit_ && // selected
-        currently_hovered_unit_ && // hovered
-        currently_selected_unit_ != currently_hovered_unit_ && // different
-        currently_hovered_unit_->get_unit()->get_player_id() != scene_->get_current_player_id()) // hovered enemy
+    if (is_unit_selected() && is_unit_hovered() && !is_hovered_unit_selected() &&
+        !is_unit_from_current_player(currently_hovered_unit_))
     {
+        // shoot
         auto& target = *currently_hovered_unit_->get_unit();
-        if (!target.is_dead())
-        {
+        if (scene_->can_unit_shoot(*currently_selected_unit_->get_unit(), target))
             scene_->shoot_unit(*currently_selected_unit_->get_unit(), target);
-        }
         if (target.is_dead())
         {
-            currently_hovered_unit_->set_outline(false);
+            turn_off_outline(currently_hovered_unit_);
             currently_hovered_unit_.reset();
         }
     }
-    // Move unit
-    else if (currently_selected_unit_ && // something selected
-        !currently_hovered_unit_ && // no unit under cursor
-        scene_->can_unit_move(*currently_selected_unit_->get_unit(), position)) // move is legal
+    else if (is_unit_selected() && !is_unit_hovered() &&
+        scene_->can_unit_move(*currently_selected_unit_->get_unit(), position))
     {
-        currently_selected_unit_->get_unit()->set_position(position);
+        scene_->move_unit(*currently_selected_unit_->get_unit(), position);
+        update_movable_grids();
     }
+
+    if (is_unit_selected() && currently_selected_unit_->get_unit()->turn_done())
+    {
+        turn_off_outline(currently_selected_unit_);
+        currently_selected_unit_.reset();
+    }
+}
+
+bool game_scene_renderer::is_unit_selected() const
+{
+    return !!currently_selected_unit_;
+}
+
+bool game_scene_renderer::is_unit_hovered() const
+{
+    return !!currently_hovered_unit_;
+}
+
+bool game_scene_renderer::is_hovered_unit_selected() const
+{
+    return currently_selected_unit_ == currently_hovered_unit_;
+}
+
+bool game_scene_renderer::is_unit_from_current_player(std::shared_ptr<unit_renderer>& unit) const
+{
+    return unit->get_unit()->get_player_id() == scene_->get_current_player_id();
+}
+
+bool game_scene_renderer::is_hovered_position_on_map() const
+{
+    return currently_hovered_position_.x != -1;
+}
+
+void game_scene_renderer::turn_off_outline(std::shared_ptr<unit_renderer>& unit) const
+{
+    if (is_unit_from_current_player(unit) && !unit->get_unit()->turn_done())
+        turn_on_outline(unit, outline_color_turn_ready);
+    else
+        unit->set_outline(false);
+}
+
+void game_scene_renderer::turn_on_outline(std::shared_ptr<unit_renderer>& unit, const glm::vec4 color)
+{
+    unit->set_outline(true);
+    unit->set_outline_color(color);
 }
 
 void game_scene_renderer::on_mouse_click(const glm::vec3 ray, const int button)
@@ -272,6 +327,102 @@ void game_scene_renderer::set_current_layer(const int layer)
 std::shared_ptr<top_camera> game_scene_renderer::get_current_camera()
 {
     return player_renderers_[scene_->get_current_player_id()]->get_camera();
+}
+
+void game_scene_renderer::start_new_turn()
+{
+    end_turn();
+    scene_->start_new_turn();
+    init_new_turn();
+}
+
+void game_scene_renderer::move_camera_to_unit(const std::shared_ptr<unit_renderer>& unit)
+{
+    glm::vec3 pos = unit->get_unit()->get_position();
+    pos.x += 0.5f;
+    pos.z += 0.5f;
+    player_renderers_[scene_->get_current_player_id()]->get_camera()->set_target(pos);
+}
+
+bool game_scene_renderer::try_select_and_move_to_unit(std::shared_ptr<unit_renderer> unit)
+{
+    if (!unit->get_unit()->is_dead() && !unit->get_unit()->turn_done())
+    {
+        if (is_unit_selected()) {
+            turn_off_outline(currently_selected_unit_);
+            currently_selected_unit_.reset();
+        }
+        select_unit(unit);
+        move_camera_to_unit(unit);
+        return true;
+    }
+    return false;
+}
+
+void game_scene_renderer::select_next_unit()
+{
+    auto units = player_renderers_[scene_->get_current_player_id()]->get_unit_renderers();
+
+    if (is_unit_selected())
+    {
+        auto selected = false;
+        for (auto i = currently_selected_unit_->get_unit()->get_id() + 1; i < units.size(); ++i)
+        {
+            if (try_select_and_move_to_unit(units[i]))
+            {
+                selected = true;
+                break;
+            }
+        }
+
+        if (!selected)
+        {
+            for (auto i = 0u; i <= currently_selected_unit_->get_unit()->get_id(); ++i)
+            {
+                if (try_select_and_move_to_unit(units[i]))
+                {
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (auto& unit : units)
+        {
+            if (try_select_and_move_to_unit(unit)) break;
+        }
+    }
+}
+
+void game_scene_renderer::end_turn()
+{
+    for (auto& unit_renderer : player_renderers_[scene_->get_current_player_id()]->get_unit_renderers())
+    {
+        unit_renderer->set_outline(false);
+    }
+    currently_selected_unit_.reset();
+}
+
+void game_scene_renderer::init_new_turn()
+{
+    // turn on outlines
+    for (auto& unit_renderer : player_renderers_[scene_->get_current_player_id()]->get_unit_renderers())
+    {
+        if (unit_renderer->get_unit()->is_dead()) continue;
+        turn_on_outline(unit_renderer, outline_color_turn_ready);
+    }
+
+    update_movable_grids();
+}
+
+void game_scene_renderer::update_movable_grids()
+{
+    for (auto& unit_renderer : player_renderers_[scene_->get_current_player_id()]->get_unit_renderers())
+    {
+        if (unit_renderer->get_unit()->is_dead()) continue;
+        unit_renderer->update_movable_grid(scene_->get_game_map()->get_size().y);
+    }
 }
 
 glm::vec3 game_scene_renderer::raycast_to_xz_plane(const glm::vec3 from, const glm::vec3 ray, const float y)

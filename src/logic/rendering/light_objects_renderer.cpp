@@ -2,7 +2,7 @@
 
 using namespace tactics_game;
 
-light_objects_renderer::light_objects_renderer(std::vector<std::vector<std::shared_ptr<light_object>>> light_objects)
+light_objects_renderer::light_objects_renderer(std::vector<std::vector<std::shared_ptr<simple_color_object>>> light_objects)
     : light_objects_{std::move(light_objects)}
 {
     buffered_light_objects_.resize(light_objects_.size());

@@ -6,8 +6,9 @@
 
 using namespace tactics_game;
 
-game_map::game_map(std::vector<fields_t> layers)
-    : layers_{std::move(layers)}
+game_map::game_map(std::vector<tiles_t> layers)
+    : layers_{std::move(layers)},
+      blocked_tiles_{layers_}
 {
 }
 
@@ -18,12 +19,24 @@ glm::ivec3 game_map::get_size() const
     return glm::ivec3{layers_[0].size(), layers_.size(), layers_[0][0].size()};
 }
 
-const std::vector<game_map::fields_t>& game_map::get_layers() const
+const std::vector<game_map::tiles_t>& game_map::get_layers() const
 {
     return layers_;
 }
 
-field_type game_map::get_field(const glm::ivec3 pos) const
+tile_type game_map::get_tile(const glm::ivec3 pos) const
 {
-    return get_layers()[pos.y][pos.x][pos.z];
+    return blocked_tiles_[pos.y][pos.x][pos.z];
+}
+
+void game_map::set_blocked(const glm::ivec3 pos, const bool blocked)
+{
+    if (!blocked)
+    {
+        blocked_tiles_[pos.y][pos.x][pos.z] = layers_[pos.y][pos.x][pos.z];
+    }
+    else
+    {
+        blocked_tiles_[pos.y][pos.x][pos.z] = tile_type::blocked;
+    }
 }
