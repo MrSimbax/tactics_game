@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.8)
 message("CMake version ${CMAKE_VERSION}")
 
-project(mylearnopenglplayground)
+project(tactics_game)
 
 # Options
 option(BUILD_STATIC "Creates a static build" ON)
@@ -139,12 +139,12 @@ set(SOURCE_FILES
 	"${SOURCES_DIR}/main.cpp"
 )
 
-add_executable (mylearnopenglplayground ${SOURCE_FILES})
-target_link_libraries(mylearnopenglplayground PRIVATE ${LIBS})
-target_include_directories(mylearnopenglplayground PRIVATE ${LIBS_INCLUDE_DIR})
+add_executable (tactics_game ${SOURCE_FILES})
+target_link_libraries(tactics_game PRIVATE ${LIBS})
+target_include_directories(tactics_game PRIVATE ${LIBS_INCLUDE_DIR})
 
-add_custom_command(TARGET mylearnopenglplayground POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_DIR} $<TARGET_FILE_DIR:mylearnopenglplayground>/${ASSETS_FOLDER}
+add_custom_command(TARGET tactics_game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_DIR} $<TARGET_FILE_DIR:tactics_game>/${ASSETS_FOLDER}
 )
 
 if(${FAST_STL})

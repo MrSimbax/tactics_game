@@ -1,12 +1,11 @@
-# my-learnopengl-playground
+# Tactics Game
 
-Moja praca inżynierska, na razie w zasadzie tutorial na podstawie https://learnopengl.com/ ,
-tylko że z architekturą budowaną pod przyszłą grę (na razie to trochę overengineering).
+Praca inżynierska pt. "Gra turowa na trójwymiarowej mapie zaimplementowana z wykorzystaniem OpenGL".
 
 # Budowanie
 
-Budowanie napisane w `cmake`, więc teoretycznie powinno działać wszędzie, ale testowane przeze mnie
-tylko pod `Visual Studio 2017`, statyczne linkowanie, z użyciem `vcpkg` do pobierania zależności.
+Budowanie napisane w `cmake`, więc teoretycznie powinno działać wszędzie, ale testowane przez autora
+tylko pod środowiskiem `Visual Studio 2017`, statycznym linkowaniem, z użyciem `vcpkg` do pobierania zależności.
 
 Obecne zależności:
 * `SDL2` -- tworzenie okna, obsługa klawiatury itp.
@@ -18,16 +17,12 @@ Nieobowiązkowe:
 
 Póki co wykrywane są tylko 2-3 leaki wynikające z używania biblioteki SDL2.
 
-Niektóre zależności są budowane bezpośrednio z projektem, ale wypisuję je dla porządku:
+Niektóre zależności są budowane bezpośrednio z projektem:
 * `glad` -- funkcje OpenGL
 * `plog` -- logowanie
 * `glm` -- operacje matematyczne
 * `irrxml` -- zależność `assimp`
 * `nlohmann-json` -- obsługa plików JSON
-
-# Licencja
-
-Wszelkie prawa zastrzeżone.
 
 ## Zmodyfikowane zależności
 
