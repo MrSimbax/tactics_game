@@ -4,14 +4,11 @@ message("CMake version ${CMAKE_VERSION}")
 project(tactics_game)
 
 # Options
-option(BUILD_STATIC "Creates a static build" ON)
-option(FAST_STL "Improves performance for assimp" OFF)
+option(BUILD_STATIC "Creates a static build" ON) # only MSVC
+option(FAST_STL "Improves performance for assimp?" OFF)
 
 # C++11
 set(CMAKE_CXX_STANDARD 17)
-
-# Fixes error with SDLmain
-set(CMAKE_EXE_LINKER_FLAGS "/ENTRY:mainCRTStartup")
 
 # For debugging
 macro(print_link_flags)
@@ -59,6 +56,19 @@ if(MSVC)
   endif()
 endif()
 
+# Flags for different compilers
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # if(${BUILD_STATIC})
+    #     set(BUILD_SHARED_LIBS OFF)
+    #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    #     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/home/simbax/vcpkg/installed/x64-linux/lib -static -static-libgcc -static-libstdc++")
+    #     set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    # endif()
+else() # MSVC
+    # Fixes error with SDLmain
+    set(CMAKE_EXE_LINKER_FLAGS "/ENTRY:mainCRTStartup")
+endif()
+
 # Hide console window on not debug builds
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_WIN32_EXECUTABLE 1)
@@ -76,31 +86,51 @@ set(ASSETS_DIR "${PROJECT_SOURCE_DIR}/${ASSETS_FOLDER}")
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(ASSIMP CONFIG REQUIRED)
+find_package(assimp CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
 
 add_library(GLAD STATIC "${LIBS_SOURCES_DIR}/glad.c")
 target_include_directories(GLAD PRIVATE "${LIBS_INCLUDE_DIR}")
 
-add_library(IRRXML STATIC "${LIBS_INCLUDE_DIR}/irrXML/irrXML.cpp")
+add_library(IRRXML STATIC "${LIBS_INCLUDE_DIR}/irrxml/irrXML.cpp")
 
-set(LIBS
-    ${ASSIMP_LIBRARIES}
-    ZLIB::ZLIB
-    IRRXML
-	GLAD
-	SDL2::SDL2main
-	SDL2::SDL2-static
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(LIBS
+        assimp
+        ZLIB::ZLIB
+        IRRXML
+        GLAD
+        SDL2::SDL2
+        SDL2::SDL2main
+        stdc++fs
+        dl
+    )
+else() # MSVC
+    set(LIBS
+        ASSIMP::ASSIMP
+        ZLIB::ZLIB
+        IRRXML
+        GLAD
+        SDL2::SDL2main
+        SDL2::SDL2-static
+    )
+endif()
+
+set(LIBS_INCLUDE_DIRS
+    ${LIBS_INCLUDE_DIR}
+    ${SDL2_INCLUDE_DIR}
+    ${ASSIMP_INCLUDE_DIR}
+    ${ZLIB_INCLUDE_DIR}
 )
 
 # Visual Leak Detector
 if(MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-	find_package(VLD)
+    find_package(VLD)
 	if(${VLD_FOUND})
-		set(LIBS ${LIBS} ${VLD_LIBRARIES})
-		set(LIBS_INCLUDE_DIR ${LIBS_INCLUDE_DIR} ${VLD_INCLUDE_DIRS})
-		add_definitions(-DVLD_FOUND)
-	endif()
+        set(LIBS ${LIBS} ${VLD_LIBRARIES})
+        set(LIBS_INCLUDE_DIR ${LIBS_INCLUDE_DIR} ${VLD_INCLUDE_DIRS})
+        add_definitions(-DVLD_FOUND)
+    endif()
 endif()
 
 # Project files
@@ -141,7 +171,7 @@ set(SOURCE_FILES
 
 add_executable (tactics_game ${SOURCE_FILES})
 target_link_libraries(tactics_game PRIVATE ${LIBS})
-target_include_directories(tactics_game PRIVATE ${LIBS_INCLUDE_DIR})
+target_include_directories(tactics_game PRIVATE ${LIBS_INCLUDE_DIRS})
 
 add_custom_command(TARGET tactics_game POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_DIR} $<TARGET_FILE_DIR:tactics_game>/${ASSETS_FOLDER}

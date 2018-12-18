@@ -1,5 +1,8 @@
 #pragma once
+
 #include "game_unit.h"
+
+#include <memory>
 
 namespace tactics_game
 {

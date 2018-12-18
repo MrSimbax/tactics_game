@@ -7,7 +7,7 @@
 
 namespace tactics_game::utils
 {
-template <typename T>
+/*template <typename T>
 std::vector<T> flatten(const std::vector<std::vector<T>>& v)
 {
     std::size_t total_size = std::reduce(v.begin(), v.end(), static_cast<size_t>(0),
@@ -38,7 +38,7 @@ std::vector<Q> flatten(std::vector<T>& v, F vector_getter)
         result.insert(result.end(), q.begin(), q.end());
     }
     return result;
-}
+}*/
 
 inline float random_float()
 {

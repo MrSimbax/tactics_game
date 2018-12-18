@@ -10,8 +10,13 @@
 void init_logger()
 {
     static plog::ColorConsoleAppender<plog::TxtFormatter> console_appender;
+    #ifdef _WIN32
     static plog::DebugOutputAppender<plog::TxtFormatter> debug_output_appender;
     init(plog::verbose, &console_appender).addAppender(&debug_output_appender);
+    #else
+    init(plog::verbose, &console_appender);
+    #endif
+    
     LOG_INFO << "Logger is working.";
 }
 

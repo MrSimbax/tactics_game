@@ -2,7 +2,17 @@
 
 #include <array>
 #include <fstream>
+
+#ifdef __GNUG__
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <string.h>
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
 #include <filesystem>
+namespace fs = std::filesystem;
+#endif
+
 #include <utility>
 
 #include <plog/Log.h>
@@ -13,6 +23,18 @@
 #include "../misc/custom_log.h"
 
 using namespace tactics_game;
+
+
+std::string get_fstream_error()
+{
+#ifdef __GNUG__
+    return {strerror(errno)};
+#else
+    std::array<char, 512> error_str{};
+    strerror_s(&error_str[0], error_str.size(), errno);
+    return {error_str};
+#endif
+}
 
 const std::string assets_manager::game_map_layer_extension{".layer"};
 const std::string assets_manager::game_map_main_file_name{"map.json"};
@@ -41,11 +63,10 @@ std::string assets_manager::get_shader_source(const std::string& name) const
 {
     const auto path = this->root_ + this->shaders_path_ + name;
     std::ifstream shader_file{path};
-    std::array<char, 512> error_str{};
+    
     if (!shader_file.is_open() || !shader_file.good())
     {
-        strerror_s(&error_str[0], error_str.size(), errno);
-        LOG_ERROR << "Could not load shader \"" << path << "\": " << &error_str[0];
+        LOG_ERROR << "Could not load shader \"" << path << "\": " << get_fstream_error();
         return "";
     }
 
@@ -72,7 +93,7 @@ game_scene_with_other_data assets_manager::get_scene(const std::string& name) co
 {
     // Load from file
     const auto directory_path{this->root_ + this->maps_path_ + name};
-    if (!exists(std::filesystem::path{directory_path}))
+    if (!exists(fs::path{directory_path}))
     {
         LOG_ERROR << "Could not load scene: the directory " << directory_path << " does not exist";
         return {};
@@ -80,7 +101,7 @@ game_scene_with_other_data assets_manager::get_scene(const std::string& name) co
 
     auto scene_file_path = directory_path + "/";
     scene_file_path += game_map_main_file_name;
-    if (!exists(std::filesystem::path{scene_file_path}))
+    if (!exists(fs::path{scene_file_path}))
     {
         LOG_ERROR << "The map does not have main file: " << scene_file_path << " does not exist";
         return {};
@@ -166,7 +187,7 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
         auto layer_file_path = directory_path + "/";
         layer_file_path += std::to_string(y);
         layer_file_path += game_map_layer_extension;
-        if (!exists(std::filesystem::path{layer_file_path}))
+        if (!exists(fs::path{layer_file_path}))
         {
             LOG_WARNING << "The map could not load layer: " << layer_file_path << " does not exist";
             break;
@@ -241,11 +262,9 @@ game_map assets_manager::get_map(const std::string& directory_path, const glm::i
 std::string assets_manager::load_text_file(const std::string& path)
 {
     std::ifstream text_file{path};
-    std::array<char, 512> error_str{};
     if (!text_file.is_open() || !text_file.good())
     {
-        strerror_s(&error_str[0], error_str.size(), errno);
-        LOG_ERROR << "Could not load text file \"" << path << "\": " << &error_str[0];
+        LOG_ERROR << "Could not load text file \"" << path << "\": " << get_fstream_error();
         return "";
     }
 
@@ -257,11 +276,9 @@ std::string assets_manager::load_text_file(const std::string& path)
 json assets_manager::load_json(const std::string& path)
 {
     std::ifstream text_file{path};
-    std::array<char, 512> error_str{};
     if (!text_file.is_open() || !text_file.good())
     {
-        strerror_s(&error_str[0], error_str.size(), errno);
-        LOG_ERROR << "Could not load JSON file \"" << path << "\": " << &error_str[0];
+        LOG_ERROR << "Could not load JSON file \"" << path << "\": " << get_fstream_error();
         return "";
     }
 
@@ -337,3 +354,4 @@ std::shared_ptr<mesh> assets_manager::process_model_mesh(aiMesh* ai_mesh, const 
 
     return std::make_shared<mesh>(vertices, indices, mat);
 }
+

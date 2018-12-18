@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "bo.h"
 #include "vao.h"
 #include "../shader/shader_program.h"

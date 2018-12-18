@@ -366,3 +366,7 @@ ASALocalRun/
 
 # Assets
 !assets/**/*.obj
+
+# Build folder
+build/
+
