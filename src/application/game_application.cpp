@@ -131,7 +131,7 @@ void game_application::init_graphics()
             std::shared_ptr<game_map>{current_scene_->get_game_map()},
             std::make_unique<graphics_object>(assets_manager_.get_model("floor.obj")),
             std::make_unique<graphics_object>(assets_manager_.get_model("wall.obj")),
-            std::make_unique<graphics_object>(assets_manager_.get_model("climber.obj"))
+            std::make_unique<graphics_object>(assets_manager_.get_model("frame.obj"))
         }
     };
 

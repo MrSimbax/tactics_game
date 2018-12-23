@@ -33,6 +33,11 @@ uniform vec3 u_view_pos;
 
 vec3 calc_point_light(point_light light, vec3 normal, vec3 frag_pos, vec3 view_dir)
 {
+    if (int(light.position.y) != int(frag_pos.y))
+    {
+        return vec3(0.0);
+    }
+
     vec3 light_dir = normalize(light.position - frag_pos);
 
     float diff = max(dot(normal, light_dir), 0.0);

@@ -32,7 +32,8 @@ std::string get_fstream_error()
 #else
     std::array<char, 512> error_str{};
     strerror_s(&error_str[0], error_str.size(), errno);
-    return {error_str};
+    std::string ret(error_str.begin(), error_str.end());
+    return ret;
 #endif
 }
 

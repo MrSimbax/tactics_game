@@ -7,7 +7,7 @@ project(tactics_game)
 option(BUILD_STATIC "Creates a static build" ON) # only MSVC
 option(FAST_STL "Improves performance for assimp?" OFF)
 
-# C++11
+# C++17
 set(CMAKE_CXX_STANDARD 17)
 
 # For debugging
@@ -107,7 +107,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     )
 else() # MSVC
     set(LIBS
-        ASSIMP::ASSIMP
+        ${ASSIMP_LIBRARIES}
         ZLIB::ZLIB
         IRRXML
         GLAD
@@ -128,7 +128,7 @@ if(MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     find_package(VLD)
 	if(${VLD_FOUND})
         set(LIBS ${LIBS} ${VLD_LIBRARIES})
-        set(LIBS_INCLUDE_DIR ${LIBS_INCLUDE_DIR} ${VLD_INCLUDE_DIRS})
+        set(LIBS_INCLUDE_DIRS ${LIBS_INCLUDE_DIRS} ${VLD_INCLUDE_DIRS})
         add_definitions(-DVLD_FOUND)
     endif()
 endif()
