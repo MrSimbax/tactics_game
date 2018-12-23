@@ -19,6 +19,7 @@ enum class input_action
     camera_rotate_right,
     end_turn,
     next_unit,
+    show_help,
     debug
 };
 

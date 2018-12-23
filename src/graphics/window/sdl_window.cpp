@@ -91,15 +91,18 @@ SDL_Window* sdl_window::create_sdl_window(const std::string& title, window_size&
                                           const window_settings settings)
 {
     // Set fullscreen resolution to native
-    SDL_DisplayMode dm;
-    if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
+    if (settings.fullscreen)
     {
-         LOG_ERROR << "SDL_GetDesktopDisplayMode failed: " << SDL_GetError();
-    }
-    else
-    {
-        size.width = dm.w;
-        size.height = dm.h;
+        SDL_DisplayMode dm;
+        if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
+        {
+             LOG_ERROR << "SDL_GetDesktopDisplayMode failed: " << SDL_GetError();
+        }
+        else
+        {
+            size.width = dm.w;
+            size.height = dm.h;
+        }
     }
 
     const auto window = SDL_CreateWindow(

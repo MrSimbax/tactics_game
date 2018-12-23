@@ -6,6 +6,7 @@
 #include <plog/Log.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <boxer/boxer.h>
 
 #include "../misc/custom_log.h"
 #include "glad/glad.h"
@@ -74,6 +75,16 @@ int game_application::execute(const int argc, char* argv[])
     }
 
     LOG_INFO << "game_application is running.";
+
+    boxer::show("Welcome to Tactics Game!\n"
+                "\n"
+                "It's a turn-based tactics game for 2 players (red and green). Red starts.\n"
+                "Wins the player who destroys all the enemy units.\n"
+                "\n"
+                "You can press H at any time to see controls.\n"
+                "Open the game from command line with -h argument to see options.",
+                "Tactics Game");
+
     SDL_Event event{};
     while (is_running_)
     {
@@ -189,10 +200,12 @@ void game_application::init_graphics()
     const auto grid_model = assets_manager_.get_model("frame.obj");
 
     player_renderers.emplace_back(new player_renderer{
-        current_scene_->get_players()[0], cameras_[0], assets_manager_.get_model("player1.obj"), grid_model
+        current_scene_->get_players()[0], cameras_[0], assets_manager_.get_model("player1.obj"), grid_model,
+        glm::vec4{1.0f, 0.0f, 0.0f, 1.0f}
     });
     player_renderers.emplace_back(new player_renderer{
-        current_scene_->get_players()[1], cameras_[1], assets_manager_.get_model("player2.obj"), grid_model
+        current_scene_->get_players()[1], cameras_[1], assets_manager_.get_model("player2.obj"), grid_model,
+        glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}
     });
 
     std::vector<std::vector<std::shared_ptr<simple_color_object>>> light_objects;
@@ -211,6 +224,11 @@ void game_application::init_graphics()
         light_objects.push_back(light_objects_layer);
     }
     std::shared_ptr<light_objects_renderer> light_objs_renderer{new light_objects_renderer{light_objects}};
+    
+    std::shared_ptr<ui_renderer> ui_renderer{new tactics_game::ui_renderer{
+        std::make_shared<simple_color_object>(assets_manager_.get_model("ui_no_moves_left.obj").merged()),
+        std::make_shared<simple_color_object>(assets_manager_.get_model("ui_moves_left.obj").merged())
+    }};
 
     auto grid_obj = std::make_unique<buffered_graphics_object>(
         std::make_shared<graphics_object>(assets_manager_.get_model("grid.obj")));
@@ -221,6 +239,7 @@ void game_application::init_graphics()
         std::move(player_renderers),
         loaded_scene.point_lights,
         std::move(grid_obj),
+        std::move(ui_renderer),
         std::move(light_objs_renderer),
         loaded_scene.world_ambient
     });
@@ -243,6 +262,7 @@ void game_application::init_input()
     input_manager_.bind_key_to_action(SDLK_RETURN, input_action::end_turn);
     input_manager_.bind_key_to_action(SDLK_TAB, input_action::next_unit);
     input_manager_.bind_key_to_action(SDLK_SEMICOLON, input_action::debug);
+    input_manager_.bind_key_to_action(SDLK_h, input_action::show_help);
 
     input_manager_.bind_action_down(input_action::camera_left, [this]
     {
@@ -337,6 +357,42 @@ void game_application::init_input()
     {
         scene_renderer_->select_next_unit();
     });
+
+    input_manager_.bind_action_down(input_action::show_help, []()
+    {
+        boxer::show(
+            "Camera controls:\n"
+            "* WSAD - moves camera\n"
+            "* QE - rotates camera\n"
+            "* Wheel Up/Down - zooming\n"
+            "* Ctrl/Space - change map level down/up\n"
+            "\n"
+            "Units controls depend on mouse position:\n"
+            "* LMB - select/deselect unit\n"
+            "* RMB - if unit selected:\n"
+            "* * move unit to movable tile\n"
+            "* * * movable tiles are marked with blue frame\n"
+            "* * * moving up/down is allowed only on tiles with green frames\n"
+            "* * * up to 2 moves per turn for the unit\n"
+            "* * shoot enemy unit which is visible by the unit\n"
+            "* * * always ends turn for the unit\n"
+            "* * * if hit, the enemy unit disappears from map, otherwise nothing happens\n"
+            "* * * probability of hitting depends on distance, cover and height (shooter wants to be higher than target)\n"
+            "* * * * light green outline = close to 100%\n"
+            "* * * * dark green outline = close to 1%\n"
+            "* * * * no outline = 0% (enemy is not visible for the unit)\n"
+            "* Tab - select next unit who can still move\n"
+            "\n"
+            "Game controls:\n"
+            "* H - shows this information\n"
+            "* Enter - ends current turn\n"
+            "* Alt + F4 - closes the game\n"
+            "\n"
+            "Indicator in the top left corner:\n"
+            "* Colour of the indicator shows whose turn is it\n"
+            "* ! means there are still units who can move, v/ means it's safe to end turn",
+            "Tactics Game Help");
+    });
 }
 
 void game_application::handle_event(SDL_Event* event)
@@ -368,7 +424,7 @@ void game_application::handle_event(SDL_Event* event)
     }
 }
 
-void game_application::update(const float delta_time)
+void game_application::update(const float delta_time) const
 {
     scene_renderer_->get_current_camera()->process_keyboard(camera_direction_, delta_time);
 }
@@ -376,19 +432,6 @@ void game_application::update(const float delta_time)
 void game_application::render() const
 {
     window_->clear_screen();
-
-    shader_program_->use();
-    shader_program_->set_mat4("u_view", scene_renderer_->get_current_camera()->get_view_matrix());
-    shader_program_->set_mat4("u_projection", scene_renderer_->get_current_camera()->get_projection_matrix());
-    shader_program_->set_vec3("u_view_pos", scene_renderer_->get_current_camera()->get_position());
-
-    simple_color_shader_program_->use();
-    simple_color_shader_program_->set_mat4("u_view", scene_renderer_->get_current_camera()->get_view_matrix());
-    simple_color_shader_program_->set_mat4("u_projection",
-                                           scene_renderer_->get_current_camera()->get_projection_matrix());
-
-    //map_renderer_->render(*shader_program_, current_map_->get_layers().size());
     scene_renderer_->render(*shader_program_, *simple_color_shader_program_);
-
     window_->swap_buffers();
 }

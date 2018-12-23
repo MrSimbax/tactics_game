@@ -5,7 +5,7 @@
 #include "player_renderer.h"
 #include "light_objects_renderer.h"
 #include "../../graphics/model/lights.h"
-#include "glm/detail/_noise.hpp"
+#include "ui_renderer.h"
 
 namespace tactics_game
 {
@@ -17,8 +17,10 @@ public:
                         std::vector<std::shared_ptr<player_renderer>> player_renderers,
                         std::vector<std::vector<point_light>> point_lights,
                         std::unique_ptr<buffered_graphics_object> grid_object,
+                        std::shared_ptr<ui_renderer> ui_renderer,
                         std::shared_ptr<light_objects_renderer> light_objects_renderer = {},
-                        glm::vec3 world_ambient = {});
+                        glm::vec3 world_ambient = {}
+        );
 
     void render(shader_program& program, shader_program& simple_color_program);
 
@@ -43,6 +45,7 @@ private:
     void handle_left_mouse_button(glm::ivec3 position);
     void handle_right_mouse_button(glm::ivec3 position);
 
+    void update_ui() const;
     void init_new_turn();
     void update_movable_grids();
     void end_turn();
@@ -60,6 +63,7 @@ private:
 
     std::shared_ptr<game_scene> scene_;
 
+    std::shared_ptr<ui_renderer> ui_renderer_;
     std::shared_ptr<light_objects_renderer> light_objects_renderer_;
     std::shared_ptr<game_map_renderer> map_renderer_;
     std::vector<std::shared_ptr<player_renderer>> player_renderers_;
@@ -76,5 +80,8 @@ private:
     std::shared_ptr<unit_renderer> currently_hovered_unit_{};
 
     glm::ivec3 currently_hovered_position_{0};
+
+    std::unique_ptr<buffered_simple_color_object> indicator_moves_left_;
+    std::unique_ptr<buffered_simple_color_object> indicator_no_moves_left_;
 };
 }

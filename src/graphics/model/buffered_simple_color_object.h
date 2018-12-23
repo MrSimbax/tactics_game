@@ -16,6 +16,8 @@ public:
 
     void render(shader_program& program) const;
 
+    simple_color_object* get_object() const;
+
 private:
     std::shared_ptr<simple_color_object> object_;
     buffered_model model_;

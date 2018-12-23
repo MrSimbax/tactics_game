@@ -5,9 +5,10 @@ using namespace tactics_game;
 
 
 player_renderer::player_renderer(std::shared_ptr<player> player, std::shared_ptr<top_camera> camera,
-                                 const model& unit_model, const model& grid_model)
+                                 const model& unit_model, const model& grid_model, glm::vec4 color)
     : player_{std::move(player)},
-      camera_{std::move(camera)}
+      camera_{std::move(camera)},
+      color_{color}
 {
     create_unit_renderers(unit_model, grid_model);
 }
@@ -36,6 +37,11 @@ std::shared_ptr<top_camera> player_renderer::get_camera() const
 std::vector<std::shared_ptr<unit_renderer>>& player_renderer::get_unit_renderers()
 {
     return unit_renderers_;
+}
+
+glm::vec4 player_renderer::get_color() const
+{
+    return color_;
 }
 
 void player_renderer::create_unit_renderers(const model& unit_model, const model& grid_model)

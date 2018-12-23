@@ -14,3 +14,8 @@ void buffered_simple_color_object::render(shader_program& program) const
     program.set_vec4("u_color", object_->get_color());
     model_.render(program);
 }
+
+simple_color_object* buffered_simple_color_object::get_object() const
+{
+    return object_.get();
+}

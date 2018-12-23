@@ -16,9 +16,11 @@ game_scene_renderer::game_scene_renderer(std::shared_ptr<game_scene> scene,
                                          std::vector<std::shared_ptr<player_renderer>> player_renderers,
                                          std::vector<std::vector<point_light>> point_lights,
                                          std::unique_ptr<buffered_graphics_object> grid_object,
+                                         std::shared_ptr<ui_renderer> ui_renderer,
                                          std::shared_ptr<light_objects_renderer> light_objects_renderer,
                                          glm::vec3 world_ambient)
     : scene_{std::move(scene)},
+      ui_renderer_{std::move(ui_renderer)},
       light_objects_renderer_{std::move(light_objects_renderer)},
       map_renderer_{std::move(map_renderer)},
       player_renderers_{std::move(player_renderers)},
@@ -32,8 +34,11 @@ game_scene_renderer::game_scene_renderer(std::shared_ptr<game_scene> scene,
 void game_scene_renderer::render(shader_program& program, shader_program& simple_color_program)
 {
     program.use();
+    program.set_mat4("u_view", get_current_camera()->get_view_matrix());
+    program.set_mat4("u_projection", get_current_camera()->get_projection_matrix());
+    program.set_vec3("u_view_pos", get_current_camera()->get_position());
+
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    
     glStencilMask(0x00);
 
     // Static map
@@ -45,6 +50,10 @@ void game_scene_renderer::render(shader_program& program, shader_program& simple
         grid_cursor_object_->render(program);
 
     simple_color_program.use();
+    simple_color_program.use();
+    simple_color_program.set_mat4("u_view", get_current_camera()->get_view_matrix());
+    simple_color_program.set_mat4("u_projection", get_current_camera()->get_projection_matrix());
+    
     // Render light objects
     if (!!light_objects_renderer_)
         light_objects_renderer_->render(simple_color_program, get_current_layer() + 1);
@@ -66,7 +75,12 @@ void game_scene_renderer::render(shader_program& program, shader_program& simple
     simple_color_program.use();
     for (auto& player_renderer : player_renderers_)
         player_renderer->render_outline(simple_color_program);
-
+    
+    // UI
+    glDisable(GL_STENCIL_TEST);
+    ui_renderer_->render(simple_color_program, player_renderers_[scene_->get_current_player_id()]->get_color());
+    glEnable(GL_STENCIL_TEST);
+    
     // Back
     glStencilMask(0xFF);
     glEnable(GL_DEPTH_TEST);
@@ -250,14 +264,29 @@ void game_scene_renderer::handle_right_mouse_button(const glm::ivec3 position)
     else if (is_unit_selected() && !is_unit_hovered() &&
         scene_->can_unit_move(*currently_selected_unit_->get_unit(), position))
     {
+        // move
         scene_->move_unit(*currently_selected_unit_->get_unit(), position);
         update_movable_grids();
     }
 
     if (is_unit_selected() && currently_selected_unit_->get_unit()->turn_done())
     {
+        // turn done?
         turn_off_outline(currently_selected_unit_);
         currently_selected_unit_.reset();
+        update_ui();
+    }
+}
+
+void game_scene_renderer::update_ui() const
+{
+    if (scene_->has_any_unit_any_action_left())
+    {
+        ui_renderer_->set_state(moves_left);
+    }
+    else
+    {
+        ui_renderer_->set_state(no_moves_left);
     }
 }
 
@@ -414,6 +443,7 @@ void game_scene_renderer::init_new_turn()
     }
 
     update_movable_grids();
+    update_ui();
 }
 
 void game_scene_renderer::update_movable_grids()

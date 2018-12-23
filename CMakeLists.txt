@@ -94,6 +94,8 @@ target_include_directories(GLAD PRIVATE "${LIBS_INCLUDE_DIR}")
 
 add_library(IRRXML STATIC "${LIBS_INCLUDE_DIR}/irrxml/irrXML.cpp")
 
+add_subdirectory("${LIBS_DIR}/boxer")
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(LIBS
         assimp
@@ -104,6 +106,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         SDL2::SDL2main
         stdc++fs
         dl
+        Boxer
     )
 else() # MSVC
     set(LIBS
@@ -113,6 +116,7 @@ else() # MSVC
         GLAD
         SDL2::SDL2main
         SDL2::SDL2-static
+        Boxer
     )
 endif()
 
@@ -121,6 +125,7 @@ set(LIBS_INCLUDE_DIRS
     ${SDL2_INCLUDE_DIR}
     ${ASSIMP_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR}
+    "${LIBS_DIR}/boxer/include"
 )
 
 # Visual Leak Detector
@@ -139,8 +144,8 @@ set(SOURCE_FILES
 	"${SOURCES_DIR}/misc/utils.cpp"
 	"${SOURCES_DIR}/graphics/window/sdl_window.cpp"
     "${SOURCES_DIR}/graphics/model/lights.cpp"
-    "${SOURCES_DIR}/graphics/model/buffered_light_object.cpp"
-    "${SOURCES_DIR}/graphics/model/light_object.cpp"
+    "${SOURCES_DIR}/graphics/model/buffered_simple_color_object.cpp"
+    "${SOURCES_DIR}/graphics/model/simple_color_object.cpp"
     "${SOURCES_DIR}/graphics/model/top_camera.cpp"
     "${SOURCES_DIR}/graphics/model/free_roam_camera.cpp"
     "${SOURCES_DIR}/graphics/model/vao.cpp"
@@ -158,6 +163,7 @@ set(SOURCE_FILES
     "${SOURCES_DIR}/logic/player.cpp"
     "${SOURCES_DIR}/logic/game_map.cpp"
     "${SOURCES_DIR}/logic/game_scene.cpp"
+    "${SOURCES_DIR}/logic/rendering/ui_renderer.cpp"
     "${SOURCES_DIR}/logic/rendering/light_objects_renderer.cpp"
     "${SOURCES_DIR}/logic/rendering/unit_renderer.cpp"
     "${SOURCES_DIR}/logic/rendering/player_renderer.cpp"

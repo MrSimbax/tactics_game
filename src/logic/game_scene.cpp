@@ -165,6 +165,16 @@ void game_scene::start_new_turn()
     update_movable_tiles();
 }
 
+bool game_scene::has_any_unit_any_action_left() const
+{
+    for (const auto& unit : players_[current_player_id_]->get_units())
+    {
+        if (!unit->turn_done())
+            return true;
+    }
+    return false;
+}
+
 void game_scene::update_movable_tiles()
 {
     for (const auto& unit : players_[current_player_id_]->get_units())
