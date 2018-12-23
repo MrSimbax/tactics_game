@@ -57,7 +57,10 @@ const std::string& assets_manager::get_root() const
 
 void assets_manager::set_root(const std::string& root)
 {
-    this->root_ = root;
+    if (root.back() != '/')
+        this->root_ = root + "/";
+    else
+        this->root_ = root;
 }
 
 std::string assets_manager::get_shader_source(const std::string& name) const

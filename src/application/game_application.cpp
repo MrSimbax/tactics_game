@@ -9,6 +9,8 @@
 
 #include "../misc/custom_log.h"
 #include "glad/glad.h"
+#include "args.hxx"
+#include <iostream>
 
 using namespace tactics_game;
 
@@ -19,8 +21,51 @@ game_application::game_application()
 
 game_application::~game_application() = default;
 
-int game_application::execute(int argc, char* argv[])
+bool game_application::init_options(const int argc, char** argv)
 {
+    args::ArgumentParser parser("Tactics Game");
+    args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
+    const args::Flag vsync(parser, "vsync", "Vertical synchronization on", {"vsync"});
+    const args::Flag fullscreen(parser, "fullscreen", "Fullscreen on", {'f', "fullscreen"});
+    const args::Flag anti_aliasing(parser, "anti-aliasing", "Anti-aliasing on", {"aa"});
+    args::ValueFlag<std::string> assets_dir(parser, "assets_dir", "Path to assets directory (deafult: ./assets)", {'d',"assets-dir"});
+    args::ValueFlag<std::string> map(parser, "map_name", "Loads the map with given name (from assets/maps/map_name directory)", {"map"});
+    
+    try
+    {
+        parser.ParseCLI(argc, argv);
+    }
+    catch (const args::Help&)
+    {
+        LOG_INFO << parser;
+    }
+    catch (const args::ParseError& e)
+    {
+        LOG_ERROR << e.what() << '\n' << parser;
+        return false;
+    }
+    catch (const args::ValidationError& e)
+    {
+        LOG_ERROR << e.what() << '\n' << parser;
+        return false;
+    }
+
+    if (vsync) { options_["vsync"] = "true"; } else { options_["vsync"] = "false"; }
+    if (fullscreen) { options_["fullscreen"] = "true"; } else { options_["fullscreen"] = "false"; }
+    if (anti_aliasing) { options_["anti_aliasing"] = "true"; } else { options_["anti_aliasing"] = "false"; }
+    if (assets_dir) { options_["assets_dir"] = args::get(assets_dir); } else { options_["assets_dir"] = "./assets"; }
+    if (map) { options_["map"] = args::get(map); } else { options_["map"] = "demo"; }
+    
+    return true;
+}
+
+int game_application::execute(const int argc, char* argv[])
+{
+    if (!init_options(argc, argv))
+    {
+        return 1;
+    }
+
     if (!init())
     {
         LOG_FATAL << "game_application could not be started due to initialization error.";
@@ -76,9 +121,9 @@ void game_application::init_window()
     size.height = 600;
 
     window_settings settings;
-    settings.fullscreen = false;
+    settings.fullscreen = options_["fullscreen"] == "true";
     settings.resizable = true;
-    settings.vsync = false;
+    settings.vsync = options_["vsync"] == "true";
 
     window_.reset(new sdl_window(title, size, settings));
 
@@ -98,6 +143,8 @@ void game_application::update_aspect_ratio_in_cameras()
 
 void game_application::init_graphics()
 {
+    assets_manager_.set_root(options_["assets_dir"]);
+
     shader_program_.reset(new shader_program{
         assets_manager_.get_shader_source("main.vert"),
         assets_manager_.get_shader_source("main.frag")
@@ -112,7 +159,9 @@ void game_application::init_graphics()
     //camera_.set_rotation({0.0f, glm::radians(90.0f)});
     //camera_.set_mouse_sensitivity(input_manager_.get_mouse_sensitivity());
 
-    auto loaded_scene{assets_manager_.get_scene("demo")};
+    auto loaded_scene{assets_manager_.get_scene(options_["map"])};
+    if (loaded_scene.scene.get_players().empty())
+        throw std::runtime_error{"map could not be loaded"};
 
     cameras_ = loaded_scene.player_cameras;
 

@@ -15,6 +15,7 @@ struct window_settings
     bool fullscreen = false;
     bool resizable = false;
     bool vsync = false;
+    bool anti_aliasing = false;
 };
 
 class window

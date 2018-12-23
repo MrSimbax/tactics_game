@@ -37,7 +37,7 @@ public:
 
 private:
     static void init_sdl();
-    static SDL_Window* create_sdl_window(const std::string& title, window_size size,
+    static SDL_Window* create_sdl_window(const std::string& title, window_size& size,
                                          window_settings settings);
 
     static bool is_sdl_initialized_;

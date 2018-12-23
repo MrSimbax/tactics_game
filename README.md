@@ -23,6 +23,7 @@ Niektóre zależności są budowane bezpośrednio z projektem:
 * `glm` -- operacje matematyczne
 * `irrxml` -- zależność `assimp`
 * `nlohmann-json` -- obsługa plików JSON
+* [`args`](https://github.com/Taywee/args) -- obsługa argumentów do linii poleceń
 
 ## Zmodyfikowane zależności
 

@@ -24,6 +24,7 @@ public:
     game_application(game_application&& other) = delete;
     game_application& operator=(game_application&& other) = delete;
     ~game_application();
+    bool init_options(int argc, char** argv);
 
     int execute(int argc, char* argv[]);
 
@@ -44,6 +45,7 @@ private:
 
     bool is_running_;
     std::unique_ptr<window> window_{};
+    std::map<std::string, std::string> options_{};
 
     std::unique_ptr<shader_program> shader_program_{};
     std::unique_ptr<shader_program> simple_color_shader_program_{};
