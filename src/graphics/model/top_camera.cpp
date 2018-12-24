@@ -1,9 +1,9 @@
 #include "top_camera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
-#include "../../misc/custom_log.h"
 #include <glm/glm.hpp>
-#include <glad/glad.h>
+
+#include "../../misc/custom_log.h"
 
 using namespace tactics_game;
 
@@ -14,7 +14,7 @@ top_camera::top_camera()
 
 glm::mat4 top_camera::get_view_matrix() const
 {
-    return lookAt(position_, look_at_, world_up_);
+    return lookAt(position_render_, look_at_render_, world_up_) * scale(glm::mat4(1), glm::vec3(zoom_));
 }
 
 glm::mat4 top_camera::get_projection_matrix() const
@@ -35,6 +35,11 @@ void top_camera::set_offset(const glm::vec3 position)
 glm::vec3 top_camera::get_position() const
 {
     return position_;
+}
+
+glm::vec3 top_camera::get_render_position() const
+{
+    return position_render_;
 }
 
 glm::vec3 top_camera::get_target() const
@@ -76,6 +81,11 @@ void top_camera::rotate_right()
         break;
     }
     update();
+}
+
+top_camera_bounds& top_camera::get_bounds()
+{
+    return bounds_;
 }
 
 void top_camera::rotate_left()
@@ -122,6 +132,16 @@ void top_camera::process_keyboard(const glm::vec3 direction, const float delta_t
     look_at_ += front * velocity.z;
     look_at_ += right * velocity.x;
     look_at_ += world_up_ * velocity.y;
+    
+    look_at_.x = glm::clamp(look_at_.x, bounds_.xz_min.x, bounds_.xz_max.x);
+    look_at_.z = glm::clamp(look_at_.z, bounds_.xz_min.z, bounds_.xz_max.z);
+
+    update();
+}
+
+void top_camera::process_scroll(const int offset)
+{
+    zoom_ = glm::clamp(zoom_ + offset * zoom_speed_, bounds_.zoom_min, bounds_.zoom_max);
     update();
 }
 
@@ -137,7 +157,8 @@ glm::vec3 top_camera::mouse_to_ray(const glm::ivec2 mouse_pos, const glm::ivec2 
 
     // Calculate direction in world coordinates
     ray = inverse(get_projection_matrix()) * glm::vec4(ray, 0.0f);
-    ray = normalize(inverse(get_view_matrix()) * glm::vec4(ray.x, ray.y, -1.0f, 0.0f));
+    ray = inverse(get_view_matrix()) * glm::vec4(ray.x, ray.y, -1.0f, 0.0f);
+    ray = normalize(ray);
 
     return ray;
 }
@@ -150,6 +171,16 @@ float top_camera::get_speed() const
 void top_camera::set_speed(const float speed)
 {
     speed_ = speed;
+}
+
+float top_camera::get_zoom_speed() const
+{
+    return zoom_speed_;
+}
+
+void top_camera::set_zoom_speed(const float speed)
+{
+    this->zoom_speed_ = speed;
 }
 
 float top_camera::get_fov() const
@@ -194,6 +225,11 @@ void top_camera::set_far(const float ffar)
     far_ = ffar;
 }
 
+float top_camera::get_zoom() const
+{
+    return zoom_;
+}
+
 int top_camera::get_current_layer() const
 {
     return current_layer_;
@@ -206,24 +242,35 @@ void top_camera::set_current_layer(const int layer)
 
 void top_camera::update()
 {
+    look_at_render_ = look_at_ * zoom_;
+    
     switch (orientation_)
     {
     case top_camera_orientation::top_right:
+        position_render_.x = look_at_render_.x + offset_.x;
+        position_render_.z = look_at_render_.z + offset_.z;
         position_.x = look_at_.x + offset_.x;
         position_.z = look_at_.z + offset_.z;
         break;
     case top_camera_orientation::top_left:
+        position_render_.x = look_at_render_.x + offset_.x;
+        position_render_.z = look_at_render_.z - offset_.z;
         position_.x = look_at_.x + offset_.x;
         position_.z = look_at_.z - offset_.z;
         break;
     case top_camera_orientation::bottom_left:
+        position_render_.x = look_at_render_.x - offset_.x;
+        position_render_.z = look_at_render_.z - offset_.z;
         position_.x = look_at_.x - offset_.x;
         position_.z = look_at_.z - offset_.z;
         break;
     case top_camera_orientation::bottom_right:
+        position_render_.x = look_at_render_.x - offset_.x;
+        position_render_.z = look_at_render_.z + offset_.z;
         position_.x = look_at_.x - offset_.x;
         position_.z = look_at_.z + offset_.z;
         break;
     }
+    position_render_.y = look_at_render_.y + offset_.y;
     position_.y = look_at_.y + offset_.y;
 }

@@ -178,8 +178,10 @@ void game_application::init_graphics()
 
     for (const auto& camera : cameras_)
     {
-        camera->set_speed(8.0f);
+        camera->set_speed(16.0f);
         camera->set_offset(glm::vec3{5.0f, 7.5f, 5.0f});
+        camera->get_bounds().xz_min = glm::vec3{0.0f};
+        camera->get_bounds().xz_max = loaded_scene.scene.get_game_map()->get_size() - 1;
     }
 
     update_aspect_ratio_in_cameras();
@@ -322,11 +324,11 @@ void game_application::init_input()
     /*input_manager_.bind_mouse_motion([this](const glm::ivec2 offset)
     {
         camera_.process_mouse(offset);
-    });
+    });*/
     input_manager_.bind_mouse_scroll([this](const int offset)
     {
-        camera_.process_scroll(offset);
-    });*/
+        scene_renderer_->get_current_camera()->process_scroll(offset);
+    });
 
     if (length(camera_direction_) != 0.0f)
         camera_direction_ = normalize(camera_direction_);

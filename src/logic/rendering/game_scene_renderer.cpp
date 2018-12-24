@@ -195,7 +195,11 @@ glm::ivec3 game_scene_renderer::get_map_position_from_camera_ray(const glm::vec3
     glm::vec3 position{-1};
     while (true)
     {
-        position = raycast_to_xz_plane(get_current_camera()->get_position(), ray, static_cast<float>(layer_id));
+        position = raycast_to_xz_plane(
+            get_current_camera()->get_render_position(),
+            ray,
+            static_cast<float>(layer_id) * get_current_camera()->get_zoom()
+        ) / get_current_camera()->get_zoom();
         position.x = static_cast<float>(std::lroundf(position.x));
         position.y = static_cast<float>(layer_id);
         position.z = static_cast<float>(std::lroundf(position.z));
