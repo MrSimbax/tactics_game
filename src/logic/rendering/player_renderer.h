@@ -12,8 +12,8 @@ public:
     player_renderer(std::shared_ptr<player> player, std::shared_ptr<top_camera> camera, const model& unit_model,
                     const model& grid_model, glm::vec4 color);
 
-    void render(shader_program& program);
-    void render_outline(shader_program& program);
+    void render(shader_program& program, int layer);
+    void render_outline(shader_program& program, int layer);
 
     std::shared_ptr<top_camera> get_camera() const;
 

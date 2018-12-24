@@ -67,14 +67,14 @@ void game_scene_renderer::render(shader_program& program, shader_program& simple
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     for (auto& player_renderer : player_renderers_)
-        player_renderer->render(program);
+        player_renderer->render(program, get_current_layer());
     // Render outlines
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
     glDisable(GL_DEPTH_TEST);
     simple_color_program.use();
     for (auto& player_renderer : player_renderers_)
-        player_renderer->render_outline(simple_color_program);
+        player_renderer->render_outline(simple_color_program, get_current_layer());
     
     // UI
     glDisable(GL_STENCIL_TEST);

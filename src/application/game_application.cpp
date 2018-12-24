@@ -101,12 +101,15 @@ int game_application::execute(const int argc, char* argv[])
         render();
     }
 
-    const std::string player_color = scene_renderer_->get_current_player_id() == 0 ? "red" : "green";
-    std::string message = "Game won by ";
-    message += player_color;
-    message += " player!\n";
-    message += "Thanks for playing!";
-    boxer::show(message.c_str(), "Tactics Game");
+    if (scene_renderer_->did_game_end())
+    {
+        const std::string player_color = scene_renderer_->get_current_player_id() == 0 ? "red" : "green";
+        std::string message = "Game won by ";
+        message += player_color;
+        message += " player!\n";
+        message += "Thanks for playing!";
+        boxer::show(message.c_str(), "Tactics Game");
+    }
 
     return 0;
 }
@@ -380,8 +383,8 @@ void game_application::init_input()
             "* LMB - select/deselect unit\n"
             "* RMB - if unit selected:\n"
             "* * move unit to movable tile\n"
-            "* * * movable tiles are marked with blue frame\n"
-            "* * * moving up/down is allowed only on tiles with green frames\n"
+            "* * * movable tiles are marked with blue grid\n"
+            "* * * moving up/down is allowed only on tiles marked with frames\n"
             "* * * up to 2 moves per turn for the unit\n"
             "* * shoot enemy unit which is visible by the unit\n"
             "* * * always ends turn for the unit\n"
