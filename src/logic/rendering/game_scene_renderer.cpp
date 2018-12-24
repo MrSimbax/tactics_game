@@ -363,10 +363,18 @@ std::shared_ptr<top_camera> game_scene_renderer::get_current_camera()
     return player_renderers_[scene_->get_current_player_id()]->get_camera();
 }
 
+int game_scene_renderer::get_current_player_id() const
+{
+    return scene_->get_current_player_id();
+}
+
 void game_scene_renderer::start_new_turn()
 {
     end_turn();
-    scene_->start_new_turn();
+    if (scene_->start_new_turn())
+    {
+        did_game_end_ = true;
+    }
     init_new_turn();
 }
 
@@ -428,6 +436,11 @@ void game_scene_renderer::select_next_unit()
             if (try_select_and_move_to_unit(unit)) break;
         }
     }
+}
+
+bool game_scene_renderer::did_game_end() const
+{
+    return did_game_end_;
 }
 
 void game_scene_renderer::end_turn()

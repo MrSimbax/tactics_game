@@ -34,11 +34,14 @@ public:
     int get_current_layer();
     void set_current_layer(int layer);
     std::shared_ptr<top_camera> get_current_camera();
+    int get_current_player_id() const;
 
     void start_new_turn();
     void move_camera_to_unit(const std::shared_ptr<unit_renderer>& unit);
     bool try_select_and_move_to_unit(std::shared_ptr<unit_renderer> unit);
     void select_next_unit();
+
+    bool did_game_end() const;
 
 private:
     bool hovered_position_changed(glm::vec3 ray);
@@ -83,5 +86,8 @@ private:
 
     std::unique_ptr<buffered_simple_color_object> indicator_moves_left_;
     std::unique_ptr<buffered_simple_color_object> indicator_no_moves_left_;
+
+    // should probably use observer pattern but this is simpler
+    bool did_game_end_ = false;
 };
 }

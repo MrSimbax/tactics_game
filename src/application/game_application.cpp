@@ -101,6 +101,13 @@ int game_application::execute(const int argc, char* argv[])
         render();
     }
 
+    const std::string player_color = scene_renderer_->get_current_player_id() == 0 ? "red" : "green";
+    std::string message = "Game won by ";
+    message += player_color;
+    message += " player!\n";
+    message += "Thanks for playing!";
+    boxer::show(message.c_str(), "Tactics Game");
+
     return 0;
 }
 
@@ -426,8 +433,12 @@ void game_application::handle_event(SDL_Event* event)
     }
 }
 
-void game_application::update(const float delta_time) const
+void game_application::update(const float delta_time)
 {
+    if (scene_renderer_->did_game_end())
+    {
+        is_running_ = false;
+    }
     scene_renderer_->get_current_camera()->process_keyboard(camera_direction_, delta_time);
 }
 

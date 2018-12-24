@@ -132,7 +132,7 @@ void game_scene::move_unit(game_unit& unit, const glm::ivec3 position)
     }
 }
 
-void game_scene::start_new_turn()
+bool game_scene::start_new_turn()
 {
     auto game_ended = false;
 
@@ -160,7 +160,7 @@ void game_scene::start_new_turn()
     if (game_ended)
     {
         LOG_INFO << "Game won by player " << current_player_id_;
-        return;
+        return true;
     }
 
     ++current_player_id_;
@@ -168,6 +168,8 @@ void game_scene::start_new_turn()
         current_player_id_ = 0;
 
     update_movable_tiles();
+
+    return false;
 }
 
 bool game_scene::has_any_unit_any_action_left() const

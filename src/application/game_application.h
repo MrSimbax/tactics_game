@@ -35,7 +35,7 @@ private:
     void init_graphics();
 
     void handle_event(SDL_Event* event);
-    void update(float delta_time) const;
+    void update(float delta_time);
     void render() const;
 
     void update_aspect_ratio_in_cameras();

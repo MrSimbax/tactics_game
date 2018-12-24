@@ -24,7 +24,7 @@ public:
     bool can_unit_move(const game_unit& unit, glm::ivec3 position) const;
     void move_unit(game_unit& unit, glm::ivec3 position);
 
-    void start_new_turn();
+    bool start_new_turn();
 
     bool has_any_unit_any_action_left() const;
 
