@@ -374,7 +374,8 @@ void game_scene_renderer::move_camera_to_unit(const std::shared_ptr<unit_rendere
     glm::vec3 pos = unit->get_unit()->get_position();
     pos.x += 0.5f;
     pos.z += 0.5f;
-    player_renderers_[scene_->get_current_player_id()]->get_camera()->set_target(pos);
+    get_current_camera()->set_target(pos);
+    get_current_camera()->set_current_layer(pos.y);
 }
 
 bool game_scene_renderer::try_select_and_move_to_unit(std::shared_ptr<unit_renderer> unit)
