@@ -263,6 +263,7 @@ void game_scene_renderer::handle_right_mouse_button(const glm::ivec3 position)
         {
             turn_off_outline(currently_hovered_unit_);
             currently_hovered_unit_.reset();
+            update_movable_grids();
         }
     }
     else if (is_unit_selected() && !is_unit_hovered() &&

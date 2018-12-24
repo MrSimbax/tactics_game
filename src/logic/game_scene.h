@@ -19,7 +19,7 @@ public:
 
     float calculate_shooting_probability(const game_unit& shooter, const game_unit& target) const;
     static bool can_unit_shoot(const game_unit& shooter, const game_unit& target);
-    void shoot_unit(game_unit& shooter, game_unit& target) const;
+    void shoot_unit(game_unit& shooter, game_unit& target);
 
     bool can_unit_move(const game_unit& unit, glm::ivec3 position) const;
     void move_unit(game_unit& unit, glm::ivec3 position);

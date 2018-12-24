@@ -102,7 +102,7 @@ bool game_scene::can_unit_move(const game_unit& unit, const glm::ivec3 position)
     return path_finder::can_move_to_tile(unit.get_position(), position, *map_, unit.get_movable_tiles());
 }
 
-void game_scene::shoot_unit(game_unit& shooter, game_unit& target) const
+void game_scene::shoot_unit(game_unit& shooter, game_unit& target)
 {
     if (shooter.can_shoot())
     {
@@ -111,6 +111,11 @@ void game_scene::shoot_unit(game_unit& shooter, game_unit& target) const
         if (utils::random_float() < prob)
         {
             target.set_hit_points(target.get_hit_points() - 1);
+            if (target.is_dead())
+            {
+                map_->set_blocked(target.get_position(), false);
+                update_movable_tiles();
+            }
         }
     }
 }
