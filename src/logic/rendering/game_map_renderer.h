@@ -10,9 +10,9 @@ class game_map_renderer
 {
 public:
     game_map_renderer(std::shared_ptr<game_map> map,
-                      std::unique_ptr<graphics_object> floor,
-                      std::unique_ptr<graphics_object> wall,
-                      std::unique_ptr<graphics_object> climber);
+                      graphics_object floor,
+                      graphics_object wall,
+                      graphics_object climber);
 
     void render(shader_program& program, size_t layer_index) const;
 
@@ -25,11 +25,10 @@ private:
 
     std::shared_ptr<game_map> map_;
 
-    std::unique_ptr<graphics_object> floor_;
-    std::unique_ptr<graphics_object> wall_;
-    std::unique_ptr<graphics_object> climber_;
+    graphics_object floor_;
+    graphics_object wall_;
+    graphics_object climber_;
 
-    std::vector<std::shared_ptr<graphics_object>> static_layers_;
     std::vector<buffered_graphics_object> buffered_static_layers_;
 
     std::vector<buffered_graphics_object> climbers_;

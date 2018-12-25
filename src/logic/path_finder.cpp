@@ -108,43 +108,35 @@ std::vector<path_finder::node*> path_finder::get_neighbors(paths_t& paths, const
     const auto array_pos = from_map_to_array_pos(start_pos, u);
 
     // up
-    auto is_up_neighbor = false;
     auto pos = glm::ivec3(array_pos.x, array_pos.y, array_pos.z + 1);
     auto map_pos = from_array_to_map_pos(start_pos, pos);
     if (is_tile_in_range(pos) && is_tile_on_map(map_pos, map) && is_tile_movable(map_pos, map))
     {
         neighbors.push_back(&paths[pos.y][pos.x][pos.z]);
-        is_up_neighbor = true;
     }
 
     // right
-    auto is_right_neighbor = false;
     pos = glm::ivec3(array_pos.x + 1, array_pos.y, array_pos.z);
     map_pos = from_array_to_map_pos(start_pos, pos);
     if (is_tile_in_range(pos) && is_tile_on_map(map_pos, map) && is_tile_movable(map_pos, map))
     {
         neighbors.push_back(&paths[pos.y][pos.x][pos.z]);
-        is_right_neighbor = true;
     }
 
     // down
-    auto is_down_neighbor = false;
     pos = glm::ivec3(array_pos.x, array_pos.y, array_pos.z - 1);
     map_pos = from_array_to_map_pos(start_pos, pos);
     if (is_tile_in_range(pos) && is_tile_on_map(map_pos, map) && is_tile_movable(map_pos, map))
     {
         neighbors.push_back(&paths[pos.y][pos.x][pos.z]);
-        is_down_neighbor = true;
     }
 
     // left
-    auto is_left_neighbor = false;
     pos = glm::ivec3(array_pos.x - 1, array_pos.y, array_pos.z);
     map_pos = from_array_to_map_pos(start_pos, pos);
     if (is_tile_in_range(pos) && is_tile_on_map(map_pos, map) && is_tile_movable(map_pos, map))
     {
         neighbors.push_back(&paths[pos.y][pos.x][pos.z]);
-        is_left_neighbor = true;
     }
 
     if (map.get_tile(from_array_to_map_pos(start_pos, array_pos)) == tile_type::climber ||
@@ -162,36 +154,6 @@ std::vector<path_finder::node*> path_finder::get_neighbors(paths_t& paths, const
         if (is_tile_in_range(pos) && is_tile_on_map(map_pos, map) && map.get_tile(map_pos) == tile_type::climber)
             neighbors.push_back(&paths[pos.y][pos.x][pos.z]);
     }
-
-    
-
-    //// up-left
-    //pos = glm::ivec3(array_pos.x - 1, array_pos.y, array_pos.z + 1);
-    //map_pos = from_array_to_map_pos(start_pos, pos);
-    //if (!is_up_neighbor && !is_left_neighbor &&
-    //    is_tile_in_range(pos) && is_tile_on_map(map_pos, map) && is_tile_movable(map_pos, map))
-    //    neighbors.push_back(&paths[pos.y][pos.x][pos.z]);
-
-    //// up-right
-    //pos = glm::ivec3(array_pos.x + 1, array_pos.y, array_pos.z + 1);
-    //map_pos = from_array_to_map_pos(start_pos, pos);
-    //if (!is_up_neighbor && !is_right_neighbor &&
-    //    is_tile_in_range(pos) && is_tile_on_map(map_pos, map) && is_tile_movable(map_pos, map))
-    //    neighbors.push_back(&paths[pos.y][pos.x][pos.z]);
-
-    //// down-right
-    //pos = glm::ivec3(array_pos.x + 1, array_pos.y, array_pos.z - 1);
-    //map_pos = from_array_to_map_pos(start_pos, pos);
-    //if (!is_down_neighbor && !is_right_neighbor &&
-    //    is_tile_in_range(pos) && is_tile_on_map(map_pos, map) && is_tile_movable(map_pos, map))
-    //    neighbors.push_back(&paths[pos.y][pos.x][pos.z]);
-
-    //// down-left
-    //pos = glm::ivec3(array_pos.x - 1, array_pos.y, array_pos.z - 1);
-    //map_pos = from_array_to_map_pos(start_pos, pos);
-    //if (!is_down_neighbor && !is_left_neighbor &&
-    //    is_tile_in_range(pos) && is_tile_on_map(map_pos, map) && is_tile_movable(map_pos, map))
-    //    neighbors.push_back(&paths[pos.y][pos.x][pos.z]);
 
     return neighbors;
 }

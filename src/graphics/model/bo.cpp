@@ -26,7 +26,7 @@ buffer_object& buffer_object::operator=(buffer_object&& other) noexcept
 
 buffer_object::~buffer_object()
 {
-    if (!id_)
+    if (id_)
     {
         glDeleteBuffers(1, &id_);
     }

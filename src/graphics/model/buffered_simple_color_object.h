@@ -7,19 +7,22 @@ namespace tactics_game
 class buffered_simple_color_object
 {
 public:
-    explicit buffered_simple_color_object(const std::shared_ptr<simple_color_object>& object);
+    explicit buffered_simple_color_object(simple_color_object object);
+
     buffered_simple_color_object(const buffered_simple_color_object& other) = delete;
     buffered_simple_color_object& operator=(const buffered_simple_color_object& other) = delete;
+
     buffered_simple_color_object(buffered_simple_color_object&& other) noexcept = default;
     buffered_simple_color_object& operator=(buffered_simple_color_object&& other) noexcept = default;
+
     ~buffered_simple_color_object() = default;
 
     void render(shader_program& program) const;
 
-    simple_color_object* get_object() const;
+    simple_color_object& get_object();
 
 private:
-    std::shared_ptr<simple_color_object> object_;
+    simple_color_object object_;
     buffered_model model_;
 };
 }

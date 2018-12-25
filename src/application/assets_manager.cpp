@@ -122,7 +122,7 @@ game_scene_with_other_data assets_manager::get_scene(const std::string& name) co
     std::vector<std::shared_ptr<player>> players;
     auto players_json = info["players"];
     size_t player_id = 0;
-    std::vector<std::shared_ptr<top_camera>> player_cameras;
+    std::vector<top_camera> player_cameras;
     for (const auto& player_json : players_json)
     {
         std::vector<std::shared_ptr<game_unit>> units;
@@ -138,19 +138,19 @@ game_scene_with_other_data assets_manager::get_scene(const std::string& name) co
         }
         players.emplace_back(new player{player_id, units});
         
-        player_cameras.emplace_back(new top_camera);
+        player_cameras.emplace_back();
         auto camera_json = player_json["camera"];
-        player_cameras[player_id]->set_target(glm::vec3{camera_json["lookAt"]["x"], camera_json["lookAt"]["y"], camera_json["lookAt"]["z"]});
-        player_cameras[player_id]->set_current_layer(camera_json["lookAt"]["y"]);
+        player_cameras[player_id].set_target(glm::vec3{camera_json["lookAt"]["x"], camera_json["lookAt"]["y"], camera_json["lookAt"]["z"]});
+        player_cameras[player_id].set_current_layer(camera_json["lookAt"]["y"]);
         auto orient = camera_json["orientation"];
         if (orient == "top-left")
-            player_cameras[player_id]->set_orientation(top_camera_orientation::top_left);
+            player_cameras[player_id].set_orientation(top_camera_orientation::top_left);
         else if (orient == "top-right")
-            player_cameras[player_id]->set_orientation(top_camera_orientation::top_right);
+            player_cameras[player_id].set_orientation(top_camera_orientation::top_right);
         else if (orient == "bottom-right")
-            player_cameras[player_id]->set_orientation(top_camera_orientation::bottom_right);
+            player_cameras[player_id].set_orientation(top_camera_orientation::bottom_right);
         else
-            player_cameras[player_id]->set_orientation(top_camera_orientation::bottom_left);
+            player_cameras[player_id].set_orientation(top_camera_orientation::bottom_left);
         player_id += 1;
     }
 
@@ -291,9 +291,9 @@ json assets_manager::load_json(const std::string& path)
     return j;
 }
 
-std::vector<std::shared_ptr<mesh>> assets_manager::process_model_node(aiNode* const ai_node, const aiScene* const scene)
+std::vector<mesh> assets_manager::process_model_node(aiNode* const ai_node, const aiScene* const scene)
 {
-    std::vector<std::shared_ptr<mesh>> meshes;
+    std::vector<mesh> meshes;
 
     for (unsigned int i = 0; i < ai_node->mNumMeshes; ++i)
     {
@@ -310,7 +310,7 @@ std::vector<std::shared_ptr<mesh>> assets_manager::process_model_node(aiNode* co
     return meshes;
 }
 
-std::shared_ptr<mesh> assets_manager::process_model_mesh(aiMesh* ai_mesh, const aiScene* const scene)
+mesh assets_manager::process_model_mesh(aiMesh* ai_mesh, const aiScene* const scene)
 {
     std::vector<vertex> vertices;
     std::vector<unsigned int> indices;
@@ -356,6 +356,6 @@ std::shared_ptr<mesh> assets_manager::process_model_mesh(aiMesh* ai_mesh, const 
         mat.shininess = f;
     }
 
-    return std::make_shared<mesh>(vertices, indices, mat);
+    return {vertices, indices, mat};
 }
 

@@ -4,7 +4,7 @@
 using namespace tactics_game;
 
 
-player_renderer::player_renderer(std::shared_ptr<player> player, std::shared_ptr<top_camera> camera,
+player_renderer::player_renderer(std::shared_ptr<player> player, top_camera camera,
                                  const model& unit_model, const model& grid_model, glm::vec4 color)
     : player_{std::move(player)},
       camera_{std::move(camera)},
@@ -17,9 +17,9 @@ void player_renderer::render(shader_program& program, const int layer)
 {
     for (auto& unit_renderer : unit_renderers_)
     {
-        if (unit_renderer->get_unit()->get_position().y > layer)
+        if (unit_renderer.get_unit()->get_position().y > layer)
             continue;
-        unit_renderer->render(program);
+        unit_renderer.render(program);
     }
 }
 
@@ -27,18 +27,18 @@ void player_renderer::render_outline(shader_program& program, const int layer)
 {
     for (auto& unit_renderer : unit_renderers_)
     {
-        if (unit_renderer->get_unit()->get_position().y > layer)
+        if (unit_renderer.get_unit()->get_position().y > layer)
             continue;
-        unit_renderer->render_outline(program);
+        unit_renderer.render_outline(program);
     }
 }
 
-std::shared_ptr<top_camera> player_renderer::get_camera() const
+top_camera& player_renderer::get_camera()
 {
     return camera_;
 }
 
-std::vector<std::shared_ptr<unit_renderer>>& player_renderer::get_unit_renderers()
+std::vector<unit_renderer>& player_renderer::get_unit_renderers()
 {
     return unit_renderers_;
 }
@@ -52,6 +52,6 @@ void player_renderer::create_unit_renderers(const model& unit_model, const model
 {
     for (auto& unit : player_->get_units())
     {
-        unit_renderers_.emplace_back(new unit_renderer{unit, unit_model, grid_model});
+        unit_renderers_.emplace_back(unit, unit_model, grid_model);
     }
 }

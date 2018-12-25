@@ -11,8 +11,8 @@ graphics_object::graphics_object(model model)
 {
 }
 
-graphics_object::graphics_object(std::shared_ptr<mesh> m)
-    : model_{model{std::vector<std::shared_ptr<mesh>>{std::move(m)}}}
+graphics_object::graphics_object(const mesh& m)
+    : model_{model{std::vector<mesh>{std::move(m)}}}
 {
 }
 

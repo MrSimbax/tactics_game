@@ -8,8 +8,8 @@ simple_color_object::simple_color_object(const model& model)
 {
 }
 
-simple_color_object::simple_color_object(std::shared_ptr<mesh> m)
-    : graphics_object{std::move(m)}
+simple_color_object::simple_color_object(const mesh& m)
+    : graphics_object{m}
 {
 }
 

@@ -18,7 +18,7 @@ struct game_scene_with_other_data
     game_scene scene;
     std::vector<std::vector<point_light>> point_lights;
     glm::vec3 world_ambient;
-    std::vector<std::shared_ptr<top_camera>> player_cameras;
+    std::vector<top_camera> player_cameras;
 };
 
 class assets_manager
@@ -42,8 +42,8 @@ private:
     static std::string load_text_file(const std::string& path);
     static json load_json(const std::string& path);
 
-    static std::vector<std::shared_ptr<mesh>> process_model_node(aiNode* ai_node, const aiScene* scene);
-    static std::shared_ptr<mesh> process_model_mesh(aiMesh* ai_mesh, const aiScene* scene);
+    static std::vector<mesh> process_model_node(aiNode* ai_node, const aiScene* scene);
+    static mesh process_model_mesh(aiMesh* ai_mesh, const aiScene* scene);
 
     std::string root_;
     const std::string shaders_path_{"shaders/"};

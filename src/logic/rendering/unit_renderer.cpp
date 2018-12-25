@@ -8,18 +8,17 @@ using namespace tactics_game;
 
 unit_renderer::unit_renderer(std::shared_ptr<game_unit> unit, const model& unit_model, const model& grid_model)
     : unit_{std::move(unit)},
-      graphics_object_{new graphics_object{unit_model}},
-      buffered_graphics_object_{graphics_object_},
+      buffered_graphics_object_{graphics_object{unit_model}},
       grid_object_{grid_model}
 {
 }
 
-void unit_renderer::render(shader_program& program) const
+void unit_renderer::render(shader_program& program)
 {
     if (!unit_->is_visible() || unit_->is_dead())
         return;
     const auto game_position = unit_->get_position();
-    graphics_object_->set_position(glm::vec3{
+    buffered_graphics_object_.get_graphics_object().set_position(glm::vec3{
         game_position.x,
         game_position.y + 0.5f,
         game_position.z
@@ -27,7 +26,7 @@ void unit_renderer::render(shader_program& program) const
     buffered_graphics_object_.render(program);
 }
 
-void unit_renderer::render_outline(shader_program& program) const
+void unit_renderer::render_outline(shader_program& program)
 {
     if (outline_)
         program.set_vec4("u_color", outline_color_);
@@ -35,14 +34,14 @@ void unit_renderer::render_outline(shader_program& program) const
         return;
 
     const auto game_position = unit_->get_position();
-    graphics_object_->set_position(glm::vec3{
+    buffered_graphics_object_.get_graphics_object().set_position(glm::vec3{
         game_position.x,
         game_position.y + 0.5f,
         game_position.z
     });
-    graphics_object_->set_scale(glm::vec3(1.0f) + outline_width);
+    buffered_graphics_object_.get_graphics_object().set_scale(glm::vec3(1.0f) + outline_width);
     buffered_graphics_object_.render(program);
-    graphics_object_->set_scale(glm::vec3(1.0f));
+    buffered_graphics_object_.get_graphics_object().set_scale(glm::vec3(1.0f));
 }
 
 void unit_renderer::render_grid(shader_program& program, const int y_max) const
@@ -81,7 +80,7 @@ void unit_renderer::update_movable_grid(const int y_size)
 {
     std::vector<model> grid_models;
     grid_models.resize(y_size);
-    const auto& movable_tiles = path_finder::get_movable_tiles(unit_->get_position(), unit_->get_movable_tiles());
+    const auto movable_tiles = path_finder::get_movable_tiles(unit_->get_position(), unit_->get_movable_tiles());
     for (const auto& movable_tile : movable_tiles)
     {
         grid_object_.set_position(glm::vec3(movable_tile.x, movable_tile.y + 0.1f, movable_tile.z));
@@ -94,8 +93,8 @@ void unit_renderer::update_movable_grid(const int y_size)
     {
         if (!grid_model.get_meshes().empty())
         {
-            auto color_obj = std::make_shared<simple_color_object>(grid_model.merged());
-            color_obj->set_color(movable_grid_color);
+            simple_color_object color_obj{grid_model.merged()};
+            color_obj.set_color(movable_grid_color);
             movable_grid_.emplace_back(std::make_unique<buffered_simple_color_object>(color_obj));
         }
         else

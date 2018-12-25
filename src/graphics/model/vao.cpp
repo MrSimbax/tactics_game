@@ -27,7 +27,7 @@ vertex_array_object& vertex_array_object::operator=(vertex_array_object&& other)
 
 vertex_array_object::~vertex_array_object()
 {
-    if (!id_)
+    if (id_)
     {
         glDeleteVertexArrays(1, &id_);
     }

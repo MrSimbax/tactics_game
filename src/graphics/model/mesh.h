@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <glm/vec3.hpp>
+#include "plog/Log.h"
 
 namespace tactics_game
 {
@@ -25,7 +26,7 @@ struct material
 class mesh
 {
 public:
-    mesh(std::vector<vertex> vertices, std::vector<unsigned int> indices, material material_);
+    mesh(std::vector<vertex> vertices, std::vector<unsigned> indices, material material);
 
     mesh transformed(glm::mat4 transform) const;
 

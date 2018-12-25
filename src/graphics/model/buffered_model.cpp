@@ -7,11 +7,10 @@ using namespace tactics_game;
 buffered_model::buffered_model(const model& model)
 {
     meshes_.reserve(model.get_meshes().size());
-    std::transform(model.get_meshes().begin(), model.get_meshes().end(), std::back_inserter(meshes_),
-                   [](const std::shared_ptr<mesh> mesh)
-                   {
-                       return buffered_mesh{mesh};
-                   });
+    for (const auto& mesh : model.get_meshes())
+    {
+        meshes_.push_back(buffered_mesh{mesh});
+    }
 }
 
 buffered_model::buffered_model(std::vector<buffered_mesh>&& meshes)

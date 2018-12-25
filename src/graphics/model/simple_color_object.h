@@ -7,7 +7,7 @@ class simple_color_object : public graphics_object
 {
 public:
     explicit simple_color_object(const model& model);
-    explicit simple_color_object(std::shared_ptr<mesh> m);
+    explicit simple_color_object(const mesh& m);
 
     glm::vec4 get_color() const;
     void set_color(glm::vec4 color);

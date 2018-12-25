@@ -12,80 +12,91 @@ namespace tactics_game
 class game_scene_renderer
 {
 public:
-    game_scene_renderer(std::shared_ptr<game_scene> scene,
-                        std::shared_ptr<game_map_renderer> map_renderer,
-                        std::vector<std::shared_ptr<player_renderer>> player_renderers,
+    game_scene_renderer(game_scene scene,
+                        game_map_renderer map_renderer,
+                        std::vector<player_renderer> player_renderers,
                         std::vector<std::vector<point_light>> point_lights,
-                        std::unique_ptr<buffered_graphics_object> grid_object,
-                        std::shared_ptr<ui_renderer> ui_renderer,
-                        std::shared_ptr<light_objects_renderer> light_objects_renderer = {},
-                        glm::vec3 world_ambient = {}
-        );
+                        buffered_graphics_object grid_object,
+                        ui_renderer ui_renderer,
+                        light_objects_renderer light_objects_renderer,
+                        glm::vec3 world_ambient = {});
+
+    // Init lights in program
+    void set_lights(shader_program& program);
 
     void render(shader_program& program, shader_program& simple_color_program);
 
-    void set_lights(shader_program& program);
-    void count_point_lights();
-    void try_to_find_hovered_unit();
-
+    // Input handlers
+    void start_new_turn();
+    void select_next_unit();
     void on_mouse_motion(glm::vec3 ray);
     void on_mouse_click(glm::vec3 ray, int button);
 
+    // Getters
     int get_current_layer();
     void set_current_layer(int layer);
-    std::shared_ptr<top_camera> get_current_camera();
+    top_camera& get_current_camera();
+    std::vector<top_camera*> get_all_cameras();
     int get_current_player_id() const;
-
-    void start_new_turn();
-    void move_camera_to_unit(const std::shared_ptr<unit_renderer>& unit);
-    bool try_select_and_move_to_unit(std::shared_ptr<unit_renderer> unit);
-    void select_next_unit();
+    game_scene* get_scene();
 
     bool did_game_end() const;
 
 private:
+    // Input handlers
     bool hovered_position_changed(glm::vec3 ray);
     void handle_left_mouse_button(glm::ivec3 position);
     void handle_right_mouse_button(glm::ivec3 position);
 
-    void update_ui() const;
+    // Rendering logic
+    void count_point_lights();
+    void try_to_find_hovered_unit();
+
     void init_new_turn();
     void update_movable_grids();
     void end_turn();
+    void update_ui();
+
+    void select_unit(unit_renderer* unit);
+    bool try_select_and_move_to_unit(unit_renderer* unit);
+    void move_camera_to_unit(const unit_renderer* unit);
+
+    // Helpers
     bool is_unit_selected() const;
     bool is_unit_hovered() const;
     bool is_hovered_unit_selected() const;
-    bool is_unit_from_current_player(std::shared_ptr<unit_renderer>& unit) const;
+    bool is_unit_from_current_player(const unit_renderer* unit) const;
     bool is_hovered_position_on_map() const;
-    void turn_off_outline(std::shared_ptr<unit_renderer>& unit) const;
-    static void turn_on_outline(std::shared_ptr<unit_renderer>& unit, glm::vec4 color);
+    
+    void turn_off_outline(unit_renderer* unit) const;
+    static void turn_on_outline(unit_renderer* unit, glm::vec4 color);
 
+    // Map
     glm::ivec3 get_map_position_from_camera_ray(glm::vec3 ray);
-    void select_unit(std::shared_ptr<unit_renderer>& unit);
     static glm::vec3 raycast_to_xz_plane(glm::vec3 from, glm::vec3 ray, float y);
 
-    std::shared_ptr<game_scene> scene_;
+    // Game logic
+    game_scene scene_;
 
-    std::shared_ptr<ui_renderer> ui_renderer_;
-    std::shared_ptr<light_objects_renderer> light_objects_renderer_;
-    std::shared_ptr<game_map_renderer> map_renderer_;
-    std::vector<std::shared_ptr<player_renderer>> player_renderers_;
+    // Renderers
+    ui_renderer ui_renderer_;
+    light_objects_renderer light_objects_renderer_;
+    game_map_renderer map_renderer_;
+    std::vector<player_renderer> player_renderers_;
 
+    // Lighting
+    int point_lights_count_{0};
     std::vector<std::vector<point_light>> point_lights_;
     glm::vec3 world_ambient_;
 
-    std::unique_ptr<buffered_graphics_object> grid_cursor_object_;
+    // Cursor
+    buffered_graphics_object grid_cursor_object_;
     bool should_render_grid_cursor_{false};
 
-    int point_lights_count_{0};
-
-    std::shared_ptr<unit_renderer> currently_selected_unit_{};
-    std::shared_ptr<unit_renderer> currently_hovered_unit_{};
-
+    // Hover/selection
+    unit_renderer* currently_selected_unit_{};
+    unit_renderer* currently_hovered_unit_{};
     glm::ivec3 currently_hovered_position_{0};
-
-    std::unique_ptr<buffered_simple_color_object> indicator_moves_left_;
-    std::unique_ptr<buffered_simple_color_object> indicator_no_moves_left_;
 
     // should probably use observer pattern but this is simpler
     bool did_game_end_ = false;

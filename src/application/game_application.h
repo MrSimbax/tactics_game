@@ -38,7 +38,7 @@ private:
     void update(float delta_time);
     void render() const;
 
-    void update_aspect_ratio_in_cameras();
+    void update_aspect_ratio_in_cameras() const;
 
     assets_manager assets_manager_{"assets/"};
     input_manager input_manager_{};
@@ -50,12 +50,8 @@ private:
     std::unique_ptr<shader_program> shader_program_{};
     std::unique_ptr<shader_program> simple_color_shader_program_{};
 
-    //std::shared_ptr<game_map> current_map_{};
-    //std::unique_ptr<game_map_renderer> map_renderer_{};
-    std::shared_ptr<game_scene> current_scene_{};
     std::unique_ptr<game_scene_renderer> scene_renderer_{};
 
-    std::vector<std::shared_ptr<top_camera>> cameras_{};
     glm::vec3 camera_direction_{};
 
     float last_frame_time_{0.0f};

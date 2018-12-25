@@ -7,15 +7,15 @@ class model
 {
 public:
     model();
-    explicit model(std::vector<std::shared_ptr<mesh>> meshes);
+    explicit model(std::vector<mesh> meshes);
 
-    const std::vector<std::shared_ptr<mesh>>& get_meshes() const;
-    void add_mesh(std::shared_ptr<mesh> mesh);
+    const std::vector<mesh>& get_meshes() const;
+    void add_mesh(mesh mesh);
 
     model transformed(glm::mat4 transform) const;
-    std::shared_ptr<mesh> merged() const;
+    mesh merged() const;
 
 private:
-    std::vector<std::shared_ptr<mesh>> meshes_;
+    std::vector<mesh> meshes_;
 };
 }
