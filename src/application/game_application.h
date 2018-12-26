@@ -2,9 +2,9 @@
 
 #include "../graphics/window/window.h"
 #include "../graphics/shader/shader_program.h"
-#include "../graphics/model/free_roam_camera.h"
+#include "../graphics/model/camera/free_roam_camera.h"
 #include "../logic/rendering/game_scene_renderer.h"
-#include "../graphics/model/top_camera.h"
+#include "../graphics/model/camera/top_camera.h"
 #include "input_manager.h"
 #include "assets_manager.h"
 
@@ -49,6 +49,7 @@ private:
 
     std::unique_ptr<shader_program> shader_program_{};
     std::unique_ptr<shader_program> simple_color_shader_program_{};
+    std::unique_ptr<shader_program> fow_shader_program_{};
 
     std::unique_ptr<game_scene_renderer> scene_renderer_{};
 

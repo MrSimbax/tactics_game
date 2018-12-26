@@ -215,6 +215,11 @@ void game_application::init_graphics()
         assets_manager_.get_shader_source("simple_color.frag")
     });
 
+    fow_shader_program_.reset(new shader_program{
+        assets_manager_.get_shader_source("fow.vert"),
+        assets_manager_.get_shader_source("fow.frag")
+    });
+
     // Load map
     auto loaded_scene{assets_manager_.get_scene(options_["map"])};
     if (loaded_scene.scene.get_players().empty())
@@ -485,6 +490,6 @@ void game_application::update(const float delta_time)
 void game_application::render() const
 {
     window_->clear_screen();
-    scene_renderer_->render(*shader_program_, *simple_color_shader_program_);
+    scene_renderer_->render(*shader_program_, *simple_color_shader_program_, *fow_shader_program_);
     window_->swap_buffers();
 }

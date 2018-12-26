@@ -2,7 +2,7 @@
 
 #include "../player.h"
 #include "unit_renderer.h"
-#include "../../graphics/model/top_camera.h"
+#include "../../graphics/model/camera/top_camera.h"
 
 namespace tactics_game
 {

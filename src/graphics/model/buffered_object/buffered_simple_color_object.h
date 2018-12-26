@@ -1,6 +1,6 @@
 #pragma once
 #include "buffered_model.h"
-#include "simple_color_object.h"
+#include "../object/simple_color_object.h"
 
 namespace tactics_game
 {

@@ -6,6 +6,7 @@
 #include "light_objects_renderer.h"
 #include "../../graphics/model/lights.h"
 #include "ui_renderer.h"
+#include "fow_renderer.h"
 
 namespace tactics_game
 {
@@ -24,7 +25,7 @@ public:
     // Init lights in program
     void set_lights(shader_program& program);
 
-    void render(shader_program& program, shader_program& simple_color_program);
+    void render(shader_program& program, shader_program& simple_color_program, shader_program& fow_program);
 
     // Input handlers
     void start_new_turn();
@@ -83,6 +84,7 @@ private:
     light_objects_renderer light_objects_renderer_;
     game_map_renderer map_renderer_;
     std::vector<player_renderer> player_renderers_;
+    fow_renderer fow_renderer_;
 
     // Lighting
     int point_lights_count_{0};

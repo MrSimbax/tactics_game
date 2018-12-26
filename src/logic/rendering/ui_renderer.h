@@ -1,6 +1,6 @@
 #pragma once
-#include "../../graphics/model/simple_color_object.h"
-#include "../../graphics/model/buffered_simple_color_object.h"
+#include "../../graphics/model/object/simple_color_object.h"
+#include "../../graphics/model/buffered_object/buffered_simple_color_object.h"
 
 namespace tactics_game
 {

@@ -2,11 +2,11 @@
 #include <string>
 #include <assimp/scene.h>
 #include <nlohmann/json.hpp>
-#include "../graphics/model/model.h"
+#include "../graphics/model/object/model.h"
 #include "../logic/game_map.h"
 #include "../logic/game_scene.h"
 #include "../graphics/model/lights.h"
-#include "../graphics/model/top_camera.h"
+#include "../graphics/model/camera/top_camera.h"
 
 using json = nlohmann::json;
 

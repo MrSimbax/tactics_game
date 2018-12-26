@@ -24,6 +24,7 @@ game_scene_renderer::game_scene_renderer(game_scene scene,
       light_objects_renderer_{std::move(light_objects_renderer)},
       map_renderer_{std::move(map_renderer)},
       player_renderers_{std::move(player_renderers)},
+      fow_renderer_{scene_.get_game_map()->get_size()},
       point_lights_{std::move(point_lights)},
       world_ambient_{world_ambient},
       grid_cursor_object_{std::move(grid_object)}
@@ -31,7 +32,7 @@ game_scene_renderer::game_scene_renderer(game_scene scene,
     init_new_turn();
 }
 
-void game_scene_renderer::render(shader_program& program, shader_program& simple_color_program)
+void game_scene_renderer::render(shader_program& program, shader_program& simple_color_program, shader_program& fow_program)
 {
     program.use();
     program.set_mat4("u_view", get_current_camera().get_view_matrix());
@@ -49,7 +50,6 @@ void game_scene_renderer::render(shader_program& program, shader_program& simple
     if (should_render_grid_cursor_)
         grid_cursor_object_.render(program);
 
-    simple_color_program.use();
     simple_color_program.use();
     simple_color_program.set_mat4("u_view", get_current_camera().get_view_matrix());
     simple_color_program.set_mat4("u_projection", get_current_camera().get_projection_matrix());
@@ -74,15 +74,24 @@ void game_scene_renderer::render(shader_program& program, shader_program& simple
     simple_color_program.use();
     for (auto& player_renderer : player_renderers_)
         player_renderer.render_outline(simple_color_program, get_current_layer());
-    
-    // UI
-    glDisable(GL_STENCIL_TEST);
-    ui_renderer_.render(simple_color_program, player_renderers_[scene_.get_current_player_id()].get_color());
-    glEnable(GL_STENCIL_TEST);
+
     
     // Back
+    glDisable(GL_STENCIL_TEST);
     glStencilMask(0xFF);
     glEnable(GL_DEPTH_TEST);
+
+    // FOW
+    fow_program.use();
+    fow_program.set_mat4("u_view", get_current_camera().get_view_matrix());
+    fow_program.set_mat4("u_projection", get_current_camera().get_projection_matrix());
+    fow_renderer_.render(fow_program, get_current_layer());
+
+    // UI
+    simple_color_program.use();
+    ui_renderer_.render(simple_color_program, player_renderers_[scene_.get_current_player_id()].get_color());
+
+    glEnable(GL_STENCIL_TEST);
 }
 
 void game_scene_renderer::set_lights(shader_program& program)

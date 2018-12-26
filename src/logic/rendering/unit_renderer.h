@@ -1,7 +1,7 @@
 #pragma once
 #include "../game_unit.h"
-#include "../../graphics/model/buffered_graphics_object.h"
-#include "../../graphics/model/buffered_simple_color_object.h"
+#include "../../graphics/model/buffered_object/buffered_graphics_object.h"
+#include "../../graphics/model/buffered_object/buffered_simple_color_object.h"
 
 namespace tactics_game
 {

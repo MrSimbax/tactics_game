@@ -1,6 +1,6 @@
 #include "buffered_graphics_object.h"
 
-#include "../../misc/custom_log.h"
+#include "../../../misc/custom_log.h"
 #include "glm/gtc/matrix_inverse.hpp"
 
 using namespace tactics_game;

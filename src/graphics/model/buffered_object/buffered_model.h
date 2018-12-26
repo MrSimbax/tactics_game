@@ -1,6 +1,6 @@
 #pragma once
 #include "buffered_mesh.h"
-#include "model.h"
+#include "../object/model.h"
 
 namespace tactics_game
 {

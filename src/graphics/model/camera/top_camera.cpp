@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
-#include "../../misc/custom_log.h"
+#include "../../../misc/custom_log.h"
 
 using namespace tactics_game;
 

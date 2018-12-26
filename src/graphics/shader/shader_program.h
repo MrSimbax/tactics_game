@@ -28,6 +28,7 @@ public:
 
     static const unsigned int position_location = 0;
     static const unsigned int normal_location = 1;
+    static const unsigned int tex_coords_location = 2;
 
     static void set_vertex_attrib(int index, int size, unsigned int type, int stride, size_t offset);
 

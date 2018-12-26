@@ -1,12 +1,10 @@
 #pragma once
 
-#include <memory>
-
-#include "bo.h"
-#include "vao.h"
-#include "../shader/shader_program.h"
-#include "mesh.h"
-#include "plog/Log.h"
+#include "../buffers/bo.h"
+#include "../buffers/vao.h"
+#include "../../shader/shader_program.h"
+#include "../object/mesh.h"
+#include <plog/Log.h>
 
 namespace tactics_game
 {

@@ -1,7 +1,7 @@
 #pragma once
-#include "graphics_object.h"
+#include "../object/graphics_object.h"
 #include "buffered_model.h"
-#include "plog/Log.h"
+#include <plog/Log.h>
 
 namespace tactics_game
 {

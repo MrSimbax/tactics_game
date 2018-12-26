@@ -1,5 +1,5 @@
 #pragma once
-#include "buffered_mesh.h"
+#include "../buffered_object/buffered_mesh.h"
 
 namespace tactics_game
 {

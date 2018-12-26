@@ -1,5 +1,5 @@
 #pragma once
-#include "../../graphics/model/buffered_graphics_object.h"
+#include "../../graphics/model/buffered_object/buffered_graphics_object.h"
 #include "../game_map.h"
 
 namespace tactics_game
