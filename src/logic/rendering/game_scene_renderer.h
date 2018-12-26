@@ -55,6 +55,7 @@ private:
 
     void init_new_turn();
     void update_movable_grids();
+    void update_fow();
     void end_turn();
     void update_ui();
 

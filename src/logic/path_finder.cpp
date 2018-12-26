@@ -71,6 +71,7 @@ std::vector<glm::ivec3> path_finder::get_movable_tiles(const glm::ivec3 from, pa
 path_finder::paths_t path_finder::create_paths(const glm::ivec3 start_pos)
 {
     paths_t paths;
+    paths.resize(size);
     for (auto y = 0u; y < size; ++y)
     {
         for (auto x = 0u; x < size; ++x)

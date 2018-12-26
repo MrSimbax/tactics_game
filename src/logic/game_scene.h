@@ -18,7 +18,7 @@ public:
     void set_current_player_id(size_t i);
 
     float calculate_shooting_probability(const game_unit& shooter, const game_unit& target) const;
-    static bool can_unit_shoot(const game_unit& shooter, const game_unit& target);
+    bool can_unit_shoot(const game_unit& shooter, const game_unit& target) const;
     void shoot_unit(game_unit& shooter, game_unit& target);
 
     bool can_unit_move(const game_unit& unit, glm::ivec3 position) const;
@@ -32,8 +32,12 @@ private:
     void update_movable_tiles();
     void calculate_movable_tiles_for(game_unit& unit) const;
 
+    void update_visible_tiles();
+    void calculate_visible_tiles_for(game_unit& unit) const;
+    bool can_unit_see(const game_unit& unit, const game_unit& other) const;
+
     std::string name_;
-    size_t current_player_id_{0};
+    size_t current_player_id_;
 
     std::shared_ptr<game_map> map_;
     std::vector<std::shared_ptr<player>> players_;

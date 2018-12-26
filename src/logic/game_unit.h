@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 
 #include "path_finder.h"
+#include "line_of_sight_finder.h"
+#include <array>
 
 namespace tactics_game
 {
@@ -40,13 +42,16 @@ public:
     const path_finder::paths_t& get_movable_tiles() const;
     void set_movable_tiles(path_finder::paths_t paths);
 
+    const line_of_sight_finder::los_t& get_visible_tiles() const;
+    void set_visible_tiles(line_of_sight_finder::los_t los);
+
 private:
     size_t id_;
     size_t player_id_;
     int hit_points_{1};
     int action_points_{2};
     bool is_visible_{true};
-    std::vector<glm::ivec2> visible_tiles_{};
+    line_of_sight_finder::los_t visible_tiles_{};
     path_finder::paths_t movable_tiles_{};
     glm::ivec3 position_;
 };

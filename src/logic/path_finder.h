@@ -31,7 +31,7 @@ public:
     static const unsigned range{5};
     static const unsigned size{range * 2 + 1};
     static const unsigned center{range};
-    using paths_t = std::array<std::array<std::array<node, size>, size>, size>;
+    using paths_t = std::vector<std::array<std::array<node, size>, size>>;
 
     static paths_t find_paths(glm::ivec3 start_pos, const game_map& map);
     static bool can_move_to_tile(glm::ivec3 from, glm::ivec3 to, const game_map& map, const paths_t& paths);

@@ -94,3 +94,13 @@ void game_unit::set_movable_tiles(const path_finder::paths_t paths)
 {
     this->movable_tiles_ = paths;
 }
+
+const line_of_sight_finder::los_t& game_unit::get_visible_tiles() const
+{
+    return visible_tiles_;
+}
+
+void game_unit::set_visible_tiles(const line_of_sight_finder::los_t los)
+{
+    visible_tiles_ = los;
+}

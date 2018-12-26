@@ -6,7 +6,8 @@
 using namespace tactics_game;
 
 game_scene::game_scene()
-    : map_{{}}
+    : current_player_id_(0),
+      map_{{}}
 {
 }
 
@@ -15,8 +16,8 @@ game_scene::game_scene(std::string name, std::shared_ptr<game_map> map, std::vec
       map_{std::move(map)},
       players_{std::move(players)}
 {
+    current_player_id_ = players_.size();
     start_new_turn();
-    current_player_id_ = 0;
 }
 
 std::shared_ptr<game_map> game_scene::get_game_map() const
@@ -64,7 +65,7 @@ float game_scene::calculate_shooting_probability(const game_unit& shooter, const
     const auto cover_penalty = 0.4f;
 
     if (
-        // left
+            // left
         (shooter_pos[0] < target_pos[0] - 1 &&
             map_->get_tile(glm::ivec3(target_pos[0] - 1, target_pos[1], target_pos[2])) == tile_type::wall) ||
         // right
@@ -78,7 +79,7 @@ float game_scene::calculate_shooting_probability(const game_unit& shooter, const
             map_->get_tile(glm::ivec3(target_pos[0], target_pos[1], target_pos[2] - 1)) == tile_type::wall)
     )
     {
-        prob -= 0.4f;
+        prob -= cover_penalty;
     }
 
     // Decrease by target's height
@@ -92,9 +93,9 @@ float game_scene::calculate_shooting_probability(const game_unit& shooter, const
     return glm::clamp(prob, 0.01f, 1.0f);
 }
 
-bool game_scene::can_unit_shoot(const game_unit& shooter, const game_unit& target)
+bool game_scene::can_unit_shoot(const game_unit& shooter, const game_unit& target) const
 {
-    return shooter.can_shoot() && !target.is_dead() && target.is_visible();
+    return shooter.can_shoot() && !target.is_dead() && can_unit_see(shooter, target);
 }
 
 bool game_scene::can_unit_move(const game_unit& unit, const glm::ivec3 position) const
@@ -129,26 +130,34 @@ void game_scene::move_unit(game_unit& unit, const glm::ivec3 position)
         map_->set_blocked(unit.get_position(), true);
         unit.set_action_points(unit.get_action_points() - 1);
         update_movable_tiles();
+        update_visible_tiles();
     }
 }
 
 bool game_scene::start_new_turn()
 {
+    auto first_turn = false;
+    if (current_player_id_ >= players_.size())
+    {
+        first_turn = true;
+        current_player_id_ = 0;
+    }
+
     auto game_ended = false;
 
+    // Check winning condition
     for (const auto& player : players_)
     {
+        if (player->get_id() == current_player_id_)
+            continue;
+
         auto dead_count = 0;
         for (const auto& unit : player->get_units())
         {
             if (unit->is_dead())
             {
                 ++dead_count;
-                continue;
             }
-            unit->set_action_points(2);
-
-            calculate_movable_tiles_for(*unit);
         }
         if (dead_count == static_cast<int>(player->get_units().size()))
         {
@@ -163,11 +172,21 @@ bool game_scene::start_new_turn()
         return true;
     }
 
-    ++current_player_id_;
-    if (current_player_id_ >= players_.size())
-        current_player_id_ = 0;
+    // Change player if not first turn
+    if (!first_turn)
+    {
+        ++current_player_id_;
+        if (current_player_id_ >= players_.size())
+            current_player_id_ = 0;
+    }
+
+    for (const auto& unit : players_[current_player_id_]->get_units())
+    {
+        unit->set_action_points(2);
+    }
 
     update_movable_tiles();
+    update_visible_tiles();
 
     return false;
 }
@@ -193,4 +212,39 @@ void game_scene::update_movable_tiles()
 void game_scene::calculate_movable_tiles_for(game_unit& unit) const
 {
     unit.set_movable_tiles(path_finder::find_paths(unit.get_position(), *map_));
+}
+
+void game_scene::update_visible_tiles()
+{
+    for (const auto& unit : players_[current_player_id_]->get_units())
+    {
+        unit->set_visible(true);
+        calculate_visible_tiles_for(*unit);
+    }
+
+    for (const auto& player : players_)
+    {
+        if (player->get_id() == current_player_id_)
+            continue;
+
+        for (const auto& enemy_unit : player->get_units())
+        {
+            enemy_unit->set_visible(false);
+            for (const auto& unit : players_[current_player_id_]->get_units())
+                if (can_unit_see(*unit, *enemy_unit))
+                    enemy_unit->set_visible(true);
+        }
+    }
+}
+
+
+void game_scene::calculate_visible_tiles_for(game_unit& unit) const
+{
+    unit.set_visible_tiles(line_of_sight_finder::find_los(unit.get_position(), *map_));
+}
+
+bool game_scene::can_unit_see(const game_unit& unit, const game_unit& other) const
+{
+    return line_of_sight_finder::can_see_tile(unit.get_position(), other.get_position(), *map_,
+                                              unit.get_visible_tiles());
 }

@@ -12,13 +12,13 @@
 using namespace tactics_game;
 
 game_scene_renderer::game_scene_renderer(game_scene scene,
-                        game_map_renderer map_renderer,
-                        std::vector<player_renderer> player_renderers,
-                        std::vector<std::vector<point_light>> point_lights,
-                        buffered_graphics_object grid_object,
-                        ui_renderer ui_renderer,
-                        light_objects_renderer light_objects_renderer,
-                        glm::vec3 world_ambient)
+                                         game_map_renderer map_renderer,
+                                         std::vector<player_renderer> player_renderers,
+                                         std::vector<std::vector<point_light>> point_lights,
+                                         buffered_graphics_object grid_object,
+                                         ui_renderer ui_renderer,
+                                         light_objects_renderer light_objects_renderer,
+                                         glm::vec3 world_ambient)
     : scene_{std::move(scene)},
       ui_renderer_{std::move(ui_renderer)},
       light_objects_renderer_{std::move(light_objects_renderer)},
@@ -32,7 +32,8 @@ game_scene_renderer::game_scene_renderer(game_scene scene,
     init_new_turn();
 }
 
-void game_scene_renderer::render(shader_program& program, shader_program& simple_color_program, shader_program& fow_program)
+void game_scene_renderer::render(shader_program& program, shader_program& simple_color_program,
+                                 shader_program& fow_program)
 {
     program.use();
     program.set_mat4("u_view", get_current_camera().get_view_matrix());
@@ -53,7 +54,7 @@ void game_scene_renderer::render(shader_program& program, shader_program& simple
     simple_color_program.use();
     simple_color_program.set_mat4("u_view", get_current_camera().get_view_matrix());
     simple_color_program.set_mat4("u_projection", get_current_camera().get_projection_matrix());
-    
+
     // Render light objects
     light_objects_renderer_.render(simple_color_program, get_current_layer() + 1);
 
@@ -75,7 +76,7 @@ void game_scene_renderer::render(shader_program& program, shader_program& simple
     for (auto& player_renderer : player_renderers_)
         player_renderer.render_outline(simple_color_program, get_current_layer());
 
-    
+
     // Back
     glDisable(GL_STENCIL_TEST);
     glStencilMask(0xFF);
@@ -127,7 +128,8 @@ void game_scene_renderer::try_to_find_hovered_unit()
             {
                 if (unit_renderer.get_unit()->is_dead() ||
                     !unit_renderer.get_unit()->is_visible() ||
-                    unit_renderer.get_unit()->turn_done())
+                    (unit_renderer.get_unit()->get_player_id() == get_current_player_id() &&
+                        unit_renderer.get_unit()->turn_done()))
                     break;
                 currently_hovered_unit_ = &unit_renderer;
                 break;
@@ -280,6 +282,7 @@ void game_scene_renderer::handle_right_mouse_button(const glm::ivec3 position)
         // move
         scene_.move_unit(*currently_selected_unit_->get_unit(), position);
         update_movable_grids();
+        update_fow();
     }
 
     if (is_unit_selected() && currently_selected_unit_->get_unit()->turn_done())
@@ -414,7 +417,8 @@ bool game_scene_renderer::try_select_and_move_to_unit(unit_renderer* unit)
 {
     if (!unit->get_unit()->is_dead() && !unit->get_unit()->turn_done())
     {
-        if (is_unit_selected()) {
+        if (is_unit_selected())
+        {
             turn_off_outline(currently_selected_unit_);
             currently_selected_unit_ = nullptr;
         }
@@ -456,7 +460,8 @@ void game_scene_renderer::select_next_unit()
     {
         for (auto& unit : units)
         {
-            if (try_select_and_move_to_unit(&unit)) break;
+            if (try_select_and_move_to_unit(&unit))
+                break;
         }
     }
 }
@@ -480,11 +485,13 @@ void game_scene_renderer::init_new_turn()
     // turn on outlines
     for (auto& unit_renderer : player_renderers_[scene_.get_current_player_id()].get_unit_renderers())
     {
-        if (unit_renderer.get_unit()->is_dead()) continue;
+        if (unit_renderer.get_unit()->is_dead())
+            continue;
         turn_on_outline(&unit_renderer, outline_color_turn_ready);
     }
 
     update_movable_grids();
+    update_fow();
     update_ui();
 }
 
@@ -492,9 +499,45 @@ void game_scene_renderer::update_movable_grids()
 {
     for (auto& unit_renderer : player_renderers_[scene_.get_current_player_id()].get_unit_renderers())
     {
-        if (unit_renderer.get_unit()->is_dead()) continue;
+        if (unit_renderer.get_unit()->is_dead())
+            continue;
         unit_renderer.update_movable_grid(scene_.get_game_map()->get_size().y);
     }
+}
+
+void game_scene_renderer::update_fow()
+{
+    const glm::vec<4, uint8_t> visible_color{0, 0, 0, 0};
+    const glm::vec<4, uint8_t> not_visible_color{0, 0, 0, 127};
+    std::vector<texture::data_t> layers;
+    layers.reserve(scene_.get_game_map()->get_size().y);
+    for (auto y = 0; y < scene_.get_game_map()->get_size().y; ++y)
+    {
+        texture::data_t data;
+        for (auto z = 0; z < scene_.get_game_map()->get_size().z; ++z)
+        {
+            for (auto x = 0; x < scene_.get_game_map()->get_size().x; ++x)
+            {
+                auto is_visible = false;
+                for (const auto& unit : player_renderers_[get_current_player_id()].get_unit_renderers())
+                {
+                    if (line_of_sight_finder::can_see_tile(unit.get_unit()->get_position(), glm::ivec3{x, y, z},
+                                                           *scene_.get_game_map(),
+                                                           unit.get_unit()->get_visible_tiles()))
+                    {
+                        data.push_back(visible_color);
+                        is_visible = true;
+                        break;
+                    }
+                }
+                if (!is_visible)
+                    data.push_back(not_visible_color);
+            }
+        }
+        layers.push_back(data);
+    }
+
+    fow_renderer_.update_textures(layers);
 }
 
 glm::vec3 game_scene_renderer::raycast_to_xz_plane(const glm::vec3 from, const glm::vec3 ray, const float y)
