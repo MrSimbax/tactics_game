@@ -24,6 +24,7 @@ Niektóre zależności są budowane bezpośrednio z projektem:
 * `irrxml` -- zależność `assimp`
 * `nlohmann-json` -- obsługa plików JSON
 * [`args`](https://github.com/Taywee/args) -- obsługa argumentów do linii poleceń
+* [`boxer`](https://github.com/aaronmjacobs/Boxer) -- obsługa prostych okien dialogowych
 
 ## Zmodyfikowane zależności
 
