@@ -403,6 +403,9 @@ void game_scene_renderer::start_new_turn()
         did_game_end_ = true;
     }
     init_new_turn();
+
+    // trigger camera update
+    set_current_layer(get_current_camera().get_current_layer());
 }
 
 void game_scene_renderer::move_camera_to_unit(const unit_renderer* unit)
@@ -410,8 +413,9 @@ void game_scene_renderer::move_camera_to_unit(const unit_renderer* unit)
     glm::vec3 pos = unit->get_unit()->get_position();
     pos.x += 0.5f;
     pos.z += 0.5f;
-    get_current_camera().set_target(pos);
     get_current_camera().set_current_layer(static_cast<size_t>(pos.y));
+    get_current_camera().set_target(pos);
+    count_point_lights();
 }
 
 bool game_scene_renderer::try_select_and_move_to_unit(unit_renderer* unit)
