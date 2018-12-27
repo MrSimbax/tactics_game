@@ -6,7 +6,7 @@ Praca inżynierska pt. "Gra turowa na trójwymiarowej mapie zaimplementowana z w
 
 Potrzebny jest [`cmake`](https://cmake.org/) oraz wypisane niżej zależności. Zalecany sposób pobrania zależności poprzez użycie [`vcpkg`](https://github.com/Microsoft/vcpkg).
 Na Windowsie 10 z Microsoft Visual Studio 2017 na pewno działa statyczne linkowanie. Dynamiczne nie było testowane.
-Grę da się skompilować na Linuksie `Ubuntu LTS 18.04`. Po poprawnej kompilacji można wygenerować plik [AppImage](https://appimage.org/) skryptem `linux_deploy.sh` zakładając, że pliki zostały skompilowane do folderu `build`.
+Grę da się skompilować na Linuksie `Ubuntu LTS 18.04`. Po poprawnej kompilacji można wygenerować plik [AppImage](https://appimage.org/) skryptem `deploy_linux.sh` zakładając, że pliki zostały skompilowane do folderu `build`.
 
 Obecne zależności:
 * [`SDL2`](https://www.libsdl.org/) -- tworzenie okna, obsługa klawiatury itp.
