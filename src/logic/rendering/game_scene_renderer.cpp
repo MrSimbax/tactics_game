@@ -185,7 +185,8 @@ void game_scene_renderer::on_mouse_motion(const glm::vec3 ray)
     }
 
     // Hover enemy unit outline
-    if (is_unit_hovered() && is_unit_selected() && !is_unit_from_current_player(currently_hovered_unit_))
+    if (is_unit_hovered() && is_unit_selected() && !is_unit_from_current_player(currently_hovered_unit_) &&
+        scene_.can_unit_shoot(*currently_selected_unit_->get_unit(), *currently_hovered_unit_->get_unit()))
     {
         turn_on_outline(currently_hovered_unit_,
                         lerp(outline_color_shoot_probability_low,
@@ -521,6 +522,9 @@ void game_scene_renderer::update_fow()
                 auto is_visible = false;
                 for (const auto& unit : player_renderers_[get_current_player_id()].get_unit_renderers())
                 {
+                    if (unit.get_unit()->is_dead())
+                        continue;
+
                     if (line_of_sight_finder::can_see_tile(unit.get_unit()->get_position(), glm::ivec3{x, y, z},
                                                            *scene_.get_game_map(),
                                                            unit.get_unit()->get_visible_tiles()))

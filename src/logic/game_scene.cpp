@@ -245,6 +245,7 @@ void game_scene::calculate_visible_tiles_for(game_unit& unit) const
 
 bool game_scene::can_unit_see(const game_unit& unit, const game_unit& other) const
 {
-    return line_of_sight_finder::can_see_tile(unit.get_position(), other.get_position(), *map_,
+    return !unit.is_dead() && !other.is_dead() &&
+        line_of_sight_finder::can_see_tile(unit.get_position(), other.get_position(), *map_,
                                               unit.get_visible_tiles());
 }
