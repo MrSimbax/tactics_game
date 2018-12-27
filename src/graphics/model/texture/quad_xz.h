@@ -18,14 +18,14 @@ struct quad_vertex
 class quad_xz
 {
 public:
-    quad_xz(glm::vec2 min, glm::vec2 max, unsigned y);
+    quad_xz(glm::vec2 min, glm::vec2 max, float y);
 
     void render(const shader_program& program) const;
 
     void set_texture(texture texture);
 
 private:
-    void generate_vertices(glm::vec2 min, glm::vec2 max, unsigned y);
+    void generate_vertices(glm::vec2 min, glm::vec2 max, float y);
     void set_up_buffers() const;
 
     std::vector<quad_vertex> vertices_;

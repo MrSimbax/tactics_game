@@ -1,9 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <numeric>
-#include <functional>
 #include <random>
+#include <glm/glm.hpp>
 
 namespace tactics_game::utils
 {
@@ -46,5 +44,13 @@ inline float random_float()
     static std::mt19937 e{rd()};
     static std::uniform_real_distribution<float> dist{0.0f, 1.0f};
     return dist(e);
+}
+
+inline int distance2(const glm::ivec3 from, const glm::ivec3 to)
+{
+    const auto dx = from.x - to.x;
+    const auto dy = from.y - to.y;
+    const auto dz = from.z - to.z;
+    return (dx * dx + dy * dy + dz * dz);
 }
 }

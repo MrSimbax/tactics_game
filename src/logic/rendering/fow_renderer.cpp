@@ -14,7 +14,7 @@ void fow_renderer::render(shader_program& program, const size_t layer_index) con
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     for (auto y = 0u; y <= layer_index; ++y)
-        fogs_[layer_index].render(program);
+        fogs_[y].render(program);
     glDisable(GL_BLEND);
 }
 
@@ -34,6 +34,6 @@ void fow_renderer::create_fogs()
     for (auto y = 0; y < map_size_.y; ++y)
     {
         fogs_.emplace_back(glm::vec2{-0.5f, -0.5f}, glm::vec2{map_size_.x - 0.5f, map_size_.z - 0.5f},
-                           static_cast<int>(y + 1.0f));
+                           y + 0.95f);
     }
 }

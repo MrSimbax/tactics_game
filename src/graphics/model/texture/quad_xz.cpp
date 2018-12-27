@@ -6,7 +6,7 @@
 
 using namespace tactics_game;
 
-quad_xz::quad_xz(const glm::vec2 min, const glm::vec2 max, const unsigned y)
+quad_xz::quad_xz(const glm::vec2 min, const glm::vec2 max, const float y)
 {
     generate_vertices(min, max, y);
     set_up_buffers();
@@ -26,7 +26,7 @@ void quad_xz::set_texture(texture texture)
     texture_ = std::move(texture);
 }
 
-void quad_xz::generate_vertices(const glm::vec2 min, const glm::vec2 max, const unsigned y)
+void quad_xz::generate_vertices(const glm::vec2 min, const glm::vec2 max, const float y)
 {
     vertices_.push_back({{min.x, y, min.y}, {0.0f, 0.0f}});
     vertices_.push_back({{min.x, y, max.y}, {0.0f, 1.0f}});
