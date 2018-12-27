@@ -15,7 +15,7 @@
 
 namespace tactics_game
 {
-class game_application
+class game_application : public camera_observer
 {
 public:
     game_application();
@@ -27,6 +27,8 @@ public:
     bool init_options(int argc, char** argv);
 
     int execute(int argc, char* argv[]);
+
+    void notify_on_camera_update() override;
 
 private:
     void init_input();

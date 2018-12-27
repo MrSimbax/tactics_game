@@ -151,6 +151,14 @@ int game_application::execute(const int argc, char* argv[])
     return 0;
 }
 
+void game_application::notify_on_camera_update()
+{
+    glm::ivec2 mouse_pos{};
+    SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
+    const glm::ivec2 size{window_->get_size().width, window_->get_size().height};
+    scene_renderer_->on_mouse_motion(scene_renderer_->get_current_camera().mouse_to_ray(mouse_pos, size));
+}
+
 bool game_application::init()
 {
     try
@@ -231,6 +239,7 @@ void game_application::init_graphics()
         camera.set_offset(glm::vec3{5.0f, 7.5f, 5.0f});
         camera.get_bounds().xz_min = glm::vec3{0.0f};
         camera.get_bounds().xz_max = loaded_scene.scene.get_game_map()->get_size() - 1;
+        camera.set_observer(this);
     }
 
     // Create map renderer

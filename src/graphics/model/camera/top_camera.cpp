@@ -2,6 +2,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtc/epsilon.hpp>
 
 #include "../../../misc/custom_log.h"
 
@@ -110,6 +111,11 @@ void top_camera::rotate_left()
 
 void top_camera::process_keyboard(const glm::vec3 direction, const float delta_time)
 {
+    if (epsilonEqual(direction, glm::vec3{0.0f, 0.0f, 0.0f}, 0.1f) == glm::bvec3{true, true, true})
+    {
+        return;
+    }
+
     const auto speed = speed_ * delta_time;
     const auto velocity = direction * speed;
     glm::vec3 front;
@@ -201,6 +207,7 @@ float top_camera::get_ratio() const
 void top_camera::set_ratio(const float ratio)
 {
     ratio_ = ratio;
+    update();
 }
 
 float top_camera::get_near() const
@@ -240,6 +247,11 @@ void top_camera::set_current_layer(const int layer)
     current_layer_ = layer;
 }
 
+void top_camera::set_observer(camera_observer* observer)
+{
+    this->observer_ = observer;
+}
+
 void top_camera::update()
 {
     look_at_render_ = look_at_ * zoom_;
@@ -273,4 +285,9 @@ void top_camera::update()
     }
     position_render_.y = look_at_render_.y + offset_.y;
     position_.y = look_at_.y + offset_.y;
+
+    if (observer_)
+    {
+        observer_->notify_on_camera_update();
+    }
 }

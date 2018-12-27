@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "camera_observer.h"
 
 namespace tactics_game
 {
@@ -72,6 +73,8 @@ public:
     int get_current_layer() const;
     void set_current_layer(int layer);
 
+    void set_observer(camera_observer* observer);
+
 private:
     void update();
 
@@ -99,5 +102,7 @@ private:
     int current_layer_{0};
 
     top_camera_bounds bounds_{};
+
+    camera_observer* observer_{nullptr};
 };
 }
