@@ -108,7 +108,6 @@ int game_application::execute(const int argc, char* argv[])
     if (!init())
     {
         LOG_FATAL << "game_application could not be started due to initialization error.";
-        std::getchar();
         return 1;
     }
 
