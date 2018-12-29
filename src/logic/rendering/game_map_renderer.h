@@ -1,6 +1,7 @@
 #pragma once
 #include "../../graphics/model/buffered_object/buffered_graphics_object.h"
 #include "../game_map.h"
+#include <memory>
 
 namespace tactics_game
 {

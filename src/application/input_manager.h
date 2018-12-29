@@ -3,6 +3,7 @@
 #include <functional>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
+#include <memory>
 
 namespace tactics_game
 {

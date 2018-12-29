@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <cstdint>
 #include <vector>
+#include <stdexcept>
 
 namespace tactics_game
 {
