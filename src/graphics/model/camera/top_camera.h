@@ -90,8 +90,8 @@ private:
     const glm::vec3 world_up_{0.0f, 1.0f, 0.0f};
 
     float ratio_{1.0f};
-    float near_{0.1f};
-    float far_{100.0f};
+    float near_{5.0f};
+    float far_{20.0f};
 
     float zoom_{1.0f};
 

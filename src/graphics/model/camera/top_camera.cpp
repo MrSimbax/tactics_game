@@ -20,7 +20,7 @@ glm::mat4 top_camera::get_view_matrix() const
 
 glm::mat4 top_camera::get_projection_matrix() const
 {
-    return glm::perspective(glm::radians(fov_), ratio_, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(fov_), ratio_, near_, far_);
 }
 
 glm::vec3 top_camera::get_offset() const
