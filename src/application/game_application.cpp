@@ -72,11 +72,11 @@ bool game_application::init_options(const int argc, char** argv)
     }
     if (anti_aliasing)
     {
-        options_["anti_aliasing"] = "true";
+        options_["anti-aliasing"] = "true";
     }
     else
     {
-        options_["anti_aliasing"] = "false";
+        options_["anti-aliasing"] = "false";
     }
     if (assets_dir)
     {
@@ -191,6 +191,7 @@ void game_application::init_window()
     settings.fullscreen = options_["fullscreen"] == "true";
     settings.resizable = true;
     settings.vsync = options_["vsync"] == "true";
+    settings.anti_aliasing = options_["anti-aliasing"] == "true";
 
     window_.reset(new sdl_window(title, size, settings));
 

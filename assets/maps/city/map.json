@@ -1,0 +1,226 @@
+{
+  "name": "City",
+  "size": {
+    "x": 30,
+    "z": 30,
+    "y": 2
+  },
+  "startingPlayer": 0,
+  "worldAmbient": [0.1, 0.1, 0.1],
+  "players": [
+    {
+      "camera": {
+        "orientation": "bottom-right",
+        "lookAt": {
+          "x": 2,
+          "z": 19,
+          "y": 0
+        }
+      },
+      "units": [
+        {
+          "position": {
+            "x": 2,
+            "z": 19,
+            "y": 0
+          }
+        },
+        {
+          "position": {
+            "x": 2,
+            "z": 17,
+            "y": 0
+          }
+        },
+        {
+          "position": {
+            "x": 2,
+            "z": 15,
+            "y": 0
+          }
+        },
+        {
+          "position": {
+            "x": 2,
+            "z": 12,
+            "y": 1
+          }
+        }
+      ]
+    },
+    {
+      "camera": {
+        "orientation": "top-right",
+        "lookAt": {
+          "x": 27,
+          "z": 24,
+          "y": 1
+        }
+      },
+      "units": [
+        {
+          "position": {
+            "x": 27,
+            "z": 24,
+            "y": 1
+          }
+        },
+        {
+          "position": {
+            "x": 26,
+            "z": 18,
+            "y": 0
+          }
+        },
+        {
+          "position": {
+            "x": 26,
+            "z": 16,
+            "y": 0
+          }
+        },
+        {
+          "position": {
+            "x": 26,
+            "z": 14,
+            "y": 0
+          }
+        }
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "type": "point",
+
+      "position": [0.5, 0.5, 0.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [0.8, 0.8, 0.8],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.007,
+      "quadratic": 0.0002
+    },
+    {
+      "type": "point",
+
+      "position": [28.5, 0.5, 28.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [0.8, 0.8, 0.8],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.007,
+      "quadratic": 0.0002
+    },
+    {
+      "type": "point",
+
+      "position": [0.5, 0.5, 28.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [1.0, 0.6, 0.6],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.007,
+      "quadratic": 0.0002
+    },
+    {
+      "type": "point",
+
+      "position": [28.5, 0.5, 0.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [0.6, 1.0, 0.6],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.007,
+      "quadratic": 0.0002
+    },
+
+    {
+      "type": "point",
+
+      "position": [0.5, 1.9, 0.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [0.8, 0.8, 0.8],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.007,
+      "quadratic": 0.0002
+    },
+    {
+      "type": "point",
+
+      "position": [28.5, 1.9, 28.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [0.8, 0.8, 0.8],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.007,
+      "quadratic": 0.0002
+    },
+    {
+      "type": "point",
+
+      "position": [0.5, 1.9, 28.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [1.0, 0.6, 0.6],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.007,
+      "quadratic": 0.0002
+    },
+    {
+      "type": "point",
+
+      "position": [28.5, 1.9, 0.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [0.6, 1.0, 0.6],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.007,
+      "quadratic": 0.0002
+    },
+
+    {
+      "type": "point",
+
+      "position": [15.5, 0.5, 15.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [0.5, 0.5, 0.5],
+      "specular": [0.7, 0.7, 0.7],
+
+      "constant": 1.0, 
+      "linear": 0.32,
+      "quadratic": 0.01
+    },
+    {
+      "type": "point",
+
+      "position": [15.5, 1.9, 15.5],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [0.5, 0.5, 0.5],
+      "specular": [0.7, 0.7, 0.7],
+
+      "constant": 1.0, 
+      "linear": 0.32,
+      "quadratic": 0.01
+    }
+  ]
+}

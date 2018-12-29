@@ -1,0 +1,65 @@
+{
+  "name": "Small Map Example",
+  "size": {
+    "x": 10,
+    "z": 10,
+    "y": 1
+  },
+  "startingPlayer": 0,
+  "worldAmbient": [0.1, 0.1, 0.1],
+  "players": [
+    {
+      "camera": {
+        "orientation": "bottom-right",
+        "lookAt": {
+          "x": 2,
+          "z": 2,
+          "y": 0
+        }
+      },
+      "units": [
+        {
+          "position": {
+            "x": 2,
+            "z": 2,
+            "y": 0
+          }
+        }
+      ]
+    },
+    {
+      "camera": {
+        "orientation": "top-right",
+        "lookAt": {
+          "x": 22,
+          "z": 22,
+          "y": 0
+        }
+      },
+      "units": [
+        {
+          "position": {
+            "x": 7,
+            "z": 7,
+            "y": 0
+          }
+        }
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "type": "point",
+
+      "position": [5.0, 0.5, 5.0],
+
+      "ambient": [0.25, 0.25, 0.25],
+      "diffuse": [0.8, 0.8, 0.8],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0, 
+      "linear": 0.09,
+      "quadratic": 0.032
+    }
+  ]
+}
