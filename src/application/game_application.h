@@ -24,7 +24,6 @@ public:
     game_application(game_application&& other) = delete;
     game_application& operator=(game_application&& other) = delete;
     ~game_application();
-    bool init_options(int argc, char** argv);
 
     int execute(int argc, char* argv[]);
 
@@ -33,6 +32,7 @@ public:
 private:
     void init_input();
     bool init();
+    bool init_options(int argc, char** argv);
     void init_window();
     void init_graphics();
 

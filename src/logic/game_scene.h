@@ -27,8 +27,8 @@ public:
     bool start_new_turn();
 
     bool has_any_unit_any_action_left() const;
-
 private:
+
     void update_movable_tiles();
     void calculate_movable_tiles_for(game_unit& unit) const;
 

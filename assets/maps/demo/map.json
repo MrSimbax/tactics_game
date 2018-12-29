@@ -1,9 +1,9 @@
 {
   "name": "Demo map",
   "size": {
-    "x": 50,
+    "x": 25,
     "z": 25,
-    "y": 2
+    "y": 3
   },
   "startingPlayer": 0,
   "worldAmbient": [0.1, 0.1, 0.1],
@@ -27,6 +27,13 @@
         },
         {
           "position": {
+            "x": 2,
+            "z": 4,
+            "y": 0
+          }
+        },
+        {
+          "position": {
             "x": 4,
             "z": 2,
             "y": 0
@@ -34,9 +41,9 @@
         },
         {
           "position": {
-            "x": 6,
-            "z": 2,
-            "y": 0
+            "x": 3,
+            "z": 3,
+            "y": 2
           }
         }
       ]
@@ -45,31 +52,38 @@
       "camera": {
         "orientation": "top-right",
         "lookAt": {
-          "x": 48,
-          "z": 23,
+          "x": 22,
+          "z": 22,
           "y": 0
         }
       },
       "units": [
         {
           "position": {
-            "x": 48,
-            "z": 23,
+            "x": 22,
+            "z": 22,
             "y": 0
           }
         },
         {
           "position": {
-            "x": 46,
-            "z": 23,
+            "x": 22,
+            "z": 20,
             "y": 0
           }
         },
         {
           "position": {
-            "x": 44,
-            "z": 23,
+            "x": 20,
+            "z": 22,
             "y": 0
+          }
+        },
+        {
+          "position": {
+            "x": 21,
+            "z": 21,
+            "y": 2
           }
         }
       ]
@@ -79,7 +93,7 @@
     {
       "type": "point",
 
-      "position": [5.0, 0.5, 5.0],
+      "position": [1.0, 0.5, 1.0],
 
       "ambient": [0.25, 0.25, 0.25],
       "diffuse": [0.8, 0.8, 0.8],
@@ -92,80 +106,67 @@
     {
       "type": "point",
 
-      "position": [5.0, 0.5, 14.0],
-
-      "ambient": [0.25, 0.25, 0.25],
-      "diffuse": [0.5, 0.8, 0.2],
-      "specular": [1.0, 1.0, 1.0],
-
-      "constant": 1.0, 
-      "linear": 0.022,
-      "quadratic": 0.0019
-    },
-    {
-      "type": "point",
-
-      "position": [40.0, 0.5, 12.0],
+      "position": [23.0, 0.5, 23.0],
 
       "ambient": [0.25, 0.25, 0.25],
       "diffuse": [0.8, 0.8, 0.8],
       "specular": [1.0, 1.0, 1.0],
 
       "constant": 1.0, 
-      "linear": 0.022,
-      "quadratic": 0.0019
+      "linear": 0.09,
+      "quadratic": 0.032
     },
     {
       "type": "point",
 
-      "position": [20.0, 0.5, 2.0],
+      "position": [11.5, 0.75, 11.5],
 
       "ambient": [0.25, 0.25, 0.25],
-      "diffuse": [0.8, 0.5, 0.2],
-      "specular": [1.0, 1.0, 1.0],
+      "diffuse": [0.619, 0.678, 1],
+      "specular": [0.839, 0.862, 1],
 
       "constant": 1.0, 
-      "linear": 0.022,
-      "quadratic": 0.0019
+      "linear": 0.007,
+      "quadratic": 0.0002
     },
     {
       "type": "point",
 
-      "position": [36.0, 1.5, 13.0],
+      "position": [12.5, 1.25, 12.5],
 
-      "ambient": [0.25, 0.25, 0.25],
-      "diffuse": [0.4, 0.4, 0.8],
+      "ambient": [0.5, 0.5, 0.5],
+      "diffuse": [0.9, 0.9, 0.9],
       "specular": [1.0, 1.0, 1.0],
 
       "constant": 1.0, 
-      "linear": 0.022,
-      "quadratic": 0.0019
+      "linear": 0.0014,
+      "quadratic": 0.000007
     },
     {
       "type": "point",
 
-      "position": [25.0, 1.5, 13.0],
+      "position": [6.0, 2.75, 8.0],
 
       "ambient": [0.25, 0.25, 0.25],
-      "diffuse": [0.8, 0.8, 0.8],
-      "specular": [1.0, 1.0, 1.0],
+      "diffuse": [0.988, 0.011, 0.066],
+      "specular": [1, 0.4, 0.435],
 
       "constant": 1.0, 
-      "linear": 0.022,
-      "quadratic": 0.0019
+      "linear": 0.007,
+      "quadratic": 0.0002
     },
     {
       "type": "point",
 
-      "position": [3.0, 1.5, 13.0],
+      "position": [16.0, 2.75, 16.0],
 
       "ambient": [0.25, 0.25, 0.25],
-      "diffuse": [0.8, 0.8, 0.8],
-      "specular": [1.0, 1.0, 1.0],
+      "diffuse": [0.007, 0.878, 0],
+      "specular": [0.403, 1, 0.4],
 
       "constant": 1.0, 
-      "linear": 0.022,
-      "quadratic": 0.0019
+      "linear": 0.007,
+      "quadratic": 0.0002
     }
   ]
 }

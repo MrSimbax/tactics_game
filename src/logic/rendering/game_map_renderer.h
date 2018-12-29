@@ -21,8 +21,6 @@ private:
 
     void create_static_layer(const game_map::tiles_t& layer, size_t y);
 
-    std::vector<std::vector<bool>> visited_;
-
     std::shared_ptr<game_map> map_;
 
     graphics_object floor_;
