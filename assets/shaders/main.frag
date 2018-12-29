@@ -33,7 +33,7 @@ uniform vec3 u_view_pos;
 
 vec3 calc_point_light(point_light light, vec3 normal, vec3 frag_pos, vec3 view_dir)
 {
-    if (int(light.position.y) != int(frag_pos.y - 0.005f))
+    if (int(light.position.y) < int(frag_pos.y - 0.005f) || int(light.position.y) > int(frag_pos.y + 0.005f))
     {
         return vec3(0.0);
     }
