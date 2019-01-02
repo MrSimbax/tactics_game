@@ -52,7 +52,7 @@ void quad_xz::set_up_buffers() const
 
     shader_program::set_vertex_attrib(shader_program::position_location, 3, GL_FLOAT, sizeof(quad_vertex),
                                       offsetof(quad_vertex, position));
-    shader_program::set_vertex_attrib(shader_program::tex_coords_location, 3, GL_FLOAT, sizeof(quad_vertex),
+    shader_program::set_vertex_attrib(shader_program::tex_coords_location, 2, GL_FLOAT, sizeof(quad_vertex),
                                       offsetof(quad_vertex, tex_coords));
 
     vertex_array_object::unbind();

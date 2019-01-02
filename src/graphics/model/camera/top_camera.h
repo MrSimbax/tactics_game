@@ -91,7 +91,7 @@ private:
 
     float ratio_{1.0f};
     float near_{5.0f};
-    float far_{20.0f};
+    float far_{25.0f};
 
     float zoom_{1.0f};
 
