@@ -195,7 +195,7 @@ bool game_scene::has_any_unit_any_action_left() const
 {
     for (const auto& unit : players_[current_player_id_]->get_units())
     {
-        if (!unit->turn_done())
+        if (!unit->is_dead() && !unit->turn_done())
             return true;
     }
     return false;
