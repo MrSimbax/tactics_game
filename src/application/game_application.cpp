@@ -12,6 +12,7 @@
 #include "glad/glad.h"
 #include "args.hxx"
 #include <iostream>
+#include "../misc/utils.h"
 
 using namespace tactics_game;
 
@@ -29,7 +30,7 @@ bool game_application::init_options(const int argc, char** argv)
     const args::Flag vsync(parser, "vsync", "Vertical synchronization on", {"vsync"});
     const args::Flag fullscreen(parser, "fullscreen", "Fullscreen on", {'f', "fullscreen"});
     const args::Flag anti_aliasing(parser, "anti-aliasing", "Anti-aliasing on", {"aa"});
-    args::ValueFlag<std::string> assets_dir(parser, "assets_dir", "Path to assets directory (default: ./assets)",
+    args::ValueFlag<std::string> assets_dir(parser, "assets_dir", "Path to assets directory (default: {basedir}/assets)",
                                             {'d', "assets-dir"});
     args::ValueFlag<std::string> map(parser, "map_name",
                                      "Loads the map with given name (from assets/maps/map_name directory)", {"map"});
@@ -84,7 +85,7 @@ bool game_application::init_options(const int argc, char** argv)
     }
     else
     {
-        options_["assets_dir"] = "./assets";
+        options_["assets_dir"] =  utils::get_base_path() + "assets";
     }
     if (map)
     {

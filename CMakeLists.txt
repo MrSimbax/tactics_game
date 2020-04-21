@@ -70,9 +70,9 @@ else() # MSVC
 endif()
 
 # Hide console window on not debug builds
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_WIN32_EXECUTABLE 1)
-endif()
+# if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+#    set(CMAKE_WIN32_EXECUTABLE 1)
+# endif()
 
 # Directories
 set(SOURCES_DIR "${PROJECT_SOURCE_DIR}/src")
