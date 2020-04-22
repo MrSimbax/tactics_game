@@ -82,7 +82,7 @@ The game uses files in the `assets` folder. They are mostly text files hence the
 Each map is contained in its own folder inside `assets\maps` and consists of two types of files:
 
 * `map.json` -- describes the necessary metadata for the game, like the map size, positions of units and lights.
-* `{i}.layer`, `0 <= i <= size.y`, where `size.y` is defined in `map.json` -- describes the layout of each floor.
+* `{i}.layer`, `0 <= i < size.y`, where `size.y` is defined in `map.json` -- describes the layout of each floor.
 
 The `layer` files are text files with `size.x` lines and `size.z` columns of digits from 0-3. A digit at position `(x,z)` represents the type of tile at this position. Digit 0 is an empty tile, digit 1 is a floor tile, digit 2 is a wall and digit 3 is a ladder.
 
