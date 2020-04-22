@@ -15,7 +15,7 @@ Below you will find a simplified description of the game. If you're interested i
 
 ## Gameplay video
 
-[![video](https://img.youtube.com/vi/SXdtPCDJeSc/0.jpg)](https://www.youtube.com/watch?v=SXdtPCDJeSc)
+[![video](https://img.youtube.com/vi/3jZ6MFwCKvE/0.jpg)](https://www.youtube.com/watch?v=3jZ6MFwCKvE)
 
 ## Download
 
